@@ -17,6 +17,7 @@
 #include <system_LPC17xx.h>
 #include "uart_polling.h"
 #include "k_process.h"
+#include <stdbool.h>
 
 #ifdef DEBUG_0
 #include "printf.h"
@@ -38,6 +39,175 @@ extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
  * @biref: initialize all processes in the system
  * NOTE: We assume there are only two user processes in the system in this example.
  */
+
+
+//our stuff
+struct ProcessNode;
+typedef struct ProcessNode{
+	int processId;
+	struct ProcessNode* next;
+	struct ProcessNode* prev;
+} ProcessNode;
+ 
+typedef struct Queue{
+	ProcessNode* front;
+	ProcessNode* back; 
+} Queue;
+
+const int NUM_PRIORITIES = 5;
+
+Queue readyPriorityQueue[NUM_PRIORITIES];
+Queue blockedPriorityQueue[NUM_PRIORITIES];
+
+void addProcessNode(ProcessNode* pn,int priority, bool isReady){
+
+	if (isReady){
+		if (readyPriorityQueue[priority].front == NULL){
+			readyPriorityQueue[priority].back = pn;
+			readyPriorityQueue[priority].front = pn;
+			return;
+		}
+	
+		readyPriorityQueue[priority].back->next = pn;
+		pn->prev = readyPriorityQueue[priority].back;
+		pn->next = NULL;
+		readyPriorityQueue[priority].back = pn;
+		
+	}else{		
+		if (blockedPriorityQueue[priority].front == NULL){
+			blockedPriorityQueue[priority].back = pn;
+			blockedPriorityQueue[priority].front = pn;
+			return;
+		}
+	
+		blockedPriorityQueue[priority].back->next = pn;
+		pn->prev = blockedPriorityQueue[priority].back;
+		pn->next = NULL;
+		blockedPriorityQueue[priority].back = pn;
+		
+	}
+	
+}
+
+ProcessNode* removeProcessNode(int process_id, int priority, bool isReady){
+	
+	ProcessNode* returnNode= NULL;
+	
+	if (isReady){
+		if (readyPriorityQueue[priority].back->processId == process_id && readyPriorityQueue[priority].front->processId == process_id){
+			returnNode = readyPriorityQueue[priority].back;
+			readyPriorityQueue[priority].back=NULL;
+			readyPriorityQueue[priority].front=NULL;
+			return returnNode;
+		}
+		if (readyPriorityQueue[priority].back->processId == process_id){
+			returnNode = readyPriorityQueue[priority].back;	
+			readyPriorityQueue[priority].back = readyPriorityQueue[priority].back->prev;
+			readyPriorityQueue[priority].back->next = NULL;
+			return returnNode;
+		}
+		if (readyPriorityQueue[priority].front->processId == process_id){
+			returnNode = readyPriorityQueue[priority].front;
+			readyPriorityQueue[priority].front = readyPriorityQueue[priority].front->next;
+			readyPriorityQueue[priority].front->prev = NULL;
+			return returnNode;
+		}
+		
+		returnNode = readyPriorityQueue[priority].front->next;
+		while (returnNode != readyPriorityQueue[priority].back){
+			if (returnNode->processId == process_id){
+				returnNode->prev->next =  returnNode->next;
+				returnNode->next->prev =  returnNode->prev;
+				return returnNode;
+			}
+			returnNode=returnNode->next;
+		}
+		
+		return NULL;
+
+	}else{
+		if (blockedPriorityQueue[priority].back->processId == process_id && blockedPriorityQueue[priority].front->processId == process_id){
+			returnNode = blockedPriorityQueue[priority].back;
+			blockedPriorityQueue[priority].back=NULL;
+			blockedPriorityQueue[priority].front=NULL;
+			return returnNode;
+		}
+		if (blockedPriorityQueue[priority].back->processId == process_id){
+			returnNode = blockedPriorityQueue[priority].back;	
+			blockedPriorityQueue[priority].back = blockedPriorityQueue[priority].back->prev;
+			blockedPriorityQueue[priority].back->next = NULL;
+			return returnNode;
+		}
+		if (blockedPriorityQueue[priority].front->processId == process_id){
+			returnNode = blockedPriorityQueue[priority].front;
+			blockedPriorityQueue[priority].front = blockedPriorityQueue[priority].front->next;
+			blockedPriorityQueue[priority].front->prev = NULL;
+			return returnNode;
+		}
+		
+		returnNode = blockedPriorityQueue[priority].front->next;
+		while (returnNode != blockedPriorityQueue[priority].back){
+			if (returnNode->processId == process_id){
+				returnNode->prev->next =  returnNode->next;
+				returnNode->next->prev =  returnNode->prev;
+				return returnNode;
+			}
+			returnNode=returnNode->next;
+		}
+		
+		return NULL;
+	}
+}
+
+int get_process_priority(int process_id){
+	int i;
+	
+	for (i=0; i<NUM_PRIORITIES; i++){
+		ProcessNode* tempNode = readyPriorityQueue[i].front;
+		while(tempNode!=NULL){
+			if (tempNode->processId == process_id) return i;
+			tempNode = tempNode->next;
+		}
+		tempNode = blockedPriorityQueue[i].front;
+		while(tempNode!=NULL){
+			if (tempNode->processId == process_id) return i;
+			tempNode = tempNode->next;
+		}
+		
+	}
+	return -1;
+}
+
+bool getReady(int process_id){
+	int i;
+	
+	for (i=0; i<NUM_PRIORITIES; i++){
+		ProcessNode* tempNode = readyPriorityQueue[i].front;
+		while(tempNode!=NULL){
+			if (tempNode->processId == process_id) return true;
+			tempNode = tempNode->next;
+		}
+		tempNode = blockedPriorityQueue[i].front;
+		while(tempNode!=NULL){
+			if (tempNode->processId == process_id) return false;
+			tempNode = tempNode->next;
+		}
+		
+	}
+	return false;
+}
+
+int set_process_priority(int process_id, int priority){
+		bool isReady = getReady(process_id);
+	//todo update isready
+	ProcessNode* temp = removeProcessNode(process_id,priority,isReady);
+	addProcessNode(temp,priority,isReady);
+	
+	
+	//WHAT
+	return 0;
+}
+
 void process_init() 
 {
 	int i;
