@@ -19,6 +19,7 @@ PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
 void set_test_procs() {
 	int i;
+	
 	for( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_test_procs[i].m_pid=(U32)(i+1);
 		g_test_procs[i].m_priority=LOWEST;
@@ -29,6 +30,13 @@ void set_test_procs() {
 	g_test_procs[1].mpf_start_pc = &proc2;
 }
 
+//The null process
+//uart0_put_string("Hello World");
+void proc_null() {
+	while(1) {
+		k_release_processor();
+	}
+}
 
 /**
  * @brief: a process that prints 5x6 uppercase letters

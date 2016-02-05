@@ -44,7 +44,7 @@ extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 //our stuff
 struct ProcessNode;
 typedef struct ProcessNode{
-	int processId;
+	PCB* pcb;
 	struct ProcessNode* next;
 	struct ProcessNode* prev;
 } ProcessNode;
@@ -59,9 +59,43 @@ const int NUM_PRIORITIES = 5;
 Queue readyPriorityQueue[NUM_PRIORITIES];
 Queue blockedPriorityQueue[NUM_PRIORITIES];
 
-void addProcessNode(ProcessNode* pn,int priority, bool isReady){
+bool isBlockedEmpty(){
+	int i;
+	for (i=0; i<NUM_PRIORITIES; i++){
+		if (blockedPriorityQueue[i].front != NULL) return true;		
+	}
+	return false;
+}
 
-	if (isReady){
+ProcessNode* createProcessNodeByPCB(PCB* currentpcb){
+	ProcessNode* rtn;
+	rtn->pcb = currentpcb;
+	return rtn;
+}
+ProcessNode* findProcessNodeByPID(int curpid, int isReady){
+	int i=0;
+	if (isReady==0){
+		for (i=0;i<NUM_PRIORITIES;i++){
+			ProcessNode* cur = readyPriorityQueue[i].front;
+			while (cur!=NULL){
+					if (cur->pcb->m_pid == curpid) return cur;
+				cur=cur->next;
+			}
+		}
+	}else {
+		for (i=0;i<NUM_PRIORITIES;i++){
+			ProcessNode* cur = blockedPriorityQueue[i].front;
+			while (cur!=NULL){
+					if (cur->pcb->m_pid == curpid) return cur;
+				cur=cur->next;
+			}
+		}
+	}
+	return NULL;
+}
+void addProcessNode(ProcessNode* pn,int priority, int isReady){
+	
+	if (isReady==0){ //if ready
 		if (readyPriorityQueue[priority].front == NULL){
 			readyPriorityQueue[priority].back = pn;
 			readyPriorityQueue[priority].front = pn;
@@ -73,7 +107,7 @@ void addProcessNode(ProcessNode* pn,int priority, bool isReady){
 		pn->next = NULL;
 		readyPriorityQueue[priority].back = pn;
 		
-	}else{		
+	}else if (isReady==1){ //if blocked
 		if (blockedPriorityQueue[priority].front == NULL){
 			blockedPriorityQueue[priority].back = pn;
 			blockedPriorityQueue[priority].front = pn;
@@ -89,24 +123,24 @@ void addProcessNode(ProcessNode* pn,int priority, bool isReady){
 	
 }
 
-ProcessNode* removeProcessNode(int process_id, int priority, bool isReady){
+ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 	
 	ProcessNode* returnNode= NULL;
 	
-	if (isReady){
-		if (readyPriorityQueue[priority].back->processId == process_id && readyPriorityQueue[priority].front->processId == process_id){
+	if (isReady == 0){ //if ready
+		if (readyPriorityQueue[priority].back->pcb->m_pid == process_id && readyPriorityQueue[priority].front->pcb->m_pid == process_id){
 			returnNode = readyPriorityQueue[priority].back;
 			readyPriorityQueue[priority].back=NULL;
 			readyPriorityQueue[priority].front=NULL;
 			return returnNode;
 		}
-		if (readyPriorityQueue[priority].back->processId == process_id){
+		if (readyPriorityQueue[priority].back->pcb->m_pid == process_id){
 			returnNode = readyPriorityQueue[priority].back;	
 			readyPriorityQueue[priority].back = readyPriorityQueue[priority].back->prev;
 			readyPriorityQueue[priority].back->next = NULL;
 			return returnNode;
 		}
-		if (readyPriorityQueue[priority].front->processId == process_id){
+		if (readyPriorityQueue[priority].front->pcb->m_pid == process_id){
 			returnNode = readyPriorityQueue[priority].front;
 			readyPriorityQueue[priority].front = readyPriorityQueue[priority].front->next;
 			readyPriorityQueue[priority].front->prev = NULL;
@@ -115,7 +149,7 @@ ProcessNode* removeProcessNode(int process_id, int priority, bool isReady){
 		
 		returnNode = readyPriorityQueue[priority].front->next;
 		while (returnNode != readyPriorityQueue[priority].back){
-			if (returnNode->processId == process_id){
+			if (returnNode->pcb->m_pid == process_id){
 				returnNode->prev->next =  returnNode->next;
 				returnNode->next->prev =  returnNode->prev;
 				return returnNode;
@@ -125,20 +159,20 @@ ProcessNode* removeProcessNode(int process_id, int priority, bool isReady){
 		
 		return NULL;
 
-	}else{
-		if (blockedPriorityQueue[priority].back->processId == process_id && blockedPriorityQueue[priority].front->processId == process_id){
+	}else if(isReady == 1){ //if blocked
+		if (blockedPriorityQueue[priority].back->pcb->m_pid == process_id && blockedPriorityQueue[priority].front->pcb->m_pid == process_id){
 			returnNode = blockedPriorityQueue[priority].back;
 			blockedPriorityQueue[priority].back=NULL;
 			blockedPriorityQueue[priority].front=NULL;
 			return returnNode;
 		}
-		if (blockedPriorityQueue[priority].back->processId == process_id){
+		if (blockedPriorityQueue[priority].back->pcb->m_pid == process_id){
 			returnNode = blockedPriorityQueue[priority].back;	
 			blockedPriorityQueue[priority].back = blockedPriorityQueue[priority].back->prev;
 			blockedPriorityQueue[priority].back->next = NULL;
 			return returnNode;
 		}
-		if (blockedPriorityQueue[priority].front->processId == process_id){
+		if (blockedPriorityQueue[priority].front->pcb->m_pid == process_id){
 			returnNode = blockedPriorityQueue[priority].front;
 			blockedPriorityQueue[priority].front = blockedPriorityQueue[priority].front->next;
 			blockedPriorityQueue[priority].front->prev = NULL;
@@ -147,7 +181,7 @@ ProcessNode* removeProcessNode(int process_id, int priority, bool isReady){
 		
 		returnNode = blockedPriorityQueue[priority].front->next;
 		while (returnNode != blockedPriorityQueue[priority].back){
-			if (returnNode->processId == process_id){
+			if (returnNode->pcb->m_pid == process_id){
 				returnNode->prev->next =  returnNode->next;
 				returnNode->next->prev =  returnNode->prev;
 				return returnNode;
@@ -157,20 +191,23 @@ ProcessNode* removeProcessNode(int process_id, int priority, bool isReady){
 		
 		return NULL;
 	}
+	return NULL;
 }
 
+//get the process priority :)
 int get_process_priority(int process_id){
 	int i;
 	
 	for (i=0; i<NUM_PRIORITIES; i++){
 		ProcessNode* tempNode = readyPriorityQueue[i].front;
+		
 		while(tempNode!=NULL){
-			if (tempNode->processId == process_id) return i;
+			if (tempNode->pcb->m_pid == process_id) return i;
 			tempNode = tempNode->next;
 		}
 		tempNode = blockedPriorityQueue[i].front;
 		while(tempNode!=NULL){
-			if (tempNode->processId == process_id) return i;
+			if (tempNode->pcb->m_pid == process_id) return i;
 			tempNode = tempNode->next;
 		}
 		
@@ -178,35 +215,37 @@ int get_process_priority(int process_id){
 	return -1;
 }
 
-bool getReady(int process_id){
+//checks if a process is in the ready state (0) or blocked (1), -1 if not found 
+int isReady(int process_id){
 	int i;
 	
 	for (i=0; i<NUM_PRIORITIES; i++){
 		ProcessNode* tempNode = readyPriorityQueue[i].front;
 		while(tempNode!=NULL){
-			if (tempNode->processId == process_id) return true;
+			if (tempNode->pcb->m_pid == process_id) return 0;
 			tempNode = tempNode->next;
 		}
 		tempNode = blockedPriorityQueue[i].front;
 		while(tempNode!=NULL){
-			if (tempNode->processId == process_id) return false;
+			if (tempNode->pcb->m_pid == process_id) return 1;
 			tempNode = tempNode->next;
 		}
 		
 	}
-	return false;
+	return -1;
 }
 
 int set_process_priority(int process_id, int priority){
-		bool isReady = getReady(process_id);
+	int state = isReady(process_id);
 	//todo update isready
-	ProcessNode* temp = removeProcessNode(process_id,priority,isReady);
-	addProcessNode(temp,priority,isReady);
+	ProcessNode* temp = removeProcessNode(process_id,priority,state);
+	addProcessNode(temp,priority,state);
 	
 	
 	//WHAT
 	return 0;
 }
+
 
 void process_init() 
 {
@@ -215,6 +254,7 @@ void process_init()
   
         /* fill out the initialization table */
 	set_test_procs();
+	
 	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_proc_table[i].m_pid = g_test_procs[i].m_pid;
 		g_proc_table[i].m_stack_size = g_test_procs[i].m_stack_size;
@@ -237,6 +277,26 @@ void process_init()
 	}
 }
 
+
+
+void setNextReady(){
+	int i;
+	
+	for (i=0;i<=4;i++){
+			if (readyPriorityQueue[i].front !=NULL){
+				ProcessNode* tempNode = createProcessNodeByPCB(gp_current_process);
+					addProcessNode(tempNode,gp_current_process->m_pid,0);
+					gp_current_process=readyPriorityQueue[i].front->pcb;
+					if (i!=4){
+						//if not null
+						removeProcessNode(gp_current_process->m_pid,i,0);
+					}
+					
+			}
+	}
+}
+
+
 /*@brief: scheduler, pick the pid of the next to run process
  *@return: PCB pointer of the next to run process
  *         NULL if error happens
@@ -246,9 +306,10 @@ void process_init()
 
 PCB *scheduler(void)
 {
+	//should only be true at first
 	if (gp_current_process == NULL) {
-		gp_current_process = gp_pcbs[0]; 
-		return gp_pcbs[0];
+		setNextReady();
+		return gp_current_process;
 	}
 
 	if ( gp_current_process == gp_pcbs[0] ) {
@@ -311,8 +372,10 @@ int k_release_processor(void)
 	p_pcb_old = gp_current_process;
 	gp_current_process = scheduler();
 	
+	
+	//Error checking code: should not happen 
 	if ( gp_current_process == NULL  ) {
-		gp_current_process = p_pcb_old; // revert back to the old process
+		gp_current_process = p_pcb_old; // revert back tog the old process
 		return RTX_ERR;
 	}
         if ( p_pcb_old == NULL ) {
