@@ -11,10 +11,56 @@
 #include "printf.h"
 #endif /* ! DEBUG_0 */
 
+// Struct which will Lable a new memory block
+typedef struct mem_blk {
+  struct mem_blk* next_blk;
+} mem_blk;
+
+typedef struct Queue {
+	mem_blk *head;
+	mem_blk *tail;
+} Queue;
+
+void queue_push(Queue *q, mem_blk *block) {
+	// TODO: What if the memory block or Queue are null?  Exceptions...
+	
+	block->next_blk = NULL;
+	
+	if(q->tail == NULL){
+		q->head = block;
+	} else {
+		q->tail->next_blk = block;
+	}
+	q->tail = block;
+}
+
+mem_blk* queue_pop(Queue *q){
+	mem_blk *temp = q->head;
+	if(temp == NULL) {
+		return NULL;
+		// ^^^ THROW AN EXPCEPTION INSTEAD OF ^^^
+	}
+
+	if(q->head == q->tail) {
+		q->tail = NULL;
+	}
+	q->head = q->head->next_blk;
+	return temp;
+}
+
+
 /* ----- Global Variables ----- */
 U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
                /* The first stack starts at the RAM high address */
 	       /* stack grows down. Fully decremental stack */
+
+const int NUM_MEM_BLK = 30;
+const int SIZE_MEM_BLK = 128;
+
+// Points to the next available memory block.
+mem_blk *head;
+
+Queue heap;
 
 /**
  * @brief: Initialize RAM as follows:
@@ -48,7 +94,13 @@ void memory_init(void)
 {
 	U8 *p_end = (U8 *)&Image$$RW_IRAM1$$ZI$$Limit;
 	int i;
-  
+	
+	// OUR STUFF
+	U8 *heap_end;
+	mem_blk* current;
+	mem_blk block;
+  // END OUR STUFF
+	
 	/* 4 bytes padding */
 	p_end += 4;
 
@@ -71,9 +123,26 @@ void memory_init(void)
 	if ((U32)gp_stack & 0x04) { /* 8 bytes alignment */
 		--gp_stack; 
 	}
-  
+	
 	/* allocate memory for heap, not implemented yet*/
-  
+	heap_end = p_end;
+	head = (mem_blk *)p_end;
+	
+	for(i = 0; i<NUM_MEM_BLK; i++) {
+		current = (mem_blk *)heap_end;
+		if(i == 29) {
+			heap_end = NULL;
+		}
+		else {
+			heap_end += sizeof(mem_blk) + SIZE_MEM_BLK;
+		}
+		
+		block.next_blk = (mem_blk *)heap_end;
+		*current = block;
+	}
+	
+	heap.head = head;
+	heap.tail = current;
 }
 
 /**
@@ -99,9 +168,13 @@ U32 *alloc_stack(U32 size_b)
 }
 
 void *k_request_memory_block(void) {
+	//mem_blk* test;
+	
 #ifdef DEBUG_0 
 	printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
+	//test = queue_pop(&heap);
+
 	return (void *) NULL;
 }
 
