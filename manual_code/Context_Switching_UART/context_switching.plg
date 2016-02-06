@@ -3,9 +3,89 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-P:\s\se350\code\manual_code\Context_Switching_UART\context_switching.uvproj
-Project File Date:  02/28/2014
+N:\SE350Lab\ourProject\SE350\manual_code\Context_Switching_UART\context_switching.uvproj
+Project File Date:  02/06/2016
 
 <h2>Output:</h2>
-Clean started: Project: 'context_switching'
-   deleting intermediate output files for target 'Context Switching SIM'
+Build target 'Context Switching SIM'
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol contains (referred from k_memory.o).
+context_switching.axf: Error: L6218E: Undefined symbol pop (referred from k_memory.o).
+context_switching.axf: Error: L6218E: Undefined symbol push (referred from k_memory.o).
+context_switching.axf: Error: L6218E: Undefined symbol s_is_empty (referred from k_memory.o).
+Target not created
+Build target 'Context Switching SIM'
+linking...
+context_switching.axf: Error: L6218E: Undefined symbol contains (referred from k_memory.o).
+context_switching.axf: Error: L6218E: Undefined symbol pop (referred from k_memory.o).
+context_switching.axf: Error: L6218E: Undefined symbol push (referred from k_memory.o).
+context_switching.axf: Error: L6218E: Undefined symbol s_is_empty (referred from k_memory.o).
+Target not created
+Build target 'Context Switching SIM'
+compiling k_queue.c...
+compiling k_stack.c...
+linking...
+Program Size: Code=5352 RO-data=564 RW-data=64 ZI-data=832  
+"context_switching.axf" - 0 Error(s), 0 Warning(s).
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(289): warning:  #940-D: missing return statement at end of non-void function "getNextBlocked"
+linking...
+Program Size: Code=5392 RO-data=564 RW-data=64 ZI-data=832  
+"context_switching.axf" - 0 Error(s), 1 Warning(s).
+Build target 'Context Switching SIM'
+compiling uart_irq.c...
+compiling k_queue.c...
+compiling k_stack.c...
+compiling k_rtx_init.c...
+compiling k_memory.c...
+compiling k_process.c...
+src\k_process.c(247): warning:  #223-D: function "k_relelase_processor" declared implicitly
+src\k_process.c(310): error:  #268: declaration may not appear after executable statement in block
+src\k_process.c(317): warning:  #223-D: function "k_relelase_processor" declared implicitly
+src\k_process.c(308): warning:  #177-D: variable "i" was declared but never referenced
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(310): error:  #268: declaration may not appear after executable statement in block
+src\k_process.c(308): warning:  #177-D: variable "i" was declared but never referenced
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(310): error:  #268: declaration may not appear after executable statement in block
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+linking...
+Program Size: Code=5508 RO-data=564 RW-data=64 ZI-data=832  
+"context_switching.axf" - 0 Error(s), 0 Warning(s).
+Build target 'Context Switching SIM'
+compiling k_process.c...
+linking...
+Program Size: Code=5508 RO-data=564 RW-data=64 ZI-data=832  
+"context_switching.axf" - 0 Error(s), 0 Warning(s).
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(312): error:  #268: declaration may not appear after executable statement in block
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+linking...
+Program Size: Code=5508 RO-data=564 RW-data=64 ZI-data=832  
+"context_switching.axf" - 0 Error(s), 0 Warning(s).
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(281): error:  #268: declaration may not appear after executable statement in block
+src\k_process.c(281): warning:  #223-D: function "createPrcoessNodeByPCB" declared implicitly
+src\k_process.c(281): error:  #144: a value of type "int" cannot be used to initialize an entity of type "ProcessNode *"
+src\k_process.c(282): error:  #136: struct "ProcessNode" has no field "m_priority"
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(281): error:  #268: declaration may not appear after executable statement in block
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+linking...
+Program Size: Code=5544 RO-data=564 RW-data=64 ZI-data=832  
+"context_switching.axf" - 0 Error(s), 0 Warning(s).
