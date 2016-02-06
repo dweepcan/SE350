@@ -81,6 +81,7 @@ void memory_init(void)
 		--gp_stack; 
 	}
 
+	// OUR CODE
 	/* allocate memory for heap, not implemented yet*/
 	gp_heap = (k_stack *)p_end;
 	gp_heap->top = NULL;
@@ -135,7 +136,7 @@ void *k_request_memory_block(void) {
 
 	// TODO: atomic(on) <- need to do this later when time slicing can occur
 
-	while(is_empty(gp_heap)) {
+	while(s_is_empty(gp_heap)) {
 		/* If the heap is empty loop until a memory block is available */
 #ifdef DEBUG_0
 		printf("k_request_memory_block: no available memory blocks.\n");
@@ -180,7 +181,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	}
 
 	/* Cast the start address of the memory block to a k_node */
-	p_node = (k_node *)(p_mem_blk - sizeof(k_node));
+	p_node = (k_node *)p_mem_blk - sizeof(k_node);
 
 	if((U8 *)p_node < gp_heap_begin || (U8 *)p_node > gp_heap_end) {
 #ifdef DEBUG_0
@@ -200,7 +201,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	}
 
 	/* Make sure we are not releasing a unallocated memory block */
-	if(!is_empty(gp_heap) && contains(gp_heap, p_node)) {
+	if(!s_is_empty(gp_heap) && contains(gp_heap, p_node)) {
 #ifdef DEBUG_0
 		printf("k_release_memory_block: 0x%x is already in the heap.\n", p_mem_blk);
 #endif /* ! DEBUG_0 */

@@ -21,7 +21,7 @@ int push(k_stack *p_stack, k_node *p_node) {
 k_node *pop(k_stack *p_stack) {
 	k_node *p_first = NULL;
 
-	if(is_empty(p_stack)) {
+	if(s_is_empty(p_stack)) {
 #ifdef DEBUG_0
 		printf("ERROR: Popping a node from an empty stack.");
 #endif /* ! DEBUG_0 */
@@ -37,7 +37,7 @@ k_node *pop(k_stack *p_stack) {
 int contains(k_stack *p_stack, k_node *p_node) {
 	k_node *p_curr = NULL;
 
-	if(is_empty(p_stack)) {
+	if(s_is_empty(p_stack)) {
 #ifdef DEBUG_0
 		printf("ERROR: Checking if a node exists in a empty stack.\n");
 #endif /* ! DEBUG_0 */
@@ -55,7 +55,7 @@ int contains(k_stack *p_stack, k_node *p_node) {
 	return 0;
 }
 
-int is_empty(k_stack *p_stack) {
+int s_is_empty(k_stack *p_stack) {
 	if(p_stack == NULL) {
 #ifdef DEBUG_0
 		printf("ERROR: Checking if a NULL stack is empty.");

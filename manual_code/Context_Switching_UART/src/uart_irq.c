@@ -10,6 +10,7 @@
 #include "uart_polling.h"
 #ifdef DEBUG_0
 #include "printf.h"
+#include "k_process.h"
 #endif
 
 
@@ -21,7 +22,7 @@ uint8_t g_char_out;
 
 extern uint32_t g_switch_flag;
 
-extern int k_release_processor(void);
+//extern int k_release_processor(void);
 /**
  * @brief: initialize the n_uart
  * NOTES: It only supports UART0. It can be easily extended to support UART1 IRQ.
