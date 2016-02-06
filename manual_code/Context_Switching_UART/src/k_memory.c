@@ -6,6 +6,7 @@
  */
 
 #include "k_memory.h"
+#include "k_process.h"
 
 #ifdef DEBUG_0
 #include "printf.h"
@@ -21,6 +22,7 @@ typedef struct Queue {
 	mem_blk *tail;
 } Queue;
 
+// Function which pushes the available memory block onto the queue
 void queue_push(Queue *q, mem_blk *block) {
 	// TODO: What if the memory block or Queue are null?  Exceptions...
 	
@@ -34,11 +36,11 @@ void queue_push(Queue *q, mem_blk *block) {
 	q->tail = block;
 }
 
+// Function which pops the available memory block from the queue if one is available;
 mem_blk* queue_pop(Queue *q){
 	mem_blk *temp = q->head;
 	if(temp == NULL) {
 		return NULL;
-		// ^^^ THROW AN EXPCEPTION INSTEAD OF ^^^
 	}
 
 	if(q->head == q->tail) {
@@ -48,6 +50,17 @@ mem_blk* queue_pop(Queue *q){
 	return temp;
 }
 
+// Function which checks if a memory block is in the queue of available memory blocks
+int queue_contains(Queue *q, void *actual_mem_blk) {
+	mem_blk *temp = q->head;
+	while(temp) {
+		if(actual_mem_blk == (void *)(temp + sizeof(mem_blk))) {
+			return RTX_OK;
+		}
+		temp = temp -> next_blk;
+	}
+	return RTX_ERR;
+}
 
 /* ----- Global Variables ----- */
 U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
@@ -55,7 +68,7 @@ U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
 	       /* stack grows down. Fully decremental stack */
 
 const int NUM_MEM_BLK = 30;
-const int SIZE_MEM_BLK = 128;
+const int SIZE_MEM_BLK = 128; // make this more? AT LEAST 128B?
 
 // Points to the next available memory block.
 mem_blk *head;
@@ -130,7 +143,7 @@ void memory_init(void)
 	
 	for(i = 0; i<NUM_MEM_BLK; i++) {
 		current = (mem_blk *)heap_end;
-		if(i == 29) {
+		if(i == NUM_MEM_BLK - 1) {
 			heap_end = NULL;
 		}
 		else {
@@ -169,18 +182,57 @@ U32 *alloc_stack(U32 size_b)
 
 void *k_request_memory_block(void) {
 	//mem_blk* test;
+	mem_blk *p_mem_blk;
+	void *block;
 	
 #ifdef DEBUG_0 
 	printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
-	//test = queue_pop(&heap);
 
-	return (void *) NULL;
+	// our code
+	// TODO: atomic(on) <- need to do this later when time slicing can occur
+	
+	while(1) {
+		p_mem_blk = queue_pop(&heap);
+		if(p_mem_blk) {
+			break;
+		}
+		// current process moved to blocked queue
+		// current process state to BLOCKED_ON_RESOURCE
+		k_release_processor();
+	}
+	
+	block = p_mem_blk + sizeof(mem_blk);
+	
+	// TODO: atomic(off) <- need to do this later when time slicing can occur
+	
+	return block;
+	
+	// end our code
+	
+	// return (void *) NULL;
 }
 
 int k_release_memory_block(void *p_mem_blk) {
 #ifdef DEBUG_0 
 	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
+	
+	// our code
+	// TODO: atomic(on) <- need to do this later when time slicing can occur
+	
+	if(queue_contains(&heap, p_mem_blk) == RTX_ERR) {
+		return RTX_ERR;
+	}
+	
+	// if blocked on resource q not empty
+	// handle process ready pop blocked resource q (this should have release processor at some point)
+	// assign memory block to the process popped
+	//else
+	queue_push(&heap, (mem_blk *)p_mem_blk - sizeof(mem_blk));
+	
+	// TODO: atomic(off) <- need to do this later when time slicing can occur
+	// end our code
+	
 	return RTX_OK;
 }
