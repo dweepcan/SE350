@@ -241,14 +241,18 @@ int set_process_priority(int process_id, int priority){
 	ProcessNode* temp = removeProcessNode(process_id,priority,state);
 	addProcessNode(temp,priority,state);
 	
+	//preempt :)
+	//highest priority is 0
+	if (priority < gp_current_process->m_priority){
+		k_release_processor();
+	}
 	
-	//WHAT
 	return 0;
 }
 
 
-void process_init() 
-{
+
+void process_init() {
 	int i;
 	U32 *sp;
   
@@ -279,12 +283,42 @@ void process_init()
 
 
 
-void setNextReady(){
+PCB* getNextBlocked(void){
+	int i=0; 
+	for(i=0; i<4; i++){
+		if(blockedPriorityQueue[i].front != NULL){			
+			return blockedPriorityQueue[i].front->pcb;
+		}
+	}
 	
+	return NULL;
+}
 
+void blockProcess(void){
+	ProcessNode* node = createProcessNodeByPCB(gp_current_process);
+	
+	node->pcb->m_state = BLOCKED;
+	addProcessNode(node, gp_current_process->m_priority,1); //add to blocked(1)
+	gp_current_process=NULL;
+	gp_current_process = scheduler();
+	
 }
 
 
+void unblockProcess(PCB* pcb){
+
+	ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, 1);	
+	pcb->m_state = RDY;
+
+	addProcessNode(node, pcb->m_priority, 0);
+
+	
+	//preempt :(
+	//highest priority is 0
+	if (pcb->m_priority < gp_current_process->m_priority){
+		k_release_processor();
+	}
+}
 /*@brief: scheduler, pick the pid of the next to run process
  *@return: PCB pointer of the next to run process
  *         NULL if error happens
@@ -292,8 +326,7 @@ void setNextReady(){
  *      No other effect on other global variables.
  */
 
-PCB *scheduler(void)
-{
+PCB *scheduler(void){
 	int i;
 	for (i=0;i<=4;i++){
 			if (readyPriorityQueue[i].front !=NULL){
@@ -304,13 +337,14 @@ PCB *scheduler(void)
 				}
 					gp_current_process=readyPriorityQueue[i].front->pcb;
 					removeProcessNode(gp_current_process->m_pid,i,0);
+					gp_current_process->m_state = RUN;
 			}
 	}
 	
 	return gp_current_process;
-		
-
 }
+
+
 
 /*@brief: switch out old pcb (p_pcb_old), run the new pcb (gp_current_process)
  *@param: p_pcb_old, the old pcb that was in RUN
@@ -320,8 +354,7 @@ PCB *scheduler(void)
  *POST: if gp_current_process was NULL, then it gets set to pcbs[0].
  *      No other effect on other global variables.
  */
-int process_switch(PCB *p_pcb_old) 
-{
+int process_switch(PCB *p_pcb_old) {
 	PROC_STATE_E state;
 	
 	state = gp_current_process->m_state;
@@ -356,8 +389,7 @@ int process_switch(PCB *p_pcb_old)
  * @return RTX_ERR on error and zero on success
  * POST: gp_current_process gets updated to next to run process
  */
-int k_release_processor(void)
-{
+int k_release_processor(void){
 	PCB *p_pcb_old = NULL;
 	
 	p_pcb_old = gp_current_process;
