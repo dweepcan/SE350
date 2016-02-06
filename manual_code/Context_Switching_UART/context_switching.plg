@@ -73,3 +73,19 @@ compiling k_process.c...
 linking...
 Program Size: Code=5508 RO-data=564 RW-data=64 ZI-data=832  
 "context_switching.axf" - 0 Error(s), 0 Warning(s).
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(281): error:  #268: declaration may not appear after executable statement in block
+src\k_process.c(281): warning:  #223-D: function "createPrcoessNodeByPCB" declared implicitly
+src\k_process.c(281): error:  #144: a value of type "int" cannot be used to initialize an entity of type "ProcessNode *"
+src\k_process.c(282): error:  #136: struct "ProcessNode" has no field "m_priority"
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+src\k_process.c(281): error:  #268: declaration may not appear after executable statement in block
+Target not created
+Build target 'Context Switching SIM'
+compiling k_process.c...
+linking...
+Program Size: Code=5544 RO-data=564 RW-data=64 ZI-data=832  
+"context_switching.axf" - 0 Error(s), 0 Warning(s).
