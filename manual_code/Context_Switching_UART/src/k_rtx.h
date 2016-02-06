@@ -14,7 +14,7 @@
 #define RTX_OK  0
 
 #define NULL 0
-#define NUM_TEST_PROCS 2
+#define NUM_TEST_PROCS 6
 
 #ifdef DEBUG_0
 #define USR_SZ_STACK 0x200         /* user proc stack size 512B   */
@@ -44,6 +44,8 @@ typedef struct pcb
 } PCB;
 
 /* initialization table item */
+#ifndef PROC_INIT_
+#define PROC_INIT_
 typedef struct proc_init
 {	
 	int m_pid;	        /* process id */ 
@@ -51,5 +53,6 @@ typedef struct proc_init
 	int m_stack_size;       /* size of stack in words */
 	void (*mpf_start_pc) ();/* entry point of the process */    
 } PROC_INIT;
+#endif
 
 #endif // ! K_RTX_H_
