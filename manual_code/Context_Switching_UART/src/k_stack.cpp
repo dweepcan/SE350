@@ -37,7 +37,7 @@ int contains(k_stack *p_stack, k_node *p_node) {
 
 	if(is_empty(p_stack)) {
 #ifdef DEBUG_0
-		printf("ERROR: Checking if a node exists in a empty stack.");
+		printf("ERROR: Checking if a node exists in a empty stack.\n");
 #endif /* ! DEBUG_0 */
 		return 0;
 	}

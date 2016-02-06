@@ -7,7 +7,7 @@
 void enqueue(k_queue *p_queue, k_node *p_node) {
     if(p_queue == NULL || p_node == NULL) {
 #ifdef DEBUG_0
-		printf("ERROR: Enqueuing to a NULL queue or inserting a NULL node.");
+		printf("ERROR: Enqueuing to a NULL queue or inserting a NULL node.\n");
 #endif /* ! DEBUG_0 */
         return;
     }
@@ -27,7 +27,7 @@ k_node* dequeue(k_queue *p_queue) {
 
     if (is_empty(p_queue)) {
 #ifdef DEBUG_0
-        printf("ERROR: Dequeuing a node from an empty queue.");
+        printf("ERROR: Dequeuing a node from an empty queue.\n");
 #endif /* ! DEBUG_0 */
         return NULL;
     }
@@ -46,7 +46,7 @@ k_node* dequeue(k_queue *p_queue) {
 int is_empty(k_queue *p_queue) {
     if(p_queue == NULL) {
 #ifdef DEBUG_0
-        printf("ERROR: Checking if a NULL queue is empty.");
+        printf("ERROR: Checking if a NULL queue is empty.\n");
 #endif /* ! DEBUG_0 */
 		return 0;
     } else {
