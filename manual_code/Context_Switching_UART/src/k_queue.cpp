@@ -4,12 +4,12 @@
 #include "printf.h"
 #endif /* ! DEBUG_0 */
 
-void enqueue(k_queue *p_queue, k_node *p_node) {
+int enqueue(k_queue *p_queue, k_node *p_node) {
     if(p_queue == NULL || p_node == NULL) {
 #ifdef DEBUG_0
 		printf("ERROR: Enqueuing to a NULL queue or inserting a NULL node.\n");
 #endif /* ! DEBUG_0 */
-        return;
+        return RTX_ERR;
     }
 
     p_node->next = NULL;
@@ -20,6 +20,8 @@ void enqueue(k_queue *p_queue, k_node *p_node) {
     }
 
     p_queue->last = p_node;
+
+    return RTX_OK;
 }
 
 k_node* dequeue(k_queue *p_queue) {

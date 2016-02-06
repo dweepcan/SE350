@@ -4,16 +4,18 @@
 #include "printf.h"
 #endif /* ! DEBUG_0 */
 
-void push(k_stack *p_stack, k_node *p_node) {
+int push(k_stack *p_stack, k_node *p_node) {
 	if(p_stack == NULL || p_node == NULL) {
 #ifdef DEBUG_0
 		printf("ERROR: Pushing to a NULL stack or inserting a NULL node.");
 #endif /* ! DEBUG_0 */
-		return;
+		return RTX_ERR;
 	}
 
 	p_node->next = p_stack->top;
 	p_stack->top = p_node;
+
+	return RTX_OK;
 }
 
 k_node *pop(k_stack *p_stack) {

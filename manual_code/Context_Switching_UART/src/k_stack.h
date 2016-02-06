@@ -8,7 +8,7 @@ typedef struct k_stack {
 	k_node *top;
 } k_stack;
 
-void push(k_stack *p_stack, k_node *p_node);
+int push(k_stack *p_stack, k_node *p_node);
 k_node* pop(k_stack *p_stack);
 int contains(k_stack *p_stack, k_node *p_node);
 int is_empty(k_stack *p_stack);
