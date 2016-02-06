@@ -11,56 +11,19 @@
 #include "printf.h"
 #endif /* ! DEBUG_0 */
 
-// Struct which will Lable a new memory block
-typedef struct mem_blk {
-  struct mem_blk* next_blk;
-} mem_blk;
-
-typedef struct Queue {
-	mem_blk *head;
-	mem_blk *tail;
-} Queue;
-
-void queue_push(Queue *q, mem_blk *block) {
-	// TODO: What if the memory block or Queue are null?  Exceptions...
-	
-	block->next_blk = NULL;
-	
-	if(q->tail == NULL){
-		q->head = block;
-	} else {
-		q->tail->next_blk = block;
-	}
-	q->tail = block;
-}
-
-mem_blk* queue_pop(Queue *q){
-	mem_blk *temp = q->head;
-	if(temp == NULL) {
-		return NULL;
-		// ^^^ THROW AN EXPCEPTION INSTEAD OF ^^^
-	}
-
-	if(q->head == q->tail) {
-		q->tail = NULL;
-	}
-	q->head = q->head->next_blk;
-	return temp;
-}
-
-
 /* ----- Global Variables ----- */
+// Stack pointer
 U32 *gp_stack; /* The last allocated stack low address. 8 bytes aligned */
                /* The first stack starts at the RAM high address */
 	       /* stack grows down. Fully decremental stack */
 
-const int NUM_MEM_BLK = 30;
-const int SIZE_MEM_BLK = 128;
+// Heap pointers
+k_stack *gp_heap;
+U8 *gp_heap_begin;
+U8 *gp_heap_end;
 
-// Points to the next available memory block.
-mem_blk *head;
-
-Queue heap;
+const int NUM_BLOCKS = 30;
+const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
 
 /**
  * @brief: Initialize RAM as follows:
@@ -94,13 +57,7 @@ void memory_init(void)
 {
 	U8 *p_end = (U8 *)&Image$$RW_IRAM1$$ZI$$Limit;
 	int i;
-	
-	// OUR STUFF
-	U8 *heap_end;
-	mem_blk* current;
-	mem_blk block;
-  // END OUR STUFF
-	
+
 	/* 4 bytes padding */
 	p_end += 4;
 
@@ -123,26 +80,28 @@ void memory_init(void)
 	if ((U32)gp_stack & 0x04) { /* 8 bytes alignment */
 		--gp_stack; 
 	}
-	
+
 	/* allocate memory for heap, not implemented yet*/
-	heap_end = p_end;
-	head = (mem_blk *)p_end;
-	
-	for(i = 0; i<NUM_MEM_BLK; i++) {
-		current = (mem_blk *)heap_end;
-		if(i == 29) {
-			heap_end = NULL;
-		}
-		else {
-			heap_end += sizeof(mem_blk) + SIZE_MEM_BLK;
-		}
-		
-		block.next_blk = (mem_blk *)heap_end;
-		*current = block;
+	gp_heap = (k_stack *)p_end;
+	gp_heap->top = NULL;
+	p_end += sizeof(k_stack);
+
+	/* Save the beginning address of the heap */
+	gp_heap_begin = p_end;
+
+	for(i = 0; i < NUM_BLOCKS; i++) {
+		/* Create a node representing a memory block */
+		k_node *p_node = (k_node *)p_end;
+
+		/* Insert the node into the memory heap stack */
+		push(gp_heap, p_node);
+
+		/* Increment the memory address by the size of the memory block */
+		p_end += sizeof(k_node) + BLOCK_SIZE;
 	}
-	
-	heap.head = head;
-	heap.tail = current;
+
+	/* Save the address of the end of the heap */
+	gp_heap_end = p_end;
 }
 
 /**
@@ -168,14 +127,39 @@ U32 *alloc_stack(U32 size_b)
 }
 
 void *k_request_memory_block(void) {
-	//mem_blk* test;
-	
+	k_node *p_mem_blk = NULL;
+
 #ifdef DEBUG_0 
 	printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
-	//test = queue_pop(&heap);
 
-	return (void *) NULL;
+	// TODO: atomic(on) <- need to do this later when time slicing can occur
+
+	while(is_empty(gp_heap)) {
+		/* If the heap is empty loop until a memory block is available */
+#ifdef DEBUG_0
+		printf("k_request_memory_block: no available memory blocks.\n");
+#endif /* ! DEBUG_0 */
+
+		// TODO: Add the process to blocked queue and yield the process
+		// current process moved to blocked queue
+		// current process state to BLOCKED_ON_RESOURCE
+		// k_release_processor();
+	}
+
+	/* Get the next available node from the heap */
+	p_mem_blk = pop(gp_heap);
+
+	/* Increment the address of the node to get the start address of the block */
+	p_mem_blk += sizeof(k_node);
+
+	// TODO: atomic(off) <- need to do this later when time slicing can occur
+
+#ifdef DEBUG_0
+	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n", (p_mem_blk - sizeof(k_node)), p_mem_blk);
+#endif /* ! DEBUG_0 */
+
+	return (void *) p_mem_blk;
 }
 
 int k_release_memory_block(void *p_mem_blk) {
