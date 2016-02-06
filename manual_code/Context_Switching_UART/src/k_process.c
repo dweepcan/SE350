@@ -280,20 +280,8 @@ void process_init()
 
 
 void setNextReady(){
-	int i;
 	
-	for (i=0;i<=4;i++){
-			if (readyPriorityQueue[i].front !=NULL){
-				ProcessNode* tempNode = createProcessNodeByPCB(gp_current_process);
-					addProcessNode(tempNode,gp_current_process->m_pid,0);
-					gp_current_process=readyPriorityQueue[i].front->pcb;
-					if (i!=4){
-						//if not null
-						removeProcessNode(gp_current_process->m_pid,i,0);
-					}
-					
-			}
-	}
+
 }
 
 
@@ -306,19 +294,22 @@ void setNextReady(){
 
 PCB *scheduler(void)
 {
-	//should only be true at first
-	if (gp_current_process == NULL) {
-		setNextReady();
-		return gp_current_process;
+	int i;
+	for (i=0;i<=4;i++){
+			if (readyPriorityQueue[i].front !=NULL){
+				if (gp_current_process != NULL) {
+				//should only be false at first
+					ProcessNode* tempNode = createProcessNodeByPCB(gp_current_process);//create a processnode
+					addProcessNode(tempNode,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
+				}
+					gp_current_process=readyPriorityQueue[i].front->pcb;
+					removeProcessNode(gp_current_process->m_pid,i,0);
+			}
 	}
+	
+	return gp_current_process;
+		
 
-	if ( gp_current_process == gp_pcbs[0] ) {
-		return gp_pcbs[1];
-	} else if ( gp_current_process == gp_pcbs[1] ) {
-		return gp_pcbs[0];
-	} else {
-		return NULL;
-	}
 }
 
 /*@brief: switch out old pcb (p_pcb_old), run the new pcb (gp_current_process)

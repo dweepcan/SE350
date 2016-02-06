@@ -15,7 +15,7 @@
 #endif /* DEBUG_0 */
 
 /* initialization table item */
-PROC_INIT g_test_procs[NUM_TEST_PROCS];
+PROC_INIT g_test_procs[NUM_TEST_PROCS+1];//plus last one nullproc
 
 void set_test_procs() {
 	int i;
@@ -25,14 +25,21 @@ void set_test_procs() {
 		g_test_procs[i].m_priority=LOWEST;
 		g_test_procs[i].m_stack_size=0x100;
 	}
-  
+		g_test_procs[NUM_TEST_PROCS].m_pid=(U32)(0);
+		g_test_procs[NUM_TEST_PROCS].m_priority=LOWEST+1;
+		g_test_procs[NUM_TEST_PROCS].m_stack_size=0x100;
+	
 	g_test_procs[0].mpf_start_pc = &proc1;
 	g_test_procs[1].mpf_start_pc = &proc2;
+	g_test_procs[2].mpf_start_pc = &proc3;
+	g_test_procs[3].mpf_start_pc = &proc4;
+	g_test_procs[4].mpf_start_pc = &proc5;
+	g_test_procs[5].mpf_start_pc = &proc6;
 }
 
 //The null process
 //uart0_put_string("Hello World");
-void proc_null() {
+void proc_null(void) {
 	while(1) {
 		k_release_processor();
 	}
@@ -93,4 +100,19 @@ void proc2(void)
 		i++;
 		
 	}
+}
+
+void proc3(void){
+}
+
+void proc4(void){
+	
+}
+
+void proc5(void){
+	
+}
+
+void proc6(void){
+	
 }
