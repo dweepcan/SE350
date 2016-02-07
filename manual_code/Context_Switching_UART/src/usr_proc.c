@@ -26,9 +26,9 @@ PROC_INIT g_test_procs[NUM_TEST_PROCS+1];//plus last one nullproc
 void set_test_procs() {
 	int i;
 	
-	uart1_put_string("G012_test: START\n\r");
+	uart0_put_string("G012_test: START\n\r");
 	sprintf(buffer, "G012_test: total %d tests\n\r", NUM_TEST_PROCS);
-	uart1_put_string((unsigned char*) buffer);
+	uart0_put_string((unsigned char*) buffer);
 	
 	for( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_test_procs[i].m_pid=(U32)(i+1);
@@ -39,12 +39,12 @@ void set_test_procs() {
 		g_test_procs[NUM_TEST_PROCS].m_priority=LOWEST+1;
 		g_test_procs[NUM_TEST_PROCS].m_stack_size=0x100;
 	
-// 	g_test_procs[0].mpf_start_pc = &proc1;
-// 	g_test_procs[1].mpf_start_pc = &proc2;
-// 	g_test_procs[2].mpf_start_pc = &proc3;
-// 	g_test_procs[3].mpf_start_pc = &proc4;
-// 	g_test_procs[4].mpf_start_pc = &proc5;
-// 	g_test_procs[5].mpf_start_pc = &proc6;
+ 	g_test_procs[0].mpf_start_pc = &proc1;
+ 	g_test_procs[1].mpf_start_pc = &proc2;
+ 	g_test_procs[2].mpf_start_pc = &proc3;
+ 	g_test_procs[3].mpf_start_pc = &proc4;
+ 	g_test_procs[4].mpf_start_pc = &proc5;
+ 	g_test_procs[5].mpf_start_pc = &proc6;
 
 
 //Auto Test A	
@@ -68,38 +68,38 @@ void set_test_procs() {
 
 
 //Auto Test B
-	g_test_procs[0].mpf_start_pc = &proc1;
-	g_test_procs[0].m_priority   = MEDIUM;
+//	g_test_procs[0].mpf_start_pc = &proc1;
+//	g_test_procs[0].m_priority   = MEDIUM;
 	
-	g_test_procs[1].mpf_start_pc = &proc2;
-	g_test_procs[1].m_priority   = HIGH;
+//	g_test_procs[1].mpf_start_pc = &proc2;
+//	g_test_procs[1].m_priority   = HIGH;
 	
-	g_test_procs[2].mpf_start_pc = &proc3;
-	g_test_procs[2].m_priority   = LOW;
+//	g_test_procs[2].mpf_start_pc = &proc3;
+//	g_test_procs[2].m_priority   = LOW;
 	
-	g_test_procs[3].mpf_start_pc = &proc4;
-	g_test_procs[3].m_priority   = LOW;
+//	g_test_procs[3].mpf_start_pc = &proc4;
+//	g_test_procs[3].m_priority   = LOW;
 	
-	g_test_procs[4].mpf_start_pc = &proc5;
-	g_test_procs[4].m_priority   = LOW;
+//	g_test_procs[4].mpf_start_pc = &proc5;
+//	g_test_procs[4].m_priority   = LOW;
 	
-	g_test_procs[5].mpf_start_pc = &proc6;
-	g_test_procs[5].m_priority   = LOW;
+//	g_test_procs[5].mpf_start_pc = &proc6;
+//	g_test_procs[5].m_priority   = LOW;
 }
 
 // Helper function to print out end test results
 void printTest(int testNum, int status) {
 	sprintf(buffer, "G012_test: test %d %s\n\r", testNum, status==0 ? "FAIL" : "OK");
-	uart1_put_string((unsigned char*) buffer);
+	uart0_put_string((unsigned char*) buffer);
 }
 
 void checkTestEnd() {
 	if(testsRun == NUM_TEST_PROCS) {
 		sprintf(buffer, "G012_test: %d/%d tests OK\n\r", passedTests, NUM_TEST_PROCS);
-		uart1_put_string((unsigned char*) buffer);
+		uart0_put_string((unsigned char*) buffer);
 		sprintf(buffer, "G012_test: %d/%d tests FAIL\n\r", failedTests, NUM_TEST_PROCS);
-		uart1_put_string((unsigned char*) buffer);
-		uart1_put_string("G012_test: END\n\r");
+		uart0_put_string((unsigned char*) buffer);
+		uart0_put_string("G012_test: END\n\r");
 	}
 }
 
@@ -328,7 +328,7 @@ void proc_null(void) {
  * @brief: a process that prints five uppercase letters
  *         and request a memory block.
  */
-void proc1(void)
+/*void proc1(void)
 {
 	int i = 0;
 	void *p_mem_blk;
@@ -338,17 +338,19 @@ void proc1(void)
 			p_mem_blk = request_memory_block();
 #ifdef DEBUG_0
 			printf("proc1: p_mem_blk=0x%x\n", p_mem_blk);
-#endif /* DEBUG_0 */
-		}
+#endif *//* DEBUG_0 */
+/*		}
 		uart0_put_char('A' + i%26);
 		i++;
 	}
 }
+*/
 
 /**
  * @brief: a process that prints five numbers
  *         and then releases a memory block
  */
+/*
 void proc2(void)
 {
 	int i = 0;
@@ -363,8 +365,8 @@ void proc2(void)
 			ret_val = release_memory_block(p_mem_blk);
 #ifdef DEBUG_0
 			printf("proc2: ret_val=%d\n", ret_val);
-#endif /* DEBUG_0 */
-			if ( ret_val == -1 ) {
+#endif *//* DEBUG_0 */
+/*			if ( ret_val == -1 ) {
 				break;
 			}
 		}
@@ -377,7 +379,9 @@ void proc2(void)
 		release_processor();
 	}
 }
+*/
 
+/*
 void proc3(void)
 {
 	int i=0;
@@ -425,5 +429,93 @@ void proc6(void)
 		}
 		release_processor();
 		i++;
+	}
+}
+*/
+
+// Take up all the memory to test blocking on resource
+void proc1(void){
+	void *all_memory_blocks[30];
+	int i, status;
+	
+	set_process_priority(gp_current_process->m_pid, HIGH);
+	for(i = 0; i < 30; i++) {
+		all_memory_blocks[i] = request_memory_block();
+	}
+	set_process_priority(gp_current_process->m_pid, LOWEST);
+	
+	for(i = 0; i < 30; i++) {
+		status = release_memory_block(all_memory_blocks[i]);
+	}
+	
+	printTest(1, status);
+	checkTestEnd();
+	set_process_priority(gp_current_process->m_pid, LOWEST);
+	while(1) {
+		release_processor();
+	}
+}
+
+// Test which ensures that we can get a memory block properly.
+void proc2(void){
+	void *memory_block = request_memory_block();
+	printTest(2, 1);
+	checkTestEnd();
+	set_process_priority(gp_current_process->m_pid, LOWEST);
+	while(1) {
+		release_processor();
+	}
+}
+
+// Test which ensures we can request a memory block as well as release it after we're done.
+void proc3(void){
+	int status;
+	void *memory_block = request_memory_block();
+	status = release_memory_block(memory_block);
+	status = status == RTX_ERR ? 0 : 1;
+	printTest(3, status);
+	checkTestEnd();
+	set_process_priority(gp_current_process->m_pid, LOWEST);
+	while(1) {
+		release_processor();
+	}
+}
+
+// Test preemption
+void proc4(void){
+	set_process_priority(PID_P6, HIGH);
+	printTest(4, 1);
+	checkTestEnd();
+	set_process_priority(gp_current_process->m_pid, LOWEST);
+	while(1) {
+		release_processor();
+	}
+}
+
+// Test which ensures that we correctly set priorities.
+void proc5(void){
+	int status, priority;
+	set_process_priority(gp_current_process->m_pid, MEDIUM);
+	priority = get_process_priority(gp_current_process->m_pid);
+	status = priority == MEDIUM ? 0 : 1;
+	printTest(5, status);
+	checkTestEnd();
+	set_process_priority(gp_current_process->m_pid, LOWEST);
+	while(1) {
+		release_processor();
+	}
+}
+
+// Test whether we can release a memory block which is not actually a memory block, just a random address
+void proc6(void){
+	int status;
+	void *memory_block = &status;
+	status = release_memory_block(memory_block);
+	status = status == RTX_ERR ? 1 : 0;
+	printTest(6, status);
+	checkTestEnd();
+	set_process_priority(gp_current_process->m_pid, LOWEST);
+	while(1) {
+		release_processor();
 	}
 }

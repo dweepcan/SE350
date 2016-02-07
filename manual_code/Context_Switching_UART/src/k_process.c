@@ -355,7 +355,7 @@ int unblockProcess(PCB* pcb){
 		//preempt :(
 		//highest priority is 0
 		if (pcb->m_priority <= gp_current_process->m_priority){
-			k_release_processor();
+			release_processor();
 		}
 			return RTX_OK;
 	}

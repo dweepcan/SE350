@@ -39,7 +39,7 @@ extern U32 *alloc_stack(U32 size_b);   /* allocate stack for a process */
 extern void __rte(void);               /* pop exception stack frame */
 extern void set_test_procs(void);      /* test process initial set up */
 
-
+extern int isBlockedEmpty(void);
 extern ProcessNode* findProcessNodeByPID(int curpid);
 extern int addProcessNode(int pid,int priority, int isReady);
 extern ProcessNode* removeProcessNode(int process_id,int priority, int isReady);
