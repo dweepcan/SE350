@@ -37,4 +37,19 @@ extern U32 *alloc_stack(U32 size_b);   /* allocate stack for a process */
 extern void __rte(void);               /* pop exception stack frame */
 extern void set_test_procs(void);      /* test process initial set up */
 
+
+extern ProcessNode* findProcessNodeByPID(int curpid);
+extern int addProcessNode(int pid,int priority, int isReady);
+extern ProcessNode* removeProcessNode(int process_id,int priority, int isReady);
+extern int get_process_priority(int process_id);
+extern int isReady(int process_id);
+extern int set_process_priority(int process_id, int priority);
+extern PCB* getNextBlocked(void);
+extern int blockProcess(void);
+extern int unblockProcess(PCB* pcb);
+extern int process_switch(PCB *p_pcb_old);
+
+
+
+
 #endif /* ! K_PROCESS_H_ */

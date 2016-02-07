@@ -17,7 +17,6 @@
 #include <system_LPC17xx.h>
 #include "uart_polling.h"
 #include "k_process.h"
-#include <stdbool.h>
 
 #ifdef DEBUG_0
 #include "printf.h"
@@ -50,12 +49,12 @@ Queue *readyPriorityQueue[NUM_PRIORITIES];
 Queue *blockedPriorityQueue[NUM_PRIORITIES];
 ProcessNode **processNodes;
 
-bool isBlockedEmpty(){
+int isBlockedEmpty(){
 	int i;
 	for (i=0; i<NUM_PRIORITIES; i++){
-		if (blockedPriorityQueue[i]->front != NULL) return true;		
+		if (blockedPriorityQueue[i]->front != NULL) return 1;		
 	}
-	return false;
+	return 0;
 }
 
 
@@ -83,34 +82,38 @@ ProcessNode* findProcessNodeByPID(int curpid){
 	}
 	return NULL;*/
 }
-void addProcessNode(int pid,int priority, int isReady){
-	ProcessNode* pn = findProcessNodeByPID(pid);
+int addProcessNode(int pid,int priority, int isReady){
+	ProcessNode* pn;
+	if (pid>NUM_TEST_PROCS) return RTX_ERR;
+	pn = findProcessNodeByPID(pid);
 	if (isReady==0){ //if ready
 		if (readyPriorityQueue[priority]->front == NULL){
 			readyPriorityQueue[priority]->back = pn;
 			readyPriorityQueue[priority]->front = pn;
-			return;
+			return RTX_OK;
 		}
 	
 		readyPriorityQueue[priority]->back->next = pn;
 		pn->prev = readyPriorityQueue[priority]->back;
 		pn->next = NULL;
 		readyPriorityQueue[priority]->back = pn;
+			return RTX_OK;
 		
 	}else if (isReady==1){ //if blocked
 		if (blockedPriorityQueue[priority]->front == NULL){
 			blockedPriorityQueue[priority]->back = pn;
 			blockedPriorityQueue[priority]->front = pn;
-			return;
+			return RTX_OK;
 		}
 	
 		blockedPriorityQueue[priority]->back->next = pn;
 		pn->prev = blockedPriorityQueue[priority]->back;
 		pn->next = NULL;
 		blockedPriorityQueue[priority]->back = pn;
+			return RTX_OK;
 		
 	}
-	
+	return RTX_ERR;
 }
 
 ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
@@ -304,30 +307,38 @@ PCB* getNextBlocked(void){
 	return NULL;
 }
 
-void blockProcess(void){
-	ProcessNode* node = processNodes[gp_current_process->m_pid];
+int blockProcess(void){
 	
-	node->pcb->m_state = BLOCKED;
-	addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,1); //add to blocked(1)
-	gp_current_process=NULL;
-	gp_current_process = scheduler();
+	if(gp_current_process != NULL){
+		ProcessNode* node = processNodes[gp_current_process->m_pid];
+	
+		node->pcb->m_state = BLOCKED;
+		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,1); //add to blocked(1)
+		gp_current_process=NULL;
+		gp_current_process = scheduler();
+		return RTX_OK;
+	}
+	return RTX_ERR;
 	
 }
 
 
-void unblockProcess(PCB* pcb){
+int unblockProcess(PCB* pcb){
 
-	ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, 1);	
-	pcb->m_state = RDY;
+	if (pcb != NULL){
+		ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, 1);	
+		pcb->m_state = RDY;
 
-	addProcessNode(pcb->m_pid, pcb->m_priority, 0);
-
+		addProcessNode(pcb->m_pid, pcb->m_priority, 0);
 	
-	//preempt :(
-	//highest priority is 0
-	if (pcb->m_priority < gp_current_process->m_priority){
-		k_release_processor();
+		//preempt :(
+		//highest priority is 0
+		if (pcb->m_priority < gp_current_process->m_priority){
+			k_release_processor();
+		}
+			return RTX_OK;
 	}
+	return RTX_ERR;
 }
 /*@brief: scheduler, pick the pid of the next to run process
  *@return: PCB pointer of the next to run process
