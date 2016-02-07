@@ -6,7 +6,6 @@
  */
 
 #include "k_memory.h"
-#include "k_process.h"
 
 #ifdef DEBUG_0
 #include "printf.h"
@@ -108,17 +107,13 @@ void memory_init(void)
 	printf("processNodes[6] = 0x%x \n", processNodes[6]);
 #endif
 	
-	for(i = 0; i <= NUM_TEST_PROCS; i++) {
+	for(i = 0; i < NUM_PRIORITIES; i++) {
 		readyPriorityQueue[i] = (Queue *)p_end;
-		readyPriorityQueue[i]->front = NULL;
-		readyPriorityQueue[i]->back = NULL;
 		p_end += sizeof(Queue);
 	}
 	
-	for(i = 0; i <= NUM_TEST_PROCS; i++) {
+	for(i = 0; i < NUM_PRIORITIES; i++) {
 		blockedPriorityQueue[i] = (Queue *)p_end;
-		blockedPriorityQueue[i]->front = NULL;
-		blockedPriorityQueue[i]->back = NULL;
 		p_end += sizeof(Queue);
 	}
 	
