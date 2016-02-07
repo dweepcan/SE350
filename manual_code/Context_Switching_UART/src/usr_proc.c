@@ -49,7 +49,7 @@ void set_test_procs() {
 
 // Helper function to print out end test results
 void printTest(int testNum, int status) {
-	sprintf(buffer, "G012_test: test %d %s", testNum, status==0 ? "FAIL" : "OK");
+	sprintf(buffer, "G012_test: test %d %s\n\r", testNum, status==0 ? "FAIL" : "OK");
 	uart1_put_string((unsigned char*) buffer);
 }
 
@@ -80,34 +80,16 @@ void proc_null(void) {
  */
 void proc1(void)
 {
+	//void *memory_block = request_memory_block();
+	//printTest(1, 1);
+	//checkTestEnd();
+	//while(1) {
+	//	release_processor();
+	//}
 	
-// 	int i = 0;
-// int ranOnce = 0;
-// while (1) {
-// //printf("Process 1\r\n");
-// if (i != 0 && i % 5 == 0) {
-// test_results[1] = 1;
-// if (ranOnce == 0) {
-// printf("G005_test: test 1 OK\r\n");
-// }
-// ranOnce++;
-// release_processor();
-// }
-// i++;
-// }
-	void *memory_block = request_memory_block();
-	printTest(1, 1);
-	checkTestEnd();
-	while(1) {
-		release_processor();
-	}
-	
-	/*
 	int i = 0;
 	int ret_val = 10;
 	int x = 0;
-
-	
 	
 	while ( 1) {
 		if ( i != 0 && i%5 == 0 ) {
@@ -127,7 +109,6 @@ void proc1(void)
 		i++;
 		
 	}
-	*/
 }
 
 /**
@@ -136,14 +117,13 @@ void proc1(void)
  */
 void proc2(void)
 {
-	void *memory_block = request_memory_block();
-	printTest(2, 1);
-	checkTestEnd();
-	while(1) {
-		release_processor();
-	}
-	
-	/*
+	//void *memory_block = request_memory_block();
+	//printTest(2, 1);
+	//checkTestEnd();
+	//while(1) {
+	//	release_processor();
+	//}
+
 	int i = 0;
 	int ret_val = 20;
 	int x = 0;
@@ -165,7 +145,6 @@ void proc2(void)
 		i++;
 		
 	}
-	*/
 }
 
 void proc3(void){
