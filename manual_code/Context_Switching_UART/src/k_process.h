@@ -16,6 +16,17 @@
 
 #define INITIAL_xPSR 0x01000000        /* user process initial xPSR value */
 
+struct ProcessNode;
+typedef struct ProcessNode{
+	PCB* pcb;
+	struct ProcessNode* next;
+	struct ProcessNode* prev;
+} ProcessNode;
+ 
+typedef struct Queue{
+	ProcessNode* front;
+	ProcessNode* back; 
+} Queue;
 /* ----- Functions ----- */
 
 void process_init(void);               /* initialize all procs in the system */

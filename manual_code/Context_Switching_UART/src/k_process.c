@@ -42,27 +42,18 @@ extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
 
 //our stuff
-struct ProcessNode;
-typedef struct ProcessNode{
-	PCB* pcb;
-	struct ProcessNode* next;
-	struct ProcessNode* prev;
-} ProcessNode;
- 
-typedef struct Queue{
-	ProcessNode* front;
-	ProcessNode* back; 
-} Queue;
+
 
 const int NUM_PRIORITIES = 5;
 
-Queue readyPriorityQueue[NUM_PRIORITIES];
-Queue blockedPriorityQueue[NUM_PRIORITIES];
+Queue *readyPriorityQueue[NUM_PRIORITIES];
+Queue *blockedPriorityQueue[NUM_PRIORITIES];
+//ProcessNode *processNodes[NUM_TEST_PROCS+1];
 
 bool isBlockedEmpty(){
 	int i;
 	for (i=0; i<NUM_PRIORITIES; i++){
-		if (blockedPriorityQueue[i].front != NULL) return true;		
+		if (blockedPriorityQueue[i]->front != NULL) return true;		
 	}
 	return false;
 }
@@ -70,13 +61,15 @@ bool isBlockedEmpty(){
 ProcessNode* createProcessNodeByPCB(PCB* currentpcb){
 	ProcessNode* rtn;
 	rtn->pcb = currentpcb;
+	rtn->next = NULL;
+	rtn->prev = NULL;
 	return rtn;
 }
 ProcessNode* findProcessNodeByPID(int curpid, int isReady){
 	int i=0;
 	if (isReady==0){
 		for (i=0;i<NUM_PRIORITIES;i++){
-			ProcessNode* cur = readyPriorityQueue[i].front;
+			ProcessNode* cur = readyPriorityQueue[i]->front;
 			while (cur!=NULL){
 					if (cur->pcb->m_pid == curpid) return cur;
 				cur=cur->next;
@@ -84,7 +77,7 @@ ProcessNode* findProcessNodeByPID(int curpid, int isReady){
 		}
 	}else {
 		for (i=0;i<NUM_PRIORITIES;i++){
-			ProcessNode* cur = blockedPriorityQueue[i].front;
+			ProcessNode* cur = blockedPriorityQueue[i]->front;
 			while (cur!=NULL){
 					if (cur->pcb->m_pid == curpid) return cur;
 				cur=cur->next;
@@ -96,28 +89,28 @@ ProcessNode* findProcessNodeByPID(int curpid, int isReady){
 void addProcessNode(ProcessNode* pn,int priority, int isReady){
 	
 	if (isReady==0){ //if ready
-		if (readyPriorityQueue[priority].front == NULL){
-			readyPriorityQueue[priority].back = pn;
-			readyPriorityQueue[priority].front = pn;
+		if (readyPriorityQueue[priority]->front == NULL){
+			readyPriorityQueue[priority]->back = pn;
+			readyPriorityQueue[priority]->front = pn;
 			return;
 		}
 	
-		readyPriorityQueue[priority].back->next = pn;
-		pn->prev = readyPriorityQueue[priority].back;
+		readyPriorityQueue[priority]->back->next = pn;
+		pn->prev = readyPriorityQueue[priority]->back;
 		pn->next = NULL;
-		readyPriorityQueue[priority].back = pn;
+		readyPriorityQueue[priority]->back = pn;
 		
 	}else if (isReady==1){ //if blocked
-		if (blockedPriorityQueue[priority].front == NULL){
-			blockedPriorityQueue[priority].back = pn;
-			blockedPriorityQueue[priority].front = pn;
+		if (blockedPriorityQueue[priority]->front == NULL){
+			blockedPriorityQueue[priority]->back = pn;
+			blockedPriorityQueue[priority]->front = pn;
 			return;
 		}
 	
-		blockedPriorityQueue[priority].back->next = pn;
-		pn->prev = blockedPriorityQueue[priority].back;
+		blockedPriorityQueue[priority]->back->next = pn;
+		pn->prev = blockedPriorityQueue[priority]->back;
 		pn->next = NULL;
-		blockedPriorityQueue[priority].back = pn;
+		blockedPriorityQueue[priority]->back = pn;
 		
 	}
 	
@@ -128,27 +121,28 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 	ProcessNode* returnNode= NULL;
 	
 	if (isReady == 0){ //if ready
-		if (readyPriorityQueue[priority].back->pcb->m_pid == process_id && readyPriorityQueue[priority].front->pcb->m_pid == process_id){
-			returnNode = readyPriorityQueue[priority].back;
-			readyPriorityQueue[priority].back=NULL;
-			readyPriorityQueue[priority].front=NULL;
+		//PCB * jdski= readyPriorityQueue[priority]->back->pcb;
+		if (readyPriorityQueue[priority]->back->pcb->m_pid == process_id && readyPriorityQueue[priority]->front->pcb->m_pid == process_id){
+			returnNode = readyPriorityQueue[priority]->back;
+			readyPriorityQueue[priority]->back=NULL;
+			readyPriorityQueue[priority]->front=NULL;
 			return returnNode;
 		}
-		if (readyPriorityQueue[priority].back->pcb->m_pid == process_id){
-			returnNode = readyPriorityQueue[priority].back;	
-			readyPriorityQueue[priority].back = readyPriorityQueue[priority].back->prev;
-			readyPriorityQueue[priority].back->next = NULL;
+		if (readyPriorityQueue[priority]->back->pcb->m_pid == process_id){
+			returnNode = readyPriorityQueue[priority]->back;	
+			readyPriorityQueue[priority]->back = readyPriorityQueue[priority]->back->prev;
+			readyPriorityQueue[priority]->back->next = NULL;
 			return returnNode;
 		}
-		if (readyPriorityQueue[priority].front->pcb->m_pid == process_id){
-			returnNode = readyPriorityQueue[priority].front;
-			readyPriorityQueue[priority].front = readyPriorityQueue[priority].front->next;
-			readyPriorityQueue[priority].front->prev = NULL;
+		if (readyPriorityQueue[priority]->front->pcb->m_pid == process_id){
+			returnNode = readyPriorityQueue[priority]->front;
+			readyPriorityQueue[priority]->front = readyPriorityQueue[priority]->front->next;
+			readyPriorityQueue[priority]->front->prev = NULL;
 			return returnNode;
 		}
 		
-		returnNode = readyPriorityQueue[priority].front->next;
-		while (returnNode != readyPriorityQueue[priority].back){
+		returnNode = readyPriorityQueue[priority]->front->next;
+		while (returnNode != readyPriorityQueue[priority]->back){
 			if (returnNode->pcb->m_pid == process_id){
 				returnNode->prev->next =  returnNode->next;
 				returnNode->next->prev =  returnNode->prev;
@@ -160,27 +154,27 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 		return NULL;
 
 	}else if(isReady == 1){ //if blocked
-		if (blockedPriorityQueue[priority].back->pcb->m_pid == process_id && blockedPriorityQueue[priority].front->pcb->m_pid == process_id){
-			returnNode = blockedPriorityQueue[priority].back;
-			blockedPriorityQueue[priority].back=NULL;
-			blockedPriorityQueue[priority].front=NULL;
+		if (blockedPriorityQueue[priority]->back->pcb->m_pid == process_id && blockedPriorityQueue[priority]->front->pcb->m_pid == process_id){
+			returnNode = blockedPriorityQueue[priority]->back;
+			blockedPriorityQueue[priority]->back=NULL;
+			blockedPriorityQueue[priority]->front=NULL;
 			return returnNode;
 		}
-		if (blockedPriorityQueue[priority].back->pcb->m_pid == process_id){
-			returnNode = blockedPriorityQueue[priority].back;	
-			blockedPriorityQueue[priority].back = blockedPriorityQueue[priority].back->prev;
-			blockedPriorityQueue[priority].back->next = NULL;
+		if (blockedPriorityQueue[priority]->back->pcb->m_pid == process_id){
+			returnNode = blockedPriorityQueue[priority]->back;	
+			blockedPriorityQueue[priority]->back = blockedPriorityQueue[priority]->back->prev;
+			blockedPriorityQueue[priority]->back->next = NULL;
 			return returnNode;
 		}
-		if (blockedPriorityQueue[priority].front->pcb->m_pid == process_id){
-			returnNode = blockedPriorityQueue[priority].front;
-			blockedPriorityQueue[priority].front = blockedPriorityQueue[priority].front->next;
-			blockedPriorityQueue[priority].front->prev = NULL;
+		if (blockedPriorityQueue[priority]->front->pcb->m_pid == process_id){
+			returnNode = blockedPriorityQueue[priority]->front;
+			blockedPriorityQueue[priority]->front = blockedPriorityQueue[priority]->front->next;
+			blockedPriorityQueue[priority]->front->prev = NULL;
 			return returnNode;
 		}
 		
-		returnNode = blockedPriorityQueue[priority].front->next;
-		while (returnNode != blockedPriorityQueue[priority].back){
+		returnNode = blockedPriorityQueue[priority]->front->next;
+		while (returnNode != blockedPriorityQueue[priority]->back){
 			if (returnNode->pcb->m_pid == process_id){
 				returnNode->prev->next =  returnNode->next;
 				returnNode->next->prev =  returnNode->prev;
@@ -199,13 +193,13 @@ int get_process_priority(int process_id){
 	int i;
 	
 	for (i=0; i<NUM_PRIORITIES; i++){
-		ProcessNode* tempNode = readyPriorityQueue[i].front;
+		ProcessNode* tempNode = readyPriorityQueue[i]->front;
 		
 		while(tempNode!=NULL){
 			if (tempNode->pcb->m_pid == process_id) return i;
 			tempNode = tempNode->next;
 		}
-		tempNode = blockedPriorityQueue[i].front;
+		tempNode = blockedPriorityQueue[i]->front;
 		while(tempNode!=NULL){
 			if (tempNode->pcb->m_pid == process_id) return i;
 			tempNode = tempNode->next;
@@ -220,12 +214,12 @@ int isReady(int process_id){
 	int i;
 	
 	for (i=0; i<NUM_PRIORITIES; i++){
-		ProcessNode* tempNode = readyPriorityQueue[i].front;
+		ProcessNode* tempNode = readyPriorityQueue[i]->front;
 		while(tempNode!=NULL){
 			if (tempNode->pcb->m_pid == process_id) return 0;
 			tempNode = tempNode->next;
 		}
-		tempNode = blockedPriorityQueue[i].front;
+		tempNode = blockedPriorityQueue[i]->front;
 		while(tempNode!=NULL){
 			if (tempNode->pcb->m_pid == process_id) return 1;
 			tempNode = tempNode->next;
@@ -259,10 +253,21 @@ void process_init() {
         /* fill out the initialization table */
 	set_test_procs();
 	
+	//set queues to null
+	for (i=0; i<5; i++){
+		readyPriorityQueue[i]->front = NULL;
+		readyPriorityQueue[i]->back = NULL;
+
+		blockedPriorityQueue[i]->front = NULL;
+		blockedPriorityQueue[i]->back = NULL;
+
+	}
+	
 	for ( i = 0; i < NUM_TEST_PROCS+1; i++ ) {
 		g_proc_table[i].m_pid = g_test_procs[i].m_pid;
 		g_proc_table[i].m_stack_size = g_test_procs[i].m_stack_size;
 		g_proc_table[i].mpf_start_pc = g_test_procs[i].mpf_start_pc;
+		g_proc_table[i].m_priority = g_test_procs[i].m_priority;
 	}
   
 	/* initilize exception stack frame (i.e. initial context) for each process */
@@ -271,6 +276,7 @@ void process_init() {
 		ProcessNode* node = createProcessNodeByPCB(gp_pcbs[i]);
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
 		(gp_pcbs[i])->m_state = NEW;
+		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;
 		
 		sp = alloc_stack((g_proc_table[i]).m_stack_size);
 		*(--sp)  = INITIAL_xPSR;      // user process initial xPSR  
@@ -288,11 +294,10 @@ void process_init() {
 PCB* getNextBlocked(void){
 	int i=0; 
 	for(i=0; i<4; i++){
-		if(blockedPriorityQueue[i].front != NULL){			
-			return blockedPriorityQueue[i].front->pcb;
+		if(blockedPriorityQueue[i]->front != NULL){			
+			return blockedPriorityQueue[i]->front->pcb;
 		}
 	}
-	
 	return NULL;
 }
 
@@ -331,15 +336,16 @@ void unblockProcess(PCB* pcb){
 PCB *scheduler(void){
 	int i;
 	for (i=0;i<=4;i++){
-			if (readyPriorityQueue[i].front !=NULL){
+			if (readyPriorityQueue[i]->front !=NULL){
 				if (gp_current_process != NULL) {
 				//should only be false at first
 					ProcessNode* tempNode = createProcessNodeByPCB(gp_current_process);//create a processnode
 					addProcessNode(tempNode,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
 				}
-					gp_current_process=readyPriorityQueue[i].front->pcb;
+					gp_current_process=readyPriorityQueue[i]->front->pcb;
 					removeProcessNode(gp_current_process->m_pid,i,0);
 					gp_current_process->m_state = RUN;
+					return gp_current_process;
 			}
 	}
 	
