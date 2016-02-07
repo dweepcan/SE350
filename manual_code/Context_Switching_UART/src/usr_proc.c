@@ -80,11 +80,26 @@ void proc_null(void) {
  */
 void proc1(void)
 {
-	void *memory_block = k_request_memory_block();
+	
+// 	int i = 0;
+// int ranOnce = 0;
+// while (1) {
+// //printf("Process 1\r\n");
+// if (i != 0 && i % 5 == 0) {
+// test_results[1] = 1;
+// if (ranOnce == 0) {
+// printf("G005_test: test 1 OK\r\n");
+// }
+// ranOnce++;
+// release_processor();
+// }
+// i++;
+// }
+	void *memory_block = request_memory_block();
 	printTest(1, 1);
 	checkTestEnd();
 	while(1) {
-		k_release_processor();
+		release_processor();
 	}
 	
 	/*
@@ -121,11 +136,11 @@ void proc1(void)
  */
 void proc2(void)
 {
-	void *memory_block = k_request_memory_block();
+	void *memory_block = request_memory_block();
 	printTest(2, 1);
 	checkTestEnd();
 	while(1) {
-		k_release_processor();
+		release_processor();
 	}
 	
 	/*
@@ -154,37 +169,37 @@ void proc2(void)
 }
 
 void proc3(void){
-	void *memory_block = k_request_memory_block();
+	void *memory_block = request_memory_block();
 	printTest(3, 1);
 	checkTestEnd();
 	while(1) {
-		k_release_processor();
+		release_processor();
 	}
 }
 
 void proc4(void){
-	void *memory_block = k_request_memory_block();
+	void *memory_block = request_memory_block();
 	printTest(4, 1);
 	checkTestEnd();
 	while(1) {
-		k_release_processor();
+		release_processor();
 	}
 }
 
 void proc5(void){
-	void *memory_block = k_request_memory_block();
+	void *memory_block = request_memory_block();
 	printTest(5, 1);
 	checkTestEnd();
 	while(1) {
-		k_release_processor();
+		release_processor();
 	}
 }
 
 void proc6(void){
-	void *memory_block = k_request_memory_block();
+	void *memory_block = request_memory_block();
 	printTest(6, 1);
 	checkTestEnd();
 	while(1) {
-		k_release_processor();
+		release_processor();
 	}
 }

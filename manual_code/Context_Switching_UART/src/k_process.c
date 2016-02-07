@@ -278,11 +278,14 @@ void process_init() {
 		g_proc_table[i].m_priority = g_test_procs[i].m_priority;
 	}
 	
-	for(i=0; i<NUM_TEST_PROCS+1; i++){
-		(processNodes[i])->pcb = gp_pcbs[i];
+	for(i=1; i<=NUM_TEST_PROCS; i++){
+		(processNodes[i])->pcb = gp_pcbs[i-1];
 		(processNodes[i])->next = NULL;
 		(processNodes[i])->prev = NULL;
 	}
+	(processNodes[0])->pcb = gp_pcbs[NUM_TEST_PROCS];
+		(processNodes[0])->next = NULL;
+		(processNodes[0])->prev = NULL;
   
 	/* initilize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < NUM_TEST_PROCS+1; i++ ) {
