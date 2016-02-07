@@ -60,7 +60,7 @@ int isBlockedEmpty(){
 
 
 ProcessNode* findProcessNodeByPID(int curpid){
-	
+	if (curpid>NUM_TEST_PROCS || curpid<0) return NULL;
 	return processNodes[curpid];
 	/*int i=0;
 	if (isReady==0){
@@ -190,8 +190,9 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 
 //get the process priority :)
 int get_process_priority(int process_id){
-	
-	return processNodes[process_id]->pcb->m_priority;
+	ProcessNode* node = findProcessNodeByPID(process_id);
+	if (node == NULL) return RTX_ERR;
+	return node->pcb->m_priority;
 	/*int i;
 	
 	for (i=0; i<NUM_PRIORITIES; i++){
@@ -232,9 +233,17 @@ int isReady(int process_id){
 }
 
 int set_process_priority(int process_id, int priority){
+	
+	
 	int state = isReady(process_id);
 	//todo update isready
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
+	
+	//prevent set process if modifying null proc or setting priority to null proc level
+	if (process_id == 0 || priority == 4 || oldNode == NULL){
+		return RTX_ERR;
+	}
+	
 	removeProcessNode(process_id,oldNode->pcb->m_priority,state);
 	addProcessNode(process_id,priority,state);
 	
@@ -244,7 +253,7 @@ int set_process_priority(int process_id, int priority){
 		k_release_processor();
 	}
 	
-	return 0;
+	return RTX_OK;
 }
 
 
@@ -310,7 +319,8 @@ PCB* getNextBlocked(void){
 int blockProcess(void){
 	
 	if(gp_current_process != NULL){
-		ProcessNode* node = processNodes[gp_current_process->m_pid];
+		ProcessNode* node = findProcessNodeByPID(gp_current_process->m_pid);
+		if (node==NULL) return RTX_ERR;
 	
 		node->pcb->m_state = BLOCKED;
 		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,1); //add to blocked(1)
