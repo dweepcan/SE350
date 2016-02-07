@@ -82,10 +82,13 @@ int addProcessNode(int pid,int priority, int isReady){
 	ProcessNode* pn;
 	if (pid>NUM_TEST_PROCS) return RTX_ERR;
 	pn = findProcessNodeByPID(pid);
+	
 	if (isReady==0){ //if ready
 		if (readyPriorityQueue[priority]->front == NULL){
 			readyPriorityQueue[priority]->back = pn;
 			readyPriorityQueue[priority]->front = pn;
+			pn->next = NULL;
+			pn->prev = NULL;
 			return RTX_OK;
 		}
 	
@@ -99,6 +102,8 @@ int addProcessNode(int pid,int priority, int isReady){
 		if (blockedPriorityQueue[priority]->front == NULL){
 			blockedPriorityQueue[priority]->back = pn;
 			blockedPriorityQueue[priority]->front = pn;
+			pn->next = NULL;
+			pn->prev = NULL;
 			return RTX_OK;
 		}
 	

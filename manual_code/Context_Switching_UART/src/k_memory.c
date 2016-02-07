@@ -23,7 +23,7 @@ k_stack *gp_heap;
 U8 *gp_heap_begin;
 U8 *gp_heap_end;
 
-const int NUM_BLOCKS = 30;
+const int NUM_BLOCKS = 2;
 const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
 
 /**
