@@ -190,7 +190,7 @@ void *k_request_memory_block(void) {
 		// current process moved to blocked queue
 		// current process state to BLOCKED_ON_RESOURCE
 		if(blockProcess() == RTX_OK) {
-			release_processor();
+			k_release_processor();
 		}
 	}
 
@@ -266,10 +266,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	// assign memory block to the process popped
 	//else
 	nextProcess = getNextBlocked();
-	
-	if(unblockProcess(nextProcess) == RTX_ERR) {
-		return RTX_ERR;
-	}
+	unblockProcess(nextProcess);
 
 	// TODO: atomic(off) <- need to do this later when time slicing can occur
 

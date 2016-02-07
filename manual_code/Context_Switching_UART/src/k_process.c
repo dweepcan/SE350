@@ -232,6 +232,7 @@ int set_process_priority(int process_id, int priority){
 	
 	
 	int state = isReady(process_id);
+	int oldPriority = 0;
 	//todo update isready
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
 	
@@ -243,9 +244,12 @@ int set_process_priority(int process_id, int priority){
 	removeProcessNode(process_id,oldNode->pcb->m_priority,state);
 	addProcessNode(process_id,priority,state);
 	
+	oldPriority = oldNode->pcb->m_priority;
+	oldNode->pcb->m_priority = priority;
 	//preempt :)
 	//highest priority is 0
-	if (priority < gp_current_process->m_priority){
+	if (priority <= gp_current_process->m_priority ||
+		(gp_current_process->m_pid == process_id && priority > oldPriority)){
 		release_processor();
 	}
 	
@@ -327,12 +331,11 @@ int blockProcess(void){
 	
 		node->pcb->m_state = BLOCKED;
 		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,1); //add to blocked(1)
-		gp_current_process=NULL;
-		gp_current_process = scheduler();
+		
 		return RTX_OK;
 	}
-	return RTX_ERR;
 	
+	return RTX_ERR;
 }
 
 
@@ -346,8 +349,8 @@ int unblockProcess(PCB* pcb){
 	
 		//preempt :(
 		//highest priority is 0
-		if (pcb->m_priority < gp_current_process->m_priority){
-			release_processor();
+		if (pcb->m_priority <= gp_current_process->m_priority){
+			k_release_processor();
 		}
 			return RTX_OK;
 	}
@@ -362,12 +365,12 @@ int unblockProcess(PCB* pcb){
 
 PCB *scheduler(void){
 	int i;
+	if (gp_current_process != NULL) {
+		//should only be false at first
+		addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
+	}
 	for (i=0;i<=4;i++){
 			if (readyPriorityQueue[i]->front !=NULL){
-				if (gp_current_process != NULL) {
-					//should only be false at first
-					addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
-				}
 					gp_current_process=readyPriorityQueue[i]->front->pcb;
 					removeProcessNode(gp_current_process->m_pid,i,0);
 					//gp_current_process->m_state = RUN;
@@ -406,8 +409,11 @@ int process_switch(PCB *p_pcb_old) {
 	/* The following will only execute if the if block above is FALSE */
 
 	if (gp_current_process != p_pcb_old) {
-		if (state == RDY){ 		
-			p_pcb_old->m_state = RDY; 
+		if (state == RDY){
+			if(p_pcb_old->m_state != BLOCKED) {
+				p_pcb_old->m_state = RDY; 
+			}
+			
 			p_pcb_old->mp_sp = (U32 *) __get_MSP(); // save the old process's sp
 			gp_current_process->m_state = RUN;
 			__set_MSP((U32) gp_current_process->mp_sp); //switch to the new proc's stack    
