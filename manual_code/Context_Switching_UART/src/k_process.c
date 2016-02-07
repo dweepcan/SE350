@@ -118,7 +118,6 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 	
 	if (isReady == 0){ //if ready
 		//PCB * jdski= readyPriorityQueue[priority]->back->pcb;
-		Queue* temp = readyPriorityQueue[priority];
 		if ((readyPriorityQueue[priority])->back->pcb->m_pid == process_id && (readyPriorityQueue[priority])->front->pcb->m_pid == process_id){
 			returnNode = readyPriorityQueue[priority]->back;
 			readyPriorityQueue[priority]->back=NULL;
@@ -278,15 +277,18 @@ void process_init() {
 		g_proc_table[i].mpf_start_pc = g_test_procs[i].mpf_start_pc;
 		g_proc_table[i].m_priority = g_test_procs[i].m_priority;
 	}
+	
+	for(i=0; i<NUM_TEST_PROCS+1; i++){
+		(processNodes[i])->pcb = gp_pcbs[i];
+		(processNodes[i])->next = NULL;
+		(processNodes[i])->prev = NULL;
+	}
   
 	/* initilize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < NUM_TEST_PROCS+1; i++ ) {
 		int j;
 		
-		ProcessNode* temp = processNodes[i];
-		(processNodes[i])->pcb = gp_pcbs[i];
-		(processNodes[i])->next = NULL;
-		(processNodes[i])->prev = NULL;
+		
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
 		(gp_pcbs[i])->m_state = NEW;
 		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;
