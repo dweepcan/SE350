@@ -48,7 +48,7 @@ const int NUM_PRIORITIES = 5;
 
 Queue *readyPriorityQueue[NUM_PRIORITIES];
 Queue *blockedPriorityQueue[NUM_PRIORITIES];
-//ProcessNode *processNodes[NUM_TEST_PROCS+1];
+ProcessNode **processNodes;
 
 bool isBlockedEmpty(){
 	int i;
@@ -58,6 +58,8 @@ bool isBlockedEmpty(){
 	return false;
 }
 
+
+//only used by init
 ProcessNode* createProcessNodeByPCB(PCB* currentpcb){
 	ProcessNode* rtn;
 	rtn->pcb = currentpcb;
@@ -65,8 +67,10 @@ ProcessNode* createProcessNodeByPCB(PCB* currentpcb){
 	rtn->prev = NULL;
 	return rtn;
 }
-ProcessNode* findProcessNodeByPID(int curpid, int isReady){
-	int i=0;
+ProcessNode* findProcessNodeByPID(int curpid){
+	
+	return processNodes[curpid];
+	/*int i=0;
 	if (isReady==0){
 		for (i=0;i<NUM_PRIORITIES;i++){
 			ProcessNode* cur = readyPriorityQueue[i]->front;
@@ -84,10 +88,10 @@ ProcessNode* findProcessNodeByPID(int curpid, int isReady){
 			}
 		}
 	}
-	return NULL;
+	return NULL;*/
 }
-void addProcessNode(ProcessNode* pn,int priority, int isReady){
-	
+void addProcessNode(int pid,int priority, int isReady){
+	ProcessNode* pn = findProcessNodeByPID(pid);
 	if (isReady==0){ //if ready
 		if (readyPriorityQueue[priority]->front == NULL){
 			readyPriorityQueue[priority]->back = pn;
@@ -190,7 +194,9 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 
 //get the process priority :)
 int get_process_priority(int process_id){
-	int i;
+	
+	return processNodes[process_id]->pcb->m_priority;
+	/*int i;
 	
 	for (i=0; i<NUM_PRIORITIES; i++){
 		ProcessNode* tempNode = readyPriorityQueue[i]->front;
@@ -206,7 +212,7 @@ int get_process_priority(int process_id){
 		}
 		
 	}
-	return -1;
+	return -1;*/
 }
 
 //checks if a process is in the ready state (0) or blocked (1), -1 if not found 
@@ -232,13 +238,14 @@ int isReady(int process_id){
 int set_process_priority(int process_id, int priority){
 	int state = isReady(process_id);
 	//todo update isready
-	ProcessNode* temp = removeProcessNode(process_id,priority,state);
-	addProcessNode(temp,priority,state);
+	ProcessNode* oldNode = findProcessNodeByPID(process_id);
+	removeProcessNode(process_id,oldNode->pcb->m_priority,state);
+	addProcessNode(process_id,priority,state);
 	
 	//preempt :)
 	//highest priority is 0
 	if (priority < gp_current_process->m_priority){
-		k_release_processor();
+		release_processor();
 	}
 	
 	return 0;
@@ -285,7 +292,7 @@ void process_init() {
 			*(--sp) = 0x0;
 		}
 		(gp_pcbs[i])->mp_sp = sp;
-		addProcessNode(node, gp_pcbs[i]->m_priority,0);
+		addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,0);
 	}
 }
 
@@ -305,7 +312,7 @@ void blockProcess(void){
 	ProcessNode* node = createProcessNodeByPCB(gp_current_process);
 	
 	node->pcb->m_state = BLOCKED;
-	addProcessNode(node, gp_current_process->m_priority,1); //add to blocked(1)
+	addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,1); //add to blocked(1)
 	gp_current_process=NULL;
 	gp_current_process = scheduler();
 	
@@ -317,13 +324,13 @@ void unblockProcess(PCB* pcb){
 	ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, 1);	
 	pcb->m_state = RDY;
 
-	addProcessNode(node, pcb->m_priority, 0);
+	addProcessNode(pcb->m_pid, pcb->m_priority, 0);
 
 	
 	//preempt :(
 	//highest priority is 0
 	if (pcb->m_priority < gp_current_process->m_priority){
-		k_release_processor();
+		release_processor();
 	}
 }
 /*@brief: scheduler, pick the pid of the next to run process
@@ -339,8 +346,7 @@ PCB *scheduler(void){
 			if (readyPriorityQueue[i]->front !=NULL){
 				if (gp_current_process != NULL) {
 				//should only be false at first
-					ProcessNode* tempNode = createProcessNodeByPCB(gp_current_process);//create a processnode
-					addProcessNode(tempNode,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
+					addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
 				}
 					gp_current_process=readyPriorityQueue[i]->front->pcb;
 					removeProcessNode(gp_current_process->m_pid,i,0);
