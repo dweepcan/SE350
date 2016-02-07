@@ -59,14 +59,7 @@ bool isBlockedEmpty(){
 }
 
 
-//only used by init
-ProcessNode* createProcessNodeByPCB(PCB* currentpcb){
-	ProcessNode* rtn;
-	rtn->pcb = currentpcb;
-	rtn->next = NULL;
-	rtn->prev = NULL;
-	return rtn;
-}
+
 ProcessNode* findProcessNodeByPID(int curpid){
 	
 	return processNodes[curpid];
@@ -245,7 +238,7 @@ int set_process_priority(int process_id, int priority){
 	//preempt :)
 	//highest priority is 0
 	if (priority < gp_current_process->m_priority){
-		release_processor();
+		k_release_processor();
 	}
 	
 	return 0;
@@ -280,7 +273,10 @@ void process_init() {
 	/* initilize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < NUM_TEST_PROCS+1; i++ ) {
 		int j;
-		ProcessNode* node = createProcessNodeByPCB(gp_pcbs[i]);
+		
+		processNodes[i]->pcb = gp_pcbs[i];
+		processNodes[i]->next = NULL;
+		processNodes[i]->prev = NULL;
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
 		(gp_pcbs[i])->m_state = NEW;
 		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;
@@ -309,7 +305,7 @@ PCB* getNextBlocked(void){
 }
 
 void blockProcess(void){
-	ProcessNode* node = createProcessNodeByPCB(gp_current_process);
+	ProcessNode* node = processNodes[gp_current_process->m_pid];
 	
 	node->pcb->m_state = BLOCKED;
 	addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,1); //add to blocked(1)
@@ -330,7 +326,7 @@ void unblockProcess(PCB* pcb){
 	//preempt :(
 	//highest priority is 0
 	if (pcb->m_priority < gp_current_process->m_priority){
-		release_processor();
+		k_release_processor();
 	}
 }
 /*@brief: scheduler, pick the pid of the next to run process
