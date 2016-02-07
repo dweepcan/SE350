@@ -6,7 +6,6 @@
  */
 
 #include "k_memory.h"
-#include "k_process.h"
 
 #ifdef DEBUG_0
 #include "printf.h"
@@ -37,7 +36,17 @@ const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
           |                           |
           |        HEAP               |
           |                           |
+					|---------------------------|
+          |   Process Blocked Queue   |
           |---------------------------|
+          |   Process Ready Queue     |
+          |---------------------------|<--- readyPriorityQueue
+          |       ProcessNode 2       |
+          |---------------------------|
+          |       ProcessNode 1       |
+          |---------------------------|
+          |   ProcessNodes pointers   |
+          |---------------------------|<--- processNodes
           |        PCB 2              |
           |---------------------------|
           |        PCB 1              |
@@ -64,16 +73,49 @@ void memory_init(void)
 
 	/* allocate memory for pcb pointers   */
 	gp_pcbs = (PCB **)p_end;
-	p_end += NUM_TEST_PROCS * sizeof(PCB *);
+	p_end += (NUM_TEST_PROCS + 1) * sizeof(PCB *);
   
-	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
+	for ( i = 0; i <= NUM_TEST_PROCS; i++ ) {
 		gp_pcbs[i] = (PCB *)p_end;
 		p_end += sizeof(PCB); 
 	}
 #ifdef DEBUG_0  
 	printf("gp_pcbs[0] = 0x%x \n", gp_pcbs[0]);
 	printf("gp_pcbs[1] = 0x%x \n", gp_pcbs[1]);
+	printf("gp_pcbs[2] = 0x%x \n", gp_pcbs[2]);
+	printf("gp_pcbs[3] = 0x%x \n", gp_pcbs[3]);
+	printf("gp_pcbs[4] = 0x%x \n", gp_pcbs[4]);
+	printf("gp_pcbs[5] = 0x%x \n", gp_pcbs[5]);
+	printf("gp_pcbs[6] = 0x%x \n", gp_pcbs[6]);
 #endif
+	
+	/* allocate memory for pcb pointers   */
+	processNodes = (ProcessNode **)p_end;
+	p_end += (NUM_TEST_PROCS + 1) * sizeof(ProcessNode *);
+	
+	for ( i = 0; i <= NUM_TEST_PROCS; i++ ) {
+		processNodes[i] = (ProcessNode *)p_end;
+		p_end += sizeof(ProcessNode); 
+	}
+#ifdef DEBUG_0  
+	printf("processNodes[0] = 0x%x \n", processNodes[0]);
+	printf("processNodes[1] = 0x%x \n", processNodes[1]);
+	printf("processNodes[2] = 0x%x \n", processNodes[2]);
+	printf("processNodes[3] = 0x%x \n", processNodes[3]);
+	printf("processNodes[4] = 0x%x \n", processNodes[4]);
+	printf("processNodes[5] = 0x%x \n", processNodes[5]);
+	printf("processNodes[6] = 0x%x \n", processNodes[6]);
+#endif
+	
+	for(i = 0; i < NUM_PRIORITIES; i++) {
+		readyPriorityQueue[i] = (Queue *)p_end;
+		p_end += sizeof(Queue);
+	}
+	
+	for(i = 0; i < NUM_PRIORITIES; i++) {
+		blockedPriorityQueue[i] = (Queue *)p_end;
+		p_end += sizeof(Queue);
+	}
 	
 	/* prepare for alloc_stack() to allocate memory for stacks */
 	
@@ -142,11 +184,13 @@ void *k_request_memory_block(void) {
 #ifdef DEBUG_0
 		printf("k_request_memory_block: no available memory blocks.\n");
 #endif /* ! DEBUG_0 */
-
+		
 		// TODO: Add the process to blocked queue and yield the process
 		// current process moved to blocked queue
 		// current process state to BLOCKED_ON_RESOURCE
-		// k_release_processor();
+		//if(blockProcess() == RTX_OK) {
+		//	release_processor();
+		//}
 	}
 
 	/* Get the next available node from the heap */
@@ -214,11 +258,15 @@ int k_release_memory_block(void *p_mem_blk) {
 	if(push(gp_heap, p_node) == RTX_ERR) {
 		return RTX_ERR;
 	}
-
+	
 	// if blocked on resource q not empty
 	// handle process ready pop blocked resource q (this should have release processor at some point)
 	// assign memory block to the process popped
 	//else
+	//PCB* nextProcess = getNextBlocked();
+	//if(!nextProcess) {
+	//	unblockProcess(nextProcess);
+	//}
 
 	// TODO: atomic(off) <- need to do this later when time slicing can occur
 

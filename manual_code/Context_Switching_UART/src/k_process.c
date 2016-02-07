@@ -31,8 +31,8 @@ U32 g_switch_flag = 0;          /* whether to continue to run the process before
 				/* this value will be set by UART handler */
 
 /* process initialization table */
-PROC_INIT g_proc_table[NUM_TEST_PROCS];
-extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
+PROC_INIT g_proc_table[NUM_TEST_PROCS + 1];
+extern PROC_INIT g_test_procs[NUM_TEST_PROCS + 1];
 
 /**
  * @biref: initialize all processes in the system
@@ -41,10 +41,6 @@ extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
 
 //our stuff
-
-
-const int NUM_PRIORITIES = 5;
-
 Queue *readyPriorityQueue[NUM_PRIORITIES];
 Queue *blockedPriorityQueue[NUM_PRIORITIES];
 ProcessNode **processNodes;
@@ -122,7 +118,8 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 	
 	if (isReady == 0){ //if ready
 		//PCB * jdski= readyPriorityQueue[priority]->back->pcb;
-		if (readyPriorityQueue[priority]->back->pcb->m_pid == process_id && readyPriorityQueue[priority]->front->pcb->m_pid == process_id){
+		Queue* temp = readyPriorityQueue[priority];
+		if ((readyPriorityQueue[priority])->back->pcb->m_pid == process_id && (readyPriorityQueue[priority])->front->pcb->m_pid == process_id){
 			returnNode = readyPriorityQueue[priority]->back;
 			readyPriorityQueue[priority]->back=NULL;
 			readyPriorityQueue[priority]->front=NULL;
@@ -267,8 +264,8 @@ void process_init() {
 	
 	//set queues to null
 	for (i=0; i<5; i++){
-		readyPriorityQueue[i]->front = NULL;
-		readyPriorityQueue[i]->back = NULL;
+		(readyPriorityQueue[i])->front = NULL;
+		(readyPriorityQueue[i])->back = NULL;
 
 		blockedPriorityQueue[i]->front = NULL;
 		blockedPriorityQueue[i]->back = NULL;
@@ -286,9 +283,10 @@ void process_init() {
 	for ( i = 0; i < NUM_TEST_PROCS+1; i++ ) {
 		int j;
 		
-		processNodes[i]->pcb = gp_pcbs[i];
-		processNodes[i]->next = NULL;
-		processNodes[i]->prev = NULL;
+		ProcessNode* temp = processNodes[i];
+		(processNodes[i])->pcb = gp_pcbs[i];
+		(processNodes[i])->next = NULL;
+		(processNodes[i])->prev = NULL;
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
 		(gp_pcbs[i])->m_state = NEW;
 		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;

@@ -15,6 +15,7 @@
 /* ----- Definitions ----- */
 
 #define INITIAL_xPSR 0x01000000        /* user process initial xPSR value */
+#define NUM_PRIORITIES 5
 
 struct ProcessNode;
 typedef struct ProcessNode{
