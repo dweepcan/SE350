@@ -6,6 +6,7 @@
  */
 
 #include "k_memory.h"
+#include "rtx.h"
 
 #ifdef DEBUG_0
 #include "printf.h"
@@ -188,21 +189,21 @@ void *k_request_memory_block(void) {
 		// TODO: Add the process to blocked queue and yield the process
 		// current process moved to blocked queue
 		// current process state to BLOCKED_ON_RESOURCE
-		//if(blockProcess() == RTX_OK) {
-		//	release_processor();
-		//}
+		if(blockProcess() == RTX_OK) {
+			release_processor();
+		}
 	}
 
 	/* Get the next available node from the heap */
 	p_mem_blk = pop(gp_heap);
 
 	/* Increment the address of the node to get the start address of the block */
-	p_mem_blk += sizeof(k_node);
+	p_mem_blk += (sizeof(k_node)/4);
 
 	// TODO: atomic(off) <- need to do thi s later when time slicing can occur
 
 #ifdef DEBUG_0
-	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n", (p_mem_blk - sizeof(k_node)), p_mem_blk);
+	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	return (void *) p_mem_blk;
@@ -210,6 +211,7 @@ void *k_request_memory_block(void) {
 
 int k_release_memory_block(void *p_mem_blk) {
 	k_node *p_node = NULL;
+	PCB* nextProcess;
 
 #ifdef DEBUG_0 
 	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
@@ -226,7 +228,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	}
 
 	/* Cast the start address of the memory block to a k_node */
-	p_node = (k_node *)p_mem_blk - sizeof(k_node);
+	p_node = (k_node *)p_mem_blk - (sizeof(k_node)/4);
 
 	if((U8 *)p_node < gp_heap_begin || (U8 *)p_node > gp_heap_end) {
 #ifdef DEBUG_0
@@ -263,10 +265,11 @@ int k_release_memory_block(void *p_mem_blk) {
 	// handle process ready pop blocked resource q (this should have release processor at some point)
 	// assign memory block to the process popped
 	//else
-	//PCB* nextProcess = getNextBlocked();
-	//if(!nextProcess) {
-	//	unblockProcess(nextProcess);
-	//}
+	nextProcess = getNextBlocked();
+	
+	if(unblockProcess(nextProcess) == RTX_ERR) {
+		return RTX_ERR;
+	}
 
 	// TODO: atomic(off) <- need to do this later when time slicing can occur
 

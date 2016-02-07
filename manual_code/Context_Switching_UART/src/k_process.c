@@ -362,12 +362,12 @@ PCB *scheduler(void){
 	for (i=0;i<=4;i++){
 			if (readyPriorityQueue[i]->front !=NULL){
 				if (gp_current_process != NULL) {
-				//should only be false at first
+					//should only be false at first
 					addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
 				}
 					gp_current_process=readyPriorityQueue[i]->front->pcb;
 					removeProcessNode(gp_current_process->m_pid,i,0);
-					gp_current_process->m_state = RUN;
+					//gp_current_process->m_state = RUN;
 					return gp_current_process;
 			}
 	}
@@ -391,7 +391,7 @@ int process_switch(PCB *p_pcb_old) {
 	state = gp_current_process->m_state;
 
 	if (state == NEW) {
-		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != NEW) {
+		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != BLOCKED) {
 			p_pcb_old->m_state = RDY;
 			p_pcb_old->mp_sp = (U32 *) __get_MSP();
 		}
