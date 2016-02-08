@@ -216,7 +216,6 @@ int get_process_priority(int process_id){
 //checks if a process is in the ready state (0) or blocked (1), -1 if not found 
 int isReady(int process_id){
 	int i;
-	
 	for (i=0; i<NUM_PRIORITIES; i++){
 		ProcessNode* tempNode = readyPriorityQueue[i]->front;
 		while(tempNode!=NULL){
@@ -246,14 +245,16 @@ int set_process_priority(int process_id, int priority){
 		return RTX_ERR;
 	}
 	
-	removeProcessNode(process_id,oldNode->pcb->m_priority,state);
-	addProcessNode(process_id,priority,state);
+	if (process_id != gp_current_process->m_pid){
+		removeProcessNode(process_id,oldNode->pcb->m_priority,state);
+		addProcessNode(process_id,priority,state);
+	}
 	
 	oldPriority = oldNode->pcb->m_priority;
 	oldNode->pcb->m_priority = priority;
 	//preempt :)
 	//highest priority is 0
-	if (priority <= gp_current_process->m_priority ||
+	if ((gp_current_process->m_pid != process_id && priority <= gp_current_process->m_priority) ||
 		(gp_current_process->m_pid == process_id && priority > oldPriority)){
 		release_processor();
 	}
@@ -355,7 +356,7 @@ int unblockProcess(PCB* pcb){
 		//preempt :(
 		//highest priority is 0
 		if (pcb->m_priority <= gp_current_process->m_priority){
-			release_processor();
+			k_release_processor();
 		}
 			return RTX_OK;
 	}
@@ -370,7 +371,7 @@ int unblockProcess(PCB* pcb){
 
 PCB *scheduler(void){
 	int i;
-	if (gp_current_process != NULL) {
+	if (gp_current_process != NULL && gp_current_process->m_state != BLOCKED) {
 		//should only be false at first
 		addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
 	}
@@ -404,8 +405,12 @@ int process_switch(PCB *p_pcb_old) {
 	if (state == NEW) {
 		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != BLOCKED) {
 			p_pcb_old->m_state = RDY;
+		}
+		
+		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != NEW){
 			p_pcb_old->mp_sp = (U32 *) __get_MSP();
 		}
+		
 		gp_current_process->m_state = RUN;
 		__set_MSP((U32) gp_current_process->mp_sp);
 		__rte();  // pop exception stack frame from the stack for a new processes
