@@ -74,9 +74,9 @@ void memory_init(void)
 
 	/* allocate memory for pcb pointers   */
 	gp_pcbs = (PCB **)p_end;
-	p_end += (NUM_TEST_PROCS + 1) * sizeof(PCB *);
+	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS) * sizeof(PCB *);
   
-	for ( i = 0; i <= NUM_TEST_PROCS; i++ ) {
+	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS; i++ ) {
 		gp_pcbs[i] = (PCB *)p_end;
 		p_end += sizeof(PCB); 
 	}
@@ -92,9 +92,9 @@ void memory_init(void)
 	
 	/* allocate memory for pcb pointers   */
 	processNodes = (ProcessNode **)p_end;
-	p_end += (NUM_TEST_PROCS + 1) * sizeof(ProcessNode *);
+	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS) * sizeof(ProcessNode *);
 	
-	for ( i = 0; i <= NUM_TEST_PROCS; i++ ) {
+	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS; i++ ) {
 		processNodes[i] = (ProcessNode *)p_end;
 		p_end += sizeof(ProcessNode); 
 	}
@@ -186,7 +186,6 @@ void *k_request_memory_block(void) {
 		printf("k_request_memory_block: no available memory blocks.\n");
 #endif /* ! DEBUG_0 */
 		
-		// TODO: Add the process to blocked queue and yield the process
 		// current process moved to blocked queue
 		// current process state to BLOCKED_ON_RESOURCE
 		if(blockProcess() == RTX_OK) {
@@ -264,7 +263,6 @@ int k_release_memory_block(void *p_mem_blk) {
 	// if blocked on resource q not empty
 	// handle process ready pop blocked resource q (this should have release processor at some point)
 	// assign memory block to the process popped
-	//else
 	if(isBlockedEmpty() == 1) {
 		nextProcess = getNextBlocked();
 		unblockProcess(nextProcess);
