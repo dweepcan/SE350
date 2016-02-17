@@ -27,7 +27,7 @@ PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
 void set_test_procs() {
 	int i;
 	
-	uart0_put_string("\rG012_test: START\n\r");
+	uart0_put_string("G012_test: START\n\r");
 	sprintf(buffer, "G012_test: total %d tests\n\r", NUM_TEST_PROCS);
 	uart0_put_string((unsigned char*) buffer);
 	
