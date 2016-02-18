@@ -47,9 +47,9 @@ ProcessNode **processNodes;
 int isBlockedEmpty(){
 	int i;
 	for (i=0; i<NUM_PRIORITIES; i++){
-		if (blockedPriorityQueue[i]->front != NULL) return 1;		
+		if (blockedPriorityQueue[i]->front != NULL) return 0;		
 	}
-	return 0;
+	return 1;
 }
 
 

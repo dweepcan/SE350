@@ -23,7 +23,7 @@ k_stack *gp_heap;
 U8 *gp_heap_begin;
 U8 *gp_heap_end;
 
-const int NUM_BLOCKS = 30;
+const int NUM_BLOCKS = 2;
 const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
 
 /**
@@ -263,7 +263,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	// if blocked on resource q not empty
 	// handle process ready pop blocked resource q (this should have release processor at some point)
 	// assign memory block to the process popped
-	if(isBlockedEmpty() == 1) {
+	if(isBlockedEmpty() == 0) {
 		nextProcess = getNextBlocked();
 		unblockProcess(nextProcess);
 	}

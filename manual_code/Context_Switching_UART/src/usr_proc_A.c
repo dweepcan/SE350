@@ -70,10 +70,6 @@ void proc1(void)
 		
 		if ( i != 0 && i%5 == 0 ) {
 			uart0_put_string("\n\r");
-			uart0_put_string("\n\r");
-			uart0_put_string("\n\r");
-			uart0_put_string("\n\r");
-			uart0_put_string("\n\r");
 			counter++;
 			if ( counter == 2 ) {
 				ret_val = set_process_priority(PID_P2, HIGH);
