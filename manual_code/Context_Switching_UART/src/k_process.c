@@ -213,6 +213,7 @@ int k_set_process_priority(int process_id, int priority){
 	oldNode->pcb->m_priority = priority;
 	//preempt :)
 	//highest priority is 0
+	//TODO: Call release processor only when changing the priority of a non-blocked process 
 	if ((gp_current_process->m_pid != process_id && priority <= gp_current_process->m_priority) ||
 		(gp_current_process->m_pid == process_id && priority > oldPriority)){
 		k_release_processor();
