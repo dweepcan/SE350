@@ -126,7 +126,7 @@ void memory_init(void)
 	}
 
 	// OUR CODE
-	/* allocate memory for heap, not implemented yet*/
+	/* allocate memory for heap */
 	gp_heap = (k_stack *)p_end;
 	gp_heap->top = NULL;
 	p_end += sizeof(k_stack);
