@@ -35,12 +35,14 @@ const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
           |    Proc 2 STACK           |
           |---------------------------|<--- gp_stack
           |                           |
-          |        HEAP               |
-          |                           |
-					|---------------------------|
-          |   Process Blocked Queue   |
+          |        HEAP  						  |
+					|														|
           |---------------------------|
-          |   Process Ready Queue     |
+          |   Blocked Receive Queue   |
+					|---------------------------|
+          |   Blocked Queue   				|
+          |---------------------------|
+          |   Ready Queue     				|
           |---------------------------|<--- readyPriorityQueue
           |       ProcessNode 2       |
           |---------------------------|
@@ -114,9 +116,12 @@ void memory_init(void)
 	}
 	
 	for(i = 0; i < NUM_PRIORITIES; i++) {
-		blockedPriorityQueue[i] = (Queue *)p_end;
+		blockedResourceQueue[i] = (Queue *)p_end;
 		p_end += sizeof(Queue);
 	}
+	
+	blockedReceiveQueue = (Queue *)p_end;
+	p_end += sizeof(Queue);
 	
 	/* prepare for alloc_stack() to allocate memory for stacks */
 	
