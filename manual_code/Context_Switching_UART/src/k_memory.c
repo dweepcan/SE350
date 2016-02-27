@@ -6,7 +6,6 @@
  */
 
 #include "k_memory.h"
-#include "rtx.h"
 
 #ifdef DEBUG_0
 #include "printf.h"
@@ -50,6 +49,12 @@ const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
           |---------------------------|
           |   ProcessNodes pointers   |
           |---------------------------|<--- processNodes
+					|        MSG Queue 2        |
+          |---------------------------|
+          |        MSG Queue 1        |
+          |---------------------------|
+          |     MSG Queue pointers    |
+          |---------------------------|<--- gp_msgs
           |        PCB 2              |
           |---------------------------|
           |        PCB 1              |
@@ -92,7 +97,25 @@ void memory_init(void)
 	printf("gp_pcbs[6] = 0x%x \n", gp_pcbs[6]);
 #endif
 	
-	/* allocate memory for pcb pointers   */
+	/* allocate memory for k_msg_queue pointers   */
+	gp_msgs = (k_msg_queue **)p_end;
+	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS) * sizeof(k_msg_queue *);
+  
+	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS; i++ ) {
+		gp_msgs[i] = (k_msg_queue *)p_end;
+		p_end += sizeof(k_msg_queue); 
+	}
+#ifdef DEBUG_0  
+	printf("gp_msgs[0] = 0x%x \n", gp_msgs[0]);
+	printf("gp_msgs[1] = 0x%x \n", gp_msgs[1]);
+	printf("gp_msgs[2] = 0x%x \n", gp_msgs[2]);
+	printf("gp_msgs[3] = 0x%x \n", gp_msgs[3]);
+	printf("gp_msgs[4] = 0x%x \n", gp_msgs[4]);
+	printf("gp_msgs[5] = 0x%x \n", gp_msgs[5]);
+	printf("gp_msgs[6] = 0x%x \n", gp_msgs[6]);
+#endif
+	
+	/* allocate memory for ProcessNodes pointers   */
 	processNodes = (ProcessNode **)p_end;
 	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS) * sizeof(ProcessNode *);
 	

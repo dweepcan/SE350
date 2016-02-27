@@ -9,8 +9,10 @@
 #define K_MEM_H_
 
 #include "k_rtx.h"
+#include "rtx.h"
 #include "k_stack.h"
 #include "k_process.h"
+#include "k_msg_queue.h"
 
 /* ----- Definitions ----- */
 #define RAM_END_ADDR 0x10008000
@@ -19,6 +21,7 @@
 /* This symbol is defined in the scatter file (see RVCT Linker User Guide) */  
 extern unsigned int Image$$RW_IRAM1$$ZI$$Limit; 
 extern PCB **gp_pcbs;
+extern k_msg_queue **gp_msgs;
 extern PCB *gp_current_process;
 extern Queue *readyPriorityQueue[NUM_PRIORITIES];
 extern Queue *blockedResourceQueue[NUM_PRIORITIES];

@@ -24,6 +24,7 @@
 
 /* ----- Global Variables ----- */
 PCB **gp_pcbs;                  /* array of pcbs */
+k_msg_queue **gp_msgs;					/* array of k_msg_queue */
 PCB *gp_current_process = NULL; /* always point to the current RUN process */
 
 U32 g_switch_flag = 0;          /* whether to continue to run the process before the UART receive interrupt */
@@ -329,6 +330,7 @@ void process_init() {
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
 		(gp_pcbs[i])->m_state = NEW;
 		(gp_pcbs[i])->m_priority = (g_proc_table[i]).m_priority;
+		(gp_pcbs[i])->msg_queue = gp_msgs[i];
 		(gp_pcbs[i])->msg_queue->first = NULL;
 		(gp_pcbs[i])->msg_queue->last = NULL;
 		

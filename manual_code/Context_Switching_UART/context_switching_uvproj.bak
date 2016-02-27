@@ -426,6 +426,16 @@
               <FileType>1</FileType>
               <FilePath>.\src\uart_irq.c</FilePath>
             </File>
+            <File>
+              <FileName>k_queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\k_queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>k_stack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\k_stack.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

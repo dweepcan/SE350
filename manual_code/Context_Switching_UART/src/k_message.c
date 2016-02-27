@@ -1,16 +1,23 @@
 #include "k_message.h"
 
+#ifdef DEBUG_0
+#include "printf.h"
+#endif /* ! DEBUG_0 */
+
 int k_send_message(int pid, void *p_msg) {
-	__disable_irq();
 	
-	ProcessNode* sending_proc = findProcessNodeByPID(gp_current_process->m_pid);
-	ProcessNode* receiving_proc = findProcessNodeByPID(pid);
-	p_msg->m_send_pid = gp_current_process->m_pid;
-	p_msg->m_recv_pid = pid;
-	p_msg->m_kdata = NULL;
-	p_msg->mp_next = NULL;
+	ProcessNode* receiving_proc;
+	MSG_BUF* p_msg_buf;
+	
+	__disable_irq();
+
+	receiving_proc = findProcessNodeByPID(pid);
+	p_msg_buf = (MSG_BUF *)p_msg;
+	p_msg_buf->m_send_pid = gp_current_process->m_pid;
+	p_msg_buf->m_recv_pid = pid;
+	p_msg_buf->mp_next = NULL;
 	msg_enqueue(receiving_proc->pcb->msg_queue, p_msg);
-	if(receiving_proc->pcb->state == BLOCKED_ON_RECEIVE) {
+	if(receiving_proc->pcb->m_state == BLOCKED_ON_RECEIVE) {
 		if(unblockReceiveProcess(receiving_proc->pcb) == RTX_ERR) {
 			return RTX_ERR;
 		}
@@ -21,17 +28,19 @@ int k_send_message(int pid, void *p_msg) {
 }
 
 void *k_receive_message(int *p_pid) {
+	MSG_BUF* msg;
+	ProcessNode* receiving_proc;
 	
 	#ifdef DEBUG_0
-	if(p_id == NULL) {
+	if(p_pid == NULL) {
 			printf("WARNING: p_pid is passed in as NULL in k_receive_message");
 	}
 	#endif
 	
 	__disable_irq();
 	
-	MSG_BUF* msg = NULL;
-	ProcessNode* receiving_proc = findProcessNodeByPID(pid);
+	msg = NULL;
+	receiving_proc = findProcessNodeByPID(gp_current_process->m_pid);
 	while(msg_q_is_empty(receiving_proc->pcb->msg_queue)) {
 		blockReceiveProcess();
 		__enable_irq();
@@ -50,16 +59,18 @@ void *k_receive_message(int *p_pid) {
 
 void *k_receive_message_nonblocking(int *p_pid) {
 	// TODO: atomic(on)
+	MSG_BUF* msg;
+	ProcessNode* receiving_proc;
 	
 	#ifdef DEBUG_0
-	if(p_id == NULL) {
+	if(p_pid == NULL) {
 			printf("WARNING: p_pid is passed in as NULL in k_receive_message");
 	}
 	#endif
 	
-	MSG_BUF* msg = NULL;
-	ProcessNode* receiving_proc = findProcessNodeByPID(pid);
-	if(msg_q_is_empty(receiving_proc->pcb->msg_queue) {
+	msg = NULL;
+	receiving_proc = findProcessNodeByPID(gp_current_process->m_pid);
+	if(msg_q_is_empty(receiving_proc->pcb->msg_queue)) {
 		return NULL;
 	} else {
 		msg = msg_dequeue(receiving_proc->pcb->msg_queue);
