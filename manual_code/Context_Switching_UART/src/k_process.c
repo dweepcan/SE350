@@ -339,7 +339,7 @@ int unblockProcess(PCB* pcb){
 
 PCB *scheduler(void){
 	int i;
-	if (gp_current_process != NULL && gp_current_process->m_state != BLOCKED) {
+	if (gp_current_process != NULL && gp_current_process->m_state != BLOCKED && gp_current_process->m_state != BLOCKED_ON_RECEIVE) {
 		//should only be false at first
 		addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
 	}
@@ -371,7 +371,7 @@ int process_switch(PCB *p_pcb_old) {
 	state = gp_current_process->m_state;
 
 	if (state == NEW) {
-		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != BLOCKED) {
+		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != BLOCKED && p_pcb_old->m_state != BLOCKED_ON_RECEIVE) {
 			p_pcb_old->m_state = RDY;
 		}
 		
@@ -388,7 +388,7 @@ int process_switch(PCB *p_pcb_old) {
 
 	if (gp_current_process != p_pcb_old) {
 		if (state == RDY){
-			if(p_pcb_old->m_state != BLOCKED) {
+			if(p_pcb_old->m_state != BLOCKED && p_pcb_old->m_state != BLOCKED_ON_RECEIVE) {
 				p_pcb_old->m_state = RDY; 
 			}
 			

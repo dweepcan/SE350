@@ -8,8 +8,8 @@ typedef struct k_msg_queue {
     MSG_BUF *last;
 } k_msg_queue;
 
-int enqueue(k_msg_queue *p_queue, MSG_BUF *p_node);
-MSG_BUF* dequeue(k_msg_queue *p_queue);
-int q_is_empty(k_msg_queue *p_queue);
+int msg_enqueue(k_msg_queue *p_queue, MSG_BUF *p_node);
+MSG_BUF* msg_dequeue(k_msg_queue *p_queue);
+int msg_q_is_empty(k_msg_queue *p_queue);
 
 #endif //K_MSG_QUEUE_H
