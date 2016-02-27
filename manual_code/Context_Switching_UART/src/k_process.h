@@ -54,4 +54,9 @@ extern int isBlockedEmpty(void);
 extern PCB* getNextBlocked(void);
 extern int unblockProcess(PCB* pcb);
 
+// Helpers for block receive
+extern int blockReceiveProcess(void);
+extern int unblockReceiveProcess(PCB* pcb);
+
+
 #endif /* ! K_PROCESS_H_ */

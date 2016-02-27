@@ -114,7 +114,7 @@ void memory_init(void)
 	}
 	
 	for(i = 0; i < NUM_PRIORITIES; i++) {
-		blockedPriorityQueue[i] = (Queue *)p_end;
+		blockedResourceQueue[i] = (Queue *)p_end;
 		p_end += sizeof(Queue);
 	}
 	
