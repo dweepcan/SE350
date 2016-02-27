@@ -1,5 +1,5 @@
-#ifndef K_QUEUE_H
-#define K_QUEUE_H
+#ifndef K_MSG_QUEUE_H
+#define K_MSG_QUEUE_H
 
 typedef struct msgbuf MSG_BUF;
 
@@ -12,4 +12,4 @@ int enqueue(k_msg_queue *p_queue, MSG_BUF *p_node);
 MSG_BUF* dequeue(k_msg_queue *p_queue);
 int q_is_empty(k_msg_queue *p_queue);
 
-#endif //K_QUEUE_H
+#endif //K_MSG_QUEUE_H
