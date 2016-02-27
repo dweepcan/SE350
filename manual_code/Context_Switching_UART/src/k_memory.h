@@ -21,7 +21,8 @@ extern unsigned int Image$$RW_IRAM1$$ZI$$Limit;
 extern PCB **gp_pcbs;
 extern PCB *gp_current_process;
 extern Queue *readyPriorityQueue[NUM_PRIORITIES];
-extern Queue *blockedPriorityQueue[NUM_PRIORITIES];
+extern Queue *blockedResourceQueue[NUM_PRIORITIES];
+extern Queue *blockedReceiveQueue;
 extern ProcessNode **processNodes;
 extern PROC_INIT g_proc_table[NUM_TEST_PROCS];
 

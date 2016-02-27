@@ -40,14 +40,16 @@ extern PROC_INIT g_sys_procs[NUM_SYS_PROCS];
  * NOTE: We assume there are only six user processes in the system in this example.
  */
 Queue *readyPriorityQueue[NUM_PRIORITIES];
-Queue *blockedPriorityQueue[NUM_PRIORITIES];
+Queue *blockedResourceQueue[NUM_PRIORITIES];
+Queue *blockedReceiveQueue;
 ProcessNode **processNodes;
 
 
 int isBlockedEmpty(){
+	//checks if blocked on resource is empty
 	int i;
 	for (i=0; i<NUM_PRIORITIES; i++){
-		if (blockedPriorityQueue[i]->front != NULL) return 0;		
+		if (blockedResourceQueue[i]->front != NULL) return 0;		
 	}
 	return 1;
 }
@@ -59,12 +61,12 @@ ProcessNode* findProcessNodeByPID(int curpid){
 }
 
 
-int addProcessNode(int pid,int priority, int isReady){
+int addProcessNode(int pid,int priority, int state){
 	ProcessNode* pn;
 	if (pid > (NUM_TEST_PROCS + NUM_SYS_PROCS - 1)) return RTX_ERR;
 	pn = findProcessNodeByPID(pid);
 	
-	if (isReady==0) { //if ready
+	if (state==RDY || state==NEW) { //if ready
 		if (readyPriorityQueue[priority]->front == NULL){
 			readyPriorityQueue[priority]->back = pn;
 			readyPriorityQueue[priority]->front = pn;
@@ -78,29 +80,43 @@ int addProcessNode(int pid,int priority, int isReady){
 		pn->next = NULL;
 		readyPriorityQueue[priority]->back = pn;
 		return RTX_OK;
-	} else if (isReady==1) { //if blocked
-		if (blockedPriorityQueue[priority]->front == NULL){
-			blockedPriorityQueue[priority]->back = pn;
-			blockedPriorityQueue[priority]->front = pn;
+	} else if (state==BLOCKED_ON_RESOURCE) { //if blocked_resource
+		if (blockedResourceQueue[priority]->front == NULL){
+			blockedResourceQueue[priority]->back = pn;
+			blockedResourceQueue[priority]->front = pn;
 			pn->next = NULL;
 			pn->prev = NULL;
 			return RTX_OK;
 		}
 	
-		blockedPriorityQueue[priority]->back->next = pn;
-		pn->prev = blockedPriorityQueue[priority]->back;
+		blockedResourceQueue[priority]->back->next = pn;
+		pn->prev = blockedResourceQueue[priority]->back;
 		pn->next = NULL;
-		blockedPriorityQueue[priority]->back = pn;
+		blockedResourceQueue[priority]->back = pn;
 		return RTX_OK;
+	}else if (state==BLOCKED_ON_RECEIVE){
+		if (blockedReceiveQueue->front == NULL){
+			blockedReceiveQueue->back = pn;
+			blockedReceiveQueue->front = pn;
+			pn->next = NULL;
+			pn->prev = NULL;
+			return RTX_OK;
+		}
+		blockedReceiveQueue->back->next = pn;
+		pn->prev = blockedReceiveQueue->back;
+		pn->next = NULL;
+		blockedReceiveQueue->back = pn;
+		return RTX_OK;
+		
 	}
 	
 	return RTX_ERR;
 }
 
-ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
+ProcessNode* removeProcessNode(int process_id,int priority, int state){
 	ProcessNode* returnNode= NULL;
 	
-	if (isReady == 0){ //if ready
+	if (state == RDY || state == NEW){ //if ready
 		if ((readyPriorityQueue[priority])->back->pcb->m_pid == process_id && (readyPriorityQueue[priority])->front->pcb->m_pid == process_id){
 			returnNode = readyPriorityQueue[priority]->back;
 			readyPriorityQueue[priority]->back=NULL;
@@ -132,28 +148,59 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 		
 		return NULL;
 
-	}else if(isReady == 1){ //if blocked
-		if (blockedPriorityQueue[priority]->back->pcb->m_pid == process_id && blockedPriorityQueue[priority]->front->pcb->m_pid == process_id){
-			returnNode = blockedPriorityQueue[priority]->back;
-			blockedPriorityQueue[priority]->back=NULL;
-			blockedPriorityQueue[priority]->front=NULL;
+	}else if(state == BLOCKED_ON_RESOURCE){ //if blocked
+		if (blockedResourceQueue[priority]->back->pcb->m_pid == process_id && blockedResourceQueue[priority]->front->pcb->m_pid == process_id){
+			returnNode = blockedResourceQueue[priority]->back;
+			blockedResourceQueue[priority]->back=NULL;
+			blockedResourceQueue[priority]->front=NULL;
 			return returnNode;
 		}
-		if (blockedPriorityQueue[priority]->back->pcb->m_pid == process_id){
-			returnNode = blockedPriorityQueue[priority]->back;	
-			blockedPriorityQueue[priority]->back = blockedPriorityQueue[priority]->back->prev;
-			blockedPriorityQueue[priority]->back->next = NULL;
+		if (blockedResourceQueue[priority]->back->pcb->m_pid == process_id){
+			returnNode = blockedResourceQueue[priority]->back;	
+			blockedResourceQueue[priority]->back = blockedResourceQueue[priority]->back->prev;
+			blockedResourceQueue[priority]->back->next = NULL;
 			return returnNode;
 		}
-		if (blockedPriorityQueue[priority]->front->pcb->m_pid == process_id){
-			returnNode = blockedPriorityQueue[priority]->front;
-			blockedPriorityQueue[priority]->front = blockedPriorityQueue[priority]->front->next;
-			blockedPriorityQueue[priority]->front->prev = NULL;
+		if (blockedResourceQueue[priority]->front->pcb->m_pid == process_id){
+			returnNode = blockedResourceQueue[priority]->front;
+			blockedResourceQueue[priority]->front = blockedResourceQueue[priority]->front->next;
+			blockedResourceQueue[priority]->front->prev = NULL;
 			return returnNode;
 		}
 		
-		returnNode = blockedPriorityQueue[priority]->front->next;
-		while (returnNode != blockedPriorityQueue[priority]->back){
+		returnNode = blockedResourceQueue[priority]->front->next;
+		while (returnNode != blockedResourceQueue[priority]->back){
+			if (returnNode->pcb->m_pid == process_id){
+				returnNode->prev->next =  returnNode->next;
+				returnNode->next->prev =  returnNode->prev;
+				return returnNode;
+			}
+			returnNode=returnNode->next;
+		}
+		
+		return NULL;
+	}else  if(state == BLOCKED_ON_RECEIVE){ //if blocked
+		if (blockedReceiveQueue->back->pcb->m_pid == process_id && blockedReceiveQueue->front->pcb->m_pid == process_id){
+			returnNode = blockedReceiveQueue->back;
+			blockedReceiveQueue->back=NULL;
+			blockedReceiveQueue->front=NULL;
+			return returnNode;
+		}
+		if (blockedReceiveQueue->back->pcb->m_pid == process_id){
+			returnNode = blockedReceiveQueue->back;	
+			blockedReceiveQueue->back = blockedReceiveQueue->back->prev;
+			blockedReceiveQueue->back->next = NULL;
+			return returnNode;
+		}
+		if (blockedReceiveQueue->front->pcb->m_pid == process_id){
+			returnNode = blockedReceiveQueue->front;
+			blockedReceiveQueue->front = blockedReceiveQueue->front->next;
+			blockedReceiveQueue->front->prev = NULL;
+			return returnNode;
+		}
+		
+		returnNode = blockedReceiveQueue->front->next;
+		while (returnNode != blockedReceiveQueue->back){
 			if (returnNode->pcb->m_pid == process_id){
 				returnNode->prev->next =  returnNode->next;
 				returnNode->next->prev =  returnNode->prev;
@@ -164,6 +211,8 @@ ProcessNode* removeProcessNode(int process_id,int priority, int isReady){
 		
 		return NULL;
 	}
+	
+	
 	return NULL;
 }
 
@@ -175,26 +224,33 @@ int k_get_process_priority(int process_id){
 }
 
 //checks if a process is in the ready state (0) or blocked (1), -1 if not found 
-int isReady(int process_id){
+int getState(int process_id){
 	int i;
 	for (i=0; i<NUM_PRIORITIES; i++){
 		ProcessNode* tempNode = readyPriorityQueue[i]->front;
 		while(tempNode!=NULL){
-			if (tempNode->pcb->m_pid == process_id) return 0;
+			if (tempNode->pcb->m_pid == process_id) return RDY;
 			tempNode = tempNode->next;
 		}
-		tempNode = blockedPriorityQueue[i]->front;
+		tempNode = blockedResourceQueue[i]->front;
 		while(tempNode!=NULL){
-			if (tempNode->pcb->m_pid == process_id) return 1;
+			if (tempNode->pcb->m_pid == process_id) return BLOCKED_ON_RESOURCE;
 			tempNode = tempNode->next;
 		}
+		
+		tempNode = blockedReceiveQueue->front;
+		while (tempNode!=NULL){
+			if (tempNode->pcb->m_pid == process_id) return BLOCKED_ON_RECEIVE;
+			tempNode = tempNode->next;
+		}
+	//todo add antoher while loop
 	}
 	
 	return -1;
 }
 
 int k_set_process_priority(int process_id, int priority){
-	int state = isReady(process_id);
+	int state = getState(process_id);
 	int oldPriority = 0;
 	//todo update isready
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
@@ -236,9 +292,11 @@ void process_init() {
 		(readyPriorityQueue[i])->front = NULL;
 		(readyPriorityQueue[i])->back = NULL;
 
-		blockedPriorityQueue[i]->front = NULL;
-		blockedPriorityQueue[i]->back = NULL;
+		blockedResourceQueue[i]->front = NULL;
+		blockedResourceQueue[i]->back = NULL;
 	}
+	blockedReceiveQueue->front = NULL;
+	blockedReceiveQueue->back = NULL;
 	
 	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_proc_table[i].m_pid = g_test_procs[i].m_pid;
@@ -281,7 +339,7 @@ void process_init() {
 			*(--sp) = 0x0;
 		}
 		(gp_pcbs[i])->mp_sp = sp;
-		addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,0);
+		addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
 	}
 }
 
@@ -290,8 +348,8 @@ void process_init() {
 PCB* getNextBlocked(void){
 	int i=0; 
 	for(i=0; i<4; i++){
-		if(blockedPriorityQueue[i]->front != NULL){			
-			return blockedPriorityQueue[i]->front->pcb;
+		if(blockedResourceQueue[i]->front != NULL){			
+			return blockedResourceQueue[i]->front->pcb;
 		}
 	}
 	return NULL;
@@ -303,8 +361,8 @@ int blockProcess(void){
 		ProcessNode* node = findProcessNodeByPID(gp_current_process->m_pid);
 		if (node==NULL) return RTX_ERR;
 	
-		node->pcb->m_state = BLOCKED;
-		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,1); //add to blocked(1)
+		node->pcb->m_state = BLOCKED_ON_RESOURCE;
+		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,BLOCKED_ON_RESOURCE); //add to blocked(1)
 		
 		return RTX_OK;
 	}
@@ -314,12 +372,12 @@ int blockProcess(void){
 
 
 int unblockProcess(PCB* pcb){
-
+	
 	if (pcb != NULL){
-		ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, 1);	
+		ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, BLOCKED_ON_RESOURCE);	
 		pcb->m_state = RDY;
 
-		addProcessNode(pcb->m_pid, pcb->m_priority, 0);
+		addProcessNode(pcb->m_pid, pcb->m_priority, RDY);
 	
 		//preempt :(
 		//highest priority is 0
@@ -330,6 +388,39 @@ int unblockProcess(PCB* pcb){
 	}
 	return RTX_ERR;
 }
+
+
+int blockReceiveProcess(){
+		if(gp_current_process != NULL){
+		ProcessNode* node = findProcessNodeByPID(gp_current_process->m_pid);
+		if (node==NULL) return RTX_ERR;
+	
+		node->pcb->m_state = BLOCKED_ON_RECEIVE;
+		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,BLOCKED_ON_RECEIVE); //add to blocked(Receive
+		return RTX_OK;
+	}
+	
+	return RTX_ERR;
+}
+int unblockReceiveProcess(PCB* pcb){
+	if (pcb != NULL){
+		ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, BLOCKED_ON_RECEIVE);	
+		pcb->m_state = RDY;
+
+		addProcessNode(pcb->m_pid, pcb->m_priority, RDY);
+	
+		//preempt :)
+		//highest priority is 0
+		if (pcb->m_priority < gp_current_process->m_priority){
+			__enable_irq();
+			k_release_processor();
+			__disable_irq();
+		}
+			return RTX_OK;
+	}
+	return RTX_ERR;
+}
+
 /*@brief: scheduler, pick the pid of the next to run process
  *@return: PCB pointer of the next to run process
  *         NULL if error happens
@@ -339,14 +430,14 @@ int unblockProcess(PCB* pcb){
 
 PCB *scheduler(void){
 	int i;
-	if (gp_current_process != NULL && gp_current_process->m_state != BLOCKED && gp_current_process->m_state != BLOCKED_ON_RECEIVE) {
+	if (gp_current_process != NULL && gp_current_process->m_state != BLOCKED_ON_RESOURCE && gp_current_process->m_state != BLOCKED_ON_RECEIVE) {
 		//should only be false at first
-		addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,0);//put it at the back of the same pri ready q
+		addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,RDY);//put it at the back of the same pri ready q
 	}
 	for (i=0;i<=4;i++){
 			if (readyPriorityQueue[i]->front !=NULL){
 					gp_current_process=readyPriorityQueue[i]->front->pcb;
-					removeProcessNode(gp_current_process->m_pid,i,0);
+					removeProcessNode(gp_current_process->m_pid,i,RDY);
 					//gp_current_process->m_state = RUN;
 					return gp_current_process;
 			}
@@ -371,7 +462,7 @@ int process_switch(PCB *p_pcb_old) {
 	state = gp_current_process->m_state;
 
 	if (state == NEW) {
-		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != BLOCKED && p_pcb_old->m_state != BLOCKED_ON_RECEIVE) {
+		if (gp_current_process != p_pcb_old && p_pcb_old->m_state != BLOCKED_ON_RESOURCE && p_pcb_old->m_state != BLOCKED_ON_RECEIVE) {
 			p_pcb_old->m_state = RDY;
 		}
 		
@@ -388,7 +479,7 @@ int process_switch(PCB *p_pcb_old) {
 
 	if (gp_current_process != p_pcb_old) {
 		if (state == RDY){
-			if(p_pcb_old->m_state != BLOCKED && p_pcb_old->m_state != BLOCKED_ON_RECEIVE) {
+			if(p_pcb_old->m_state != BLOCKED_ON_RESOURCE && p_pcb_old->m_state != BLOCKED_ON_RECEIVE) {
 				p_pcb_old->m_state = RDY; 
 			}
 			
