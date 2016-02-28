@@ -12,6 +12,7 @@
 
 #include "k_rtx.h"
 #include "rtx.h"
+#include "timer.h"
 
 /* ----- Definitions ----- */
 
@@ -57,6 +58,5 @@ extern int unblockProcess(PCB* pcb);
 // Helpers for block receive
 extern int blockReceiveProcess(void);
 extern int unblockReceiveProcess(PCB* pcb);
-
 
 #endif /* ! K_PROCESS_H_ */

@@ -11,12 +11,14 @@
 
 #define BIT(X) (1<<X)
 
-volatile uint32_t g_timer_count = 0; // increment every 1 ms
+volatile U32 g_timer_count = 0; // increment every 1 ms
+
+k_msg_queue *pendingMessageQueue;
 
 /**
  * @brief: initialize timer. Only timer 0 is supported
  */
-uint32_t timer_init(uint8_t n_timer) 
+U32 timer_init(U8 n_timer) 
 {
 	LPC_TIM_TypeDef *pTimer;
 	if (n_timer == 0) {
@@ -118,6 +120,13 @@ void c_TIMER0_IRQHandler(void)
 	timer_i_process();
 }
 
+// Function which sets up the message queue
+void pending_message_queue_init(void) {
+	pendingMessageQueue -> first = NULL;
+	pendingMessageQueue -> last = NULL;
+}
+
 void timer_i_process(){
+	
 }
 

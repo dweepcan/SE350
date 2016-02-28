@@ -16,7 +16,7 @@ int k_send_message(int pid, void *p_msg) {
 	p_msg_buf->m_send_pid = gp_current_process->m_pid;
 	p_msg_buf->m_recv_pid = pid;
 	p_msg_buf->mp_next = NULL;
-	msg_enqueue(receiving_proc->pcb->msg_queue, p_msg);
+	msg_enqueue(receiving_proc->pcb->msg_queue, p_msg_buf);
 	if(receiving_proc->pcb->m_state == BLOCKED_ON_RECEIVE) {
 		if(unblockReceiveProcess(receiving_proc->pcb) == RTX_ERR) {
 			return RTX_ERR;
@@ -24,6 +24,22 @@ int k_send_message(int pid, void *p_msg) {
 	}
 	
 	__enable_irq();
+	return RTX_OK;
+}
+
+int k_send_message_nonblocking(int pid, void *p_msg) {
+	ProcessNode* receiving_proc;
+	MSG_BUF* p_msg_buf;
+
+	receiving_proc = findProcessNodeByPID(pid);
+	p_msg_buf = (MSG_BUF *)p_msg;
+	msg_enqueue(receiving_proc->pcb->msg_queue, p_msg_buf);
+	if(receiving_proc->pcb->m_state == BLOCKED_ON_RECEIVE) {
+		if(unblockReceiveProcess(receiving_proc->pcb) == RTX_ERR) {
+			return RTX_ERR;
+		}
+	}
+	
 	return RTX_OK;
 }
 
@@ -58,7 +74,6 @@ void *k_receive_message(int *p_pid) {
 }
 
 void *k_receive_message_nonblocking(int *p_pid) {
-	// TODO: atomic(on)
 	MSG_BUF* msg;
 	ProcessNode* receiving_proc;
 	
@@ -79,7 +94,25 @@ void *k_receive_message_nonblocking(int *p_pid) {
 		}
 	}
 	
-	// TODO: atomic(off)
-	
 	return (void *)msg;
+}
+
+int k_delayed_send(int pid, void *p_msg, int delay) {
+	int returnState = RTX_OK;
+	MSG_BUF* msg;
+
+	__disable_irq();
+	
+	msg = (MSG_BUF*) p_msg;
+	msg->m_send_pid = gp_current_process->m_pid;
+	msg->m_recv_pid = pid;
+	msg->m_kdata[0] = delay;
+	msg->mp_next = NULL;
+	if(msg_enqueue(pendingMessageQueue, msg) == RTX_ERR) {
+		returnState = RTX_ERR;
+	}
+	
+	__enable_irq();
+	
+	return returnState;
 }

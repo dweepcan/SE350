@@ -35,7 +35,8 @@ const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
           |---------------------------|<--- gp_stack
           |                           |
           |        HEAP  						  |
-					|														|
+					|---------------------------|
+          |   Pending Message Queue   |
           |---------------------------|
           |   Blocked Receive Queue   |
 					|---------------------------|
@@ -145,6 +146,10 @@ void memory_init(void)
 	
 	blockedReceiveQueue = (Queue *)p_end;
 	p_end += sizeof(Queue);
+	
+	// Allocate memory for Pending Message Queue
+	pendingMessageQueue = (k_msg_queue *)p_end;
+	p_end += sizeof(k_msg_queue);
 	
 	/* prepare for alloc_stack() to allocate memory for stacks */
 	

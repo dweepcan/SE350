@@ -12,6 +12,7 @@
 #include "rtx.h"
 #include "k_stack.h"
 #include "k_process.h"
+#include "timer.h"
 #include "k_msg_queue.h"
 
 /* ----- Definitions ----- */
@@ -28,6 +29,8 @@ extern Queue *blockedResourceQueue[NUM_PRIORITIES];
 extern Queue *blockedReceiveQueue;
 extern ProcessNode **processNodes;
 extern PROC_INIT g_proc_table[NUM_TEST_PROCS];
+
+extern k_msg_queue* pendingMessageQueue;
 
 /* ----- Functions ------ */
 void memory_init(void);

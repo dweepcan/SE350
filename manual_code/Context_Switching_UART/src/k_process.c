@@ -287,7 +287,7 @@ void process_init() {
 	/* fill out the initialization table */
 	set_test_procs();
 	set_sys_procs();
-	
+		
 	//set queues to null
 	for (i=0; i<5; i++) {
 		(readyPriorityQueue[i])->front = NULL;
@@ -323,6 +323,8 @@ void process_init() {
 		(processNodes[i])->prev = NULL;
 	}
   
+	pending_message_queue_init(); // Set up the pending message queue
+	
 	/* initialize exception stack frame (i.e. initial context) for each process */
 	for ( i = 0; i < (NUM_TEST_PROCS + NUM_SYS_PROCS); i++ ) {
 		int j;
