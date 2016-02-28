@@ -127,20 +127,19 @@ void pending_message_queue_init(void) {
 }
 
 void timer_i_process(){
-	MSG_BUF* msg = pendingMessageQueue->first;
-	MSG_BUF* prev = NULL;
-	
-	while(msg != NULL){
-		if ((U32)msg->m_kdata[0]<=g_timer_count){
-			int target_pid = msg->m_recv_pid;
-			k_send_message_nonblocking(target_pid, (void*)msg);
-			msg = msg->mp_next;
-			prev->mp_next = msg;
-		} else {
-			prev = msg;
-			msg = msg->mp_next;
-		}
-	}
-	
-}
+	MSG_BUF* root = pendingMessageQueue->first;
+	MSG_BUF* msg = root;
 
+	if (root!=NULL){
+		do{
+			msg = msg_dequeue(pendingMessageQueue);
+			if ((U32)msg->m_kdata[0]<=g_timer_count){
+				int target_pid = msg->m_recv_pid;
+				msg->mp_next = NULL;
+				k_send_message_nonblocking(target_pid, (void*)msg);
+			}else{
+				msg_enqueue(pendingMessageQueue, msg);
+			}
+		}while(pendingMessageQueue->first != root && pendingMessageQueue->first!=NULL);
+	}
+}
