@@ -7,6 +7,7 @@
 #define _TIMER_H_
 
 #include "k_rtx.h"
+#include "k_message.h"
 #include "k_msg_queue.h"
 
 extern U32 timer_init ( U8 n_timer );  /* initialize timer n_timer */

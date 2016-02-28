@@ -10,7 +10,7 @@ extern PCB *gp_current_process;
 extern k_msg_queue* pendingMessageQueue;
 
 int k_send_message(int pid, void *p_msg);
-void *k_receive_message_nonblocking(int *p_pid);
+extern int k_send_message_nonblocking(int pid, void *p_msg);
 void *k_receive_message(int *p_pid);
 void *k_receive_message_nonblocking(int *p_pid);
 int k_delayed_send(int pid, void *p_msg, int delay);

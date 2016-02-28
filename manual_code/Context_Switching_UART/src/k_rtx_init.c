@@ -19,6 +19,7 @@ void k_rtx_init(void)
 	uart0_put_string("\r");	// fix the irritating space at the start of output
 	memory_init();
 	process_init();
+	timer_init(0);
 	__enable_irq();
 	
 	//uart1_put_string("Type 'S' in COM0 terminal to switch between proc1 and proc2 or wait for them to switch between themselves\n\r");

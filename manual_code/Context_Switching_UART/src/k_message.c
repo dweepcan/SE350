@@ -4,6 +4,8 @@
 #include "printf.h"
 #endif /* ! DEBUG_0 */
 
+extern volatile U32 g_timer_count;
+
 int k_send_message(int pid, void *p_msg) {
 	
 	ProcessNode* receiving_proc;
@@ -101,12 +103,20 @@ int k_delayed_send(int pid, void *p_msg, int delay) {
 	int returnState = RTX_OK;
 	MSG_BUF* msg;
 
+	if(pid < 1 || pid > NUM_TEST_PROCS || delay < 0 || p_msg == NULL) {
+		return RTX_ERR;
+	}
+	
+	if(delay == 0) {
+		return send_message(pid, p_msg);
+	}
+	
 	__disable_irq();
 	
 	msg = (MSG_BUF*) p_msg;
 	msg->m_send_pid = gp_current_process->m_pid;
 	msg->m_recv_pid = pid;
-	msg->m_kdata[0] = delay;
+	msg->m_kdata[0] = delay + (int)g_timer_count;
 	msg->mp_next = NULL;
 	if(msg_enqueue(pendingMessageQueue, msg) == RTX_ERR) {
 		returnState = RTX_ERR;
