@@ -383,19 +383,14 @@ int unblockProcess(PCB* pcb){
 
 		addProcessNode(pcb->m_pid, pcb->m_priority, RDY);
 	
-		//preempt :(
-		//highest priority is 0
-		if (pcb->m_priority <= gp_current_process->m_priority){
-			k_release_processor();
-		}
-			return RTX_OK;
+		return RTX_OK;
 	}
 	return RTX_ERR;
 }
 
 
 int blockReceiveProcess(){
-		if(gp_current_process != NULL){
+	if(gp_current_process != NULL){
 		ProcessNode* node = findProcessNodeByPID(gp_current_process->m_pid);
 		if (node==NULL) return RTX_ERR;
 	
@@ -413,15 +408,9 @@ int unblockReceiveProcess(PCB* pcb){
 
 		addProcessNode(pcb->m_pid, pcb->m_priority, RDY);
 	
-		//preempt :)
-		//highest priority is 0
-		if (pcb->m_priority < gp_current_process->m_priority){
-			__enable_irq();
-			k_release_processor();
-			__disable_irq();
-		}
-			return RTX_OK;
+		return RTX_OK;
 	}
+	
 	return RTX_ERR;
 }
 
@@ -524,10 +513,10 @@ int k_release_processor(void){
 
 void printQueue(PROC_STATE_E state){
 	if (state == RDY){
-		printf("ready");
+		printf("ready\r\n");
 	}else if (state == BLOCKED_ON_RESOURCE){
-		printf("memory");
+		printf("memory\r\n");
 	}else if (state == BLOCKED_ON_RECEIVE){
-		printf("receive");
+		printf("receive\r\n");
 	}
 }

@@ -36,6 +36,8 @@ extern k_msg_queue* pendingMessageQueue;
 void memory_init(void);
 U32 *alloc_stack(U32 size_b);
 void *k_request_memory_block(void);
+void *k_request_memory_block_nonblocking(void);
 int k_release_memory_block(void *);
+int k_release_memory_block_nonblocking(void *);
 
 #endif /* ! K_MEM_H_ */

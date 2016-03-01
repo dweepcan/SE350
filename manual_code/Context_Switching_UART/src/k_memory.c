@@ -207,12 +207,12 @@ U32 *alloc_stack(U32 size_b)
 void *k_request_memory_block(void) {
 	k_node *p_mem_blk = NULL;
 
+	__disable_irq();
+	
 #ifdef DEBUG_0 
 	printf("k_request_memory_block: entering...\n");
 #endif /* ! DEBUG_0 */
-
-	// TODO: atomic(on) <- need to do this later when time slicing can occur
-
+	
 	while(s_is_empty(gp_heap)) {
 		/* If the heap is empty loop until a memory block is available */
 #ifdef DEBUG_0
@@ -222,7 +222,9 @@ void *k_request_memory_block(void) {
 		// current process moved to blocked queue
 		// current process state to BLOCKED_ON_RESOURCE
 		if(blockProcess() == RTX_OK) {
+			__enable_irq();
 			k_release_processor();
+			__disable_irq();
 		}
 	}
 
@@ -232,7 +234,35 @@ void *k_request_memory_block(void) {
 	/* Increment the address of the node to get the start address of the block */
 	p_mem_blk += (sizeof(k_node)/4);
 
-	// TODO: atomic(off) <- need to do thi s later when time slicing can occur
+#ifdef DEBUG_0
+	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
+#endif /* ! DEBUG_0 */
+
+	__enable_irq();
+	return (void *) p_mem_blk;
+}
+
+void *k_request_memory_block_nonblocking(void) {
+	k_node *p_mem_blk = NULL;
+
+#ifdef DEBUG_0 
+	printf("k_request_memory_block: entering...\n");
+#endif /* ! DEBUG_0 */
+	
+	if(s_is_empty(gp_heap)) {
+		/* If the heap is empty return NULL */
+#ifdef DEBUG_0
+		printf("k_request_memory_block: no available memory blocks.\n");
+#endif /* ! DEBUG_0 */
+		
+		return (void *) NULL;
+	}
+
+	/* Get the next available node from the heap */
+	p_mem_blk = pop(gp_heap);
+
+	/* Increment the address of the node to get the start address of the block */
+	p_mem_blk += (sizeof(k_node)/4);
 
 #ifdef DEBUG_0
 	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
@@ -244,12 +274,87 @@ void *k_request_memory_block(void) {
 int k_release_memory_block(void *p_mem_blk) {
 	k_node *p_node = NULL;
 	PCB* nextProcess;
-
+	
+	__disable_irq();
+	
 #ifdef DEBUG_0 
 	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 
-	// TODO: atomic(on) <- need to do this later when time slicing can occur
+	if(p_mem_blk == NULL) {
+#ifdef DEBUG_0
+		printf("k_release_memory_block: cannot release NULL memory block.\n");
+#endif /* ! DEBUG_0 */
+		__enable_irq();
+		return RTX_ERR;
+	}
+
+	/* Cast the start address of the memory block to a k_node */
+	p_node = (k_node *)p_mem_blk - (sizeof(k_node)/4);
+
+	if((U8 *)p_node < gp_heap_begin || (U8 *)p_node > gp_heap_end) {
+#ifdef DEBUG_0
+		printf("k_release_memory_block: 0x%x is out of bounds of heap memory addresses.\n", p_mem_blk);
+#endif /* ! DEBUG_0 */
+		__enable_irq();
+		return RTX_ERR;
+	}
+
+	/* Make sure the memory address is block-aligned */
+	if(((U8 *)p_node - gp_heap_begin) % (BLOCK_SIZE + sizeof(k_node)) != 0) {
+#ifdef DEBUG_0
+		printf("k_release_memory_block: 0x%x is not block-aligned.\n", p_mem_blk);
+#endif /* ! DEBUG_0 */
+		__enable_irq();
+		return RTX_ERR;
+	}
+
+	/* Make sure we are not releasing a unallocated memory block */
+	if(!s_is_empty(gp_heap) && contains(gp_heap, p_node)) {
+#ifdef DEBUG_0
+		printf("k_release_memory_block: 0x%x is already in the heap.\n", p_mem_blk);
+#endif /* ! DEBUG_0 */
+		__enable_irq();
+		return RTX_ERR;
+	}
+
+	/* Insert the node into the heap */
+	if(push(gp_heap, p_node) == RTX_ERR) {
+		__enable_irq();
+		return RTX_ERR;
+	}
+	
+	// if blocked on resource q not empty
+	// handle process ready pop blocked resource q (this should have release processor at some point)
+	// assign memory block to the process popped
+	if(isBlockedEmpty() == 0) {
+		nextProcess = getNextBlocked();
+		
+		if(unblockProcess(nextProcess) == RTX_ERR) {
+			__enable_irq();
+			return RTX_ERR;
+		}
+		
+		//preempt :(
+		//highest priority is 0
+		if (nextProcess->m_priority <= gp_current_process->m_priority){
+			__enable_irq();
+			k_release_processor();
+			__disable_irq();
+		}
+	}
+	
+	__enable_irq();
+	return RTX_OK;
+}
+
+int k_release_memory_block_nonblocking(void *p_mem_blk) {
+	k_node *p_node = NULL;
+	PCB* nextProcess;
+		
+#ifdef DEBUG_0 
+	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
+#endif /* ! DEBUG_0 */
 
 	if(p_mem_blk == NULL) {
 #ifdef DEBUG_0
@@ -290,6 +395,7 @@ int k_release_memory_block(void *p_mem_blk) {
 
 	/* Insert the node into the heap */
 	if(push(gp_heap, p_node) == RTX_ERR) {
+		
 		return RTX_ERR;
 	}
 	
@@ -298,10 +404,11 @@ int k_release_memory_block(void *p_mem_blk) {
 	// assign memory block to the process popped
 	if(isBlockedEmpty() == 0) {
 		nextProcess = getNextBlocked();
-		unblockProcess(nextProcess);
+		
+		if(unblockProcess(nextProcess) == RTX_ERR) {
+			return RTX_ERR;
+		}
 	}
 	
-	// TODO: atomic(off) <- need to do this later when time slicing can occur
-
 	return RTX_OK;
 }

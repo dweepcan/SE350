@@ -29,8 +29,8 @@ int main()
 #endif /* DEBUG_0 */
 	
 	/* start the RTX and built-in processes */
-	rtx_init();  
-  
+	rtx_init();
+	
 	/* We should never reach here!!! */
 	return RTX_ERR;  
 }
