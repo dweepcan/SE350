@@ -8,11 +8,17 @@
 #include <LPC17xx.h>
 #include "uart.h"
 #include "uart_polling.h"
-#ifdef DEBUG_0
+//#ifdef DEBUG_0
 #include "printf.h"
 #include "k_process.h"
-#endif
+#include "k_rtx.h"
+//#endif
 
+#ifdef _DEBUG_HOTKEYS
+#define READY_HK '1'
+#define BLOCKED_RESOURCE_HK '2'
+#define BLOCKED_RECEIVE_HK '3'
+#endif
 
 uint8_t g_buffer[]= "You Typed a Q\n\r";
 uint8_t *gp_buffer = g_buffer;
@@ -200,6 +206,12 @@ void c_UART0_IRQHandler(void)
 		uart1_put_char(g_char_in);
 		uart1_put_string("\n\r");
 #endif // DEBUG_0
+
+		//OUR CODE
+#ifdef _DEBUG_HOTKEYS
+		uart_i_process(g_char_in);
+#endif		
+
 		g_buffer[12] = g_char_in; // nasty hack
 		g_send_char = 1;
 		
@@ -240,4 +252,15 @@ void c_UART0_IRQHandler(void)
 #endif // DEBUG_0
 		return;
 	}	
+}
+
+void uart_i_process(uint8_t char_in){
+	
+	if (char_in == READY_HK){
+		printQueue(RDY);
+	}else if (char_in == BLOCKED_RESOURCE_HK){
+		printQueue(BLOCKED_ON_RESOURCE);
+	}else if (char_in == BLOCKED_RECEIVE_HK){
+		printQueue(BLOCKED_ON_RECEIVE);
+	}
 }

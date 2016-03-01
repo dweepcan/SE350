@@ -48,6 +48,7 @@ int addProcessNode(int pid,int priority, int isReady);
 ProcessNode* removeProcessNode(int process_id,int priority, int isReady);
 int isReady(int process_id);
 int process_switch(PCB *p_pcb_old);
+void printQueue(U8 char_in);
 
 // Helpers for request and release memory blocks for preemption
 extern int blockProcess(void);

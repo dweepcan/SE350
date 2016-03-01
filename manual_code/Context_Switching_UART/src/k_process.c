@@ -520,3 +520,14 @@ int k_release_processor(void){
 	process_switch(p_pcb_old);
 	return RTX_OK;
 }
+
+
+void printQueue(PROC_STATE_E state){
+	if (state == RDY){
+		printf("ready");
+	}else if (state == BLOCKED_ON_RESOURCE){
+		printf("memory");
+	}else if (state == BLOCKED_ON_RECEIVE){
+		printf("receive");
+	}
+}
