@@ -8,6 +8,7 @@
 
 #include <LPC17xx.h>
 #include "timer.h"
+#include "k_process.h"
 
 extern Queue *readyPriorityQueue[NUM_PRIORITIES];
 
@@ -153,10 +154,11 @@ void timer_i_process(){
 		}while(pendingMessageQueue->first != root && pendingMessageQueue->first!=NULL);
 	}
 	
-	for (i=0;i<=4;i++){
+	for (i=0;i<NUM_PRIORITIES;i++){
 			if (readyPriorityQueue[i]->front !=NULL && readyPriorityQueue[i]->front->pcb->m_priority < gp_current_process->m_priority){
 					// newProcess=1;
-					k_release_processor();
+				k_release_processor();
+				break;
 			}
 	}
 	

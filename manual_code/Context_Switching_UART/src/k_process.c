@@ -244,10 +244,9 @@ int getState(int process_id){
 			if (tempNode->pcb->m_pid == process_id) return BLOCKED_ON_RECEIVE;
 			tempNode = tempNode->next;
 		}
-	//todo add antoher while loop
 	}
 	
-	return -1;
+	return RTX_ERR;
 }
 
 int k_set_process_priority(int process_id, int priority){
@@ -257,7 +256,8 @@ int k_set_process_priority(int process_id, int priority){
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
 	
 	//prevent set process if modifying null proc or setting priority to null proc level
-	if (process_id == 0 || priority == 4 || oldNode == NULL){
+	if (process_id == PID_NULL || process_id == PID_KCD || process_id == PID_CRT ||
+		priority == LOWEST+1 || priority == HIGHEST || oldNode == NULL){
 		return RTX_ERR;
 	}
 	
@@ -289,7 +289,7 @@ void process_init() {
 	set_sys_procs();
 		
 	//set queues to null
-	for (i=0; i<5; i++) {
+	for (i=0; i<NUM_PRIORITIES; i++) {
 		(readyPriorityQueue[i])->front = NULL;
 		(readyPriorityQueue[i])->back = NULL;
 
@@ -360,7 +360,7 @@ void process_init() {
 
 PCB* getNextBlocked(void){
 	int i=0; 
-	for(i=0; i<4; i++){
+	for(i=0; i<NUM_PRIORITIES-1; i++){ //-1 to not include the null process 
 		if(blockedResourceQueue[i]->front != NULL){			
 			return blockedResourceQueue[i]->front->pcb;
 		}
@@ -369,13 +369,12 @@ PCB* getNextBlocked(void){
 }
 
 int blockProcess(void){
-	
 	if(gp_current_process != NULL){
 		ProcessNode* node = findProcessNodeByPID(gp_current_process->m_pid);
 		if (node==NULL) return RTX_ERR;
 	
 		node->pcb->m_state = BLOCKED_ON_RESOURCE;
-		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,BLOCKED_ON_RESOURCE); //add to blocked(1)
+		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority, BLOCKED_ON_RESOURCE); //add to blocked(1)
 		
 		return RTX_OK;
 	}
@@ -385,7 +384,6 @@ int blockProcess(void){
 
 
 int unblockProcess(PCB* pcb){
-	
 	if (pcb != NULL){
 		ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, BLOCKED_ON_RESOURCE);	
 		pcb->m_state = RDY;
@@ -394,6 +392,7 @@ int unblockProcess(PCB* pcb){
 	
 		return RTX_OK;
 	}
+	
 	return RTX_ERR;
 }
 
@@ -404,12 +403,14 @@ int blockReceiveProcess(){
 		if (node==NULL) return RTX_ERR;
 	
 		node->pcb->m_state = BLOCKED_ON_RECEIVE;
-		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority,BLOCKED_ON_RECEIVE); //add to blocked(Receive
+		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority, BLOCKED_ON_RECEIVE); //add to blockedReceive
+		
 		return RTX_OK;
 	}
 	
 	return RTX_ERR;
 }
+
 int unblockReceiveProcess(PCB* pcb){
 	if (pcb != NULL){
 		ProcessNode * node = removeProcessNode(pcb->m_pid, pcb->m_priority, BLOCKED_ON_RECEIVE);	
@@ -429,26 +430,23 @@ int unblockReceiveProcess(PCB* pcb){
  *POST: if gp_current_process was NULL, then it gets set to pcbs[0].
  *      No other effect on other global variables.
  */
-
 PCB *scheduler(void){
 	int i;
 	if (gp_current_process != NULL && gp_current_process->m_state != BLOCKED_ON_RESOURCE && gp_current_process->m_state != BLOCKED_ON_RECEIVE) {
 		//should only be false at first
-		addProcessNode(gp_current_process->m_pid,gp_current_process->m_priority,RDY);//put it at the back of the same pri ready q
+		addProcessNode(gp_current_process->m_pid, gp_current_process->m_priority, RDY);//put it at the back of the same pri ready q
 	}
-	for (i=0;i<=4;i++){
-			if (readyPriorityQueue[i]->front !=NULL){
+	
+	for (i=0;i<NUM_PRIORITIES;i++){
+			if (readyPriorityQueue[i]->front != NULL){
 					gp_current_process=readyPriorityQueue[i]->front->pcb;
 					removeProcessNode(gp_current_process->m_pid,i,RDY);
-					//gp_current_process->m_state = RUN;
 					return gp_current_process;
 			}
 	}
 	
 	return gp_current_process;
 }
-
-
 
 /*@brief: switch out old pcb (p_pcb_old), run the new pcb (gp_current_process)
  *@param: p_pcb_old, the old pcb that was in RUN
@@ -478,7 +476,6 @@ int process_switch(PCB *p_pcb_old) {
 	} 
 	
 	/* The following will only execute if the if block above is FALSE */
-
 	if (gp_current_process != p_pcb_old) {
 		if (state == RDY){
 			if(p_pcb_old->m_state != BLOCKED_ON_RESOURCE && p_pcb_old->m_state != BLOCKED_ON_RECEIVE) {
@@ -493,6 +490,7 @@ int process_switch(PCB *p_pcb_old) {
 			return RTX_ERR;
 		} 
 	}
+	
 	return RTX_OK;
 }
 /**
@@ -506,15 +504,16 @@ int k_release_processor(void){
 	p_pcb_old = gp_current_process;
 	gp_current_process = scheduler();
 	
-	
 	//Error checking code: should not happen 
 	if ( gp_current_process == NULL  ) {
 		gp_current_process = p_pcb_old; // revert back tog the old process
 		return RTX_ERR;
 	}
-        if ( p_pcb_old == NULL ) {
+  
+	if (p_pcb_old == NULL) {
 		p_pcb_old = gp_current_process;
 	}
+	
 	process_switch(p_pcb_old);
 	return RTX_OK;
 }
@@ -537,7 +536,7 @@ void printReadyQueue() {
 	int i;
 	ProcessNode* node;
 	
-	for (i=0;i<4;i++){
+	for (i=0;i<NUM_PRIORITIES-1; i++){
 		node = readyPriorityQueue[i]->front; 
 		
 		while(node!=NULL){
@@ -551,7 +550,7 @@ void printBlockedOnResourceQueue() {
 	int i;
 	ProcessNode* node;
 	
-	for (i=0;i<4;i++){
+	for (i=0;i<NUM_PRIORITIES-1;i++){
 		node = blockedResourceQueue[i]->front; 
 		
 		while(node!=NULL){
