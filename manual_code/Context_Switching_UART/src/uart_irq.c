@@ -29,7 +29,7 @@ uint8_t g_char_out;
 
 extern uint32_t g_switch_flag;
 
-char* stringBuilder;
+char stringBuilder[1];
 int length = 0;
 
 //extern int k_release_processor(void);
@@ -272,7 +272,8 @@ void uart_i_process(uint8_t char_in){
 	
 	if(char_in != '\r') {
 		printf("Received %c\n\r", (char) char_in);
-		stringBuilder[length] = (char) char_in;
+		// Need this hack because you can only cast the u_int_8 pointer to char * pointer
+		stringBuilder[length] = *((char *) &char_in);
 		length++;
 	} else {
 		printf("Received carraige return character\n\r");
