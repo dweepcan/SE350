@@ -9,6 +9,8 @@
 #include <LPC17xx.h>
 #include "timer.h"
 
+extern Queue *readyPriorityQueue[NUM_PRIORITIES];
+
 #define BIT(X) (1<<X)
 
 volatile U32 g_timer_count = 0; // increment every 1 ms
@@ -113,6 +115,8 @@ __asm void TIMER0_IRQHandler(void)
  */
 void c_TIMER0_IRQHandler(void)
 {
+	__disable_irq();
+	
 	/* ack inttrupt, see section  21.6.1 on pg 493 of LPC17XX_UM */
 	LPC_TIM0->IR = BIT(0);  
 	
@@ -120,6 +124,8 @@ void c_TIMER0_IRQHandler(void)
 	
 	//context switch set current to timer 
 	timer_i_process();
+	
+	__enable_irq();
 }
 
 // Function which sets up the message queue
@@ -129,6 +135,8 @@ void pending_message_queue_init(void) {
 }
 
 void timer_i_process(){
+	// int shouldPreempt = 0;
+	int i;
 	MSG_BUF* root = pendingMessageQueue->first;
 	MSG_BUF* msg = root;
 
@@ -144,4 +152,13 @@ void timer_i_process(){
 			}
 		}while(pendingMessageQueue->first != root && pendingMessageQueue->first!=NULL);
 	}
+	
+	for (i=0;i<=4;i++){
+			if (readyPriorityQueue[i]->front !=NULL && readyPriorityQueue[i]->front->pcb->m_priority < gp_current_process->m_priority){
+					// newProcess=1;
+					k_release_processor();
+			}
+	}
+	
+	
 }
