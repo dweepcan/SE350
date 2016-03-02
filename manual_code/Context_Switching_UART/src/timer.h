@@ -13,4 +13,5 @@
 extern U32 timer_init ( U8 n_timer );  /* initialize timer n_timer */
 extern void pending_message_queue_init(void);
 void timer_i_process(void);
+
 #endif /* ! _TIMER_H_ */

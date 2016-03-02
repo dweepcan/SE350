@@ -221,10 +221,13 @@ void init_printf(void* putp,void (*putf) (void*,char))
 void tfp_printf(char *fmt, ...)
 	{
 	va_list va;
+	// Need this in case the interrupt buffer gets replaced with new characters
+	__disable_irq();
 	va_start(va,fmt);
 	tfp_format(stdout_putp,stdout_putf,fmt,va);
 	va_end(va);
-	}
+	__enable_irq();
+}
 
 static void putcp(void* p,char c)
 	{
@@ -236,8 +239,11 @@ static void putcp(void* p,char c)
 void tfp_sprintf(char* s,char *fmt, ...)
 	{
 	va_list va;
+	// Need this in case the interrupt buffer gets replaced with new characters
+	__disable_irq();
 	va_start(va,fmt);
 	tfp_format(&s,putcp,fmt,va);
 	putcp(&s,0);
 	va_end(va);
-	}
+	__enable_irq();
+}

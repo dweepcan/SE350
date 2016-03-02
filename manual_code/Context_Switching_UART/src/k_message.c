@@ -112,15 +112,17 @@ int k_delayed_send(int pid, void *p_msg, int delay) {
 	int returnState = RTX_OK;
 	MSG_BUF* msg;
 
+	__disable_irq();
+	
 	if(pid < 1 || pid > NUM_TEST_PROCS || delay < 0 || p_msg == NULL) {
+		__enable_irq();
 		return RTX_ERR;
 	}
 	
 	if(delay == 0) {
+		__enable_irq();
 		return send_message(pid, p_msg);
 	}
-	
-	__disable_irq();
 	
 	msg = (MSG_BUF*) p_msg;
 	msg->m_send_pid = gp_current_process->m_pid;

@@ -117,6 +117,8 @@ void c_TIMER0_IRQHandler(void)
 	LPC_TIM0->IR = BIT(0);  
 	
 	g_timer_count++ ;
+	
+	//context switch set current to timer 
 	timer_i_process();
 }
 

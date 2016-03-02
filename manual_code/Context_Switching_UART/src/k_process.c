@@ -322,6 +322,12 @@ void process_init() {
 		(processNodes[i])->next = NULL;
 		(processNodes[i])->prev = NULL;
 	}
+	
+	for(i=NUM_TEST_PROCS+1; i < (NUM_TEST_PROCS+NUM_SYS_PROCS); i++) {
+		(processNodes[i])->pcb = gp_pcbs[i];
+		(processNodes[i])->next = NULL;
+		(processNodes[i])->prev = NULL;
+	}
   
 	pending_message_queue_init(); // Set up the pending message queue
 	
@@ -343,7 +349,10 @@ void process_init() {
 			*(--sp) = 0x0;
 		}
 		(gp_pcbs[i])->mp_sp = sp;
-		addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
+		
+		if(i <= NUM_TEST_PROCS) {
+			addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
+		}
 	}
 }
 
@@ -513,10 +522,50 @@ int k_release_processor(void){
 
 void printQueue(PROC_STATE_E state){
 	if (state == RDY){
-		printf("ready\r\n");
+		printf("Ready Queue:\r\n");
+		printReadyQueue();
 	}else if (state == BLOCKED_ON_RESOURCE){
-		printf("memory\r\n");
+		printf("Blocked On Resource Queue:\r\n");
+		printBlockedOnResourceQueue();
 	}else if (state == BLOCKED_ON_RECEIVE){
-		printf("receive\r\n");
+		printf("Blocked On Receive Queue:\r\n");
+		printBlockedOnReceiveQueue();
+	}
+}
+
+void printReadyQueue() {
+	int i;
+	ProcessNode* node;
+	
+	for (i=0;i<4;i++){
+		node = readyPriorityQueue[i]->front; 
+		
+		while(node!=NULL){
+			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+			node = node->next;
+		}
+	}
+}
+
+void printBlockedOnResourceQueue() {
+	int i;
+	ProcessNode* node;
+	
+	for (i=0;i<4;i++){
+		node = blockedResourceQueue[i]->front; 
+		
+		while(node!=NULL){
+			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+			node = node->next;
+		}
+	}
+}
+
+void printBlockedOnReceiveQueue() {
+	ProcessNode* node = blockedReceiveQueue->front;
+
+	while(node!=NULL){
+		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+		node = node->next;
 	}
 }
