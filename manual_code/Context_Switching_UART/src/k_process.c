@@ -350,7 +350,7 @@ void process_init() {
 		}
 		(gp_pcbs[i])->mp_sp = sp;
 		
-		if(i <= NUM_TEST_PROCS) {
+		if(i < NUM_TEST_PROCS + (NUM_SYS_PROCS - 2)) {
 			addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
 		}
 	}

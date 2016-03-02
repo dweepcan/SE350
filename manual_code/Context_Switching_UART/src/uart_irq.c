@@ -10,6 +10,7 @@
 #include "uart_polling.h"
 //#ifdef DEBUG_0
 #include "printf.h"
+#include "k_memory.h"
 #include "k_process.h"
 #include "k_rtx.h"
 //#endif
@@ -27,6 +28,9 @@ uint8_t g_char_in;
 uint8_t g_char_out;
 
 extern uint32_t g_switch_flag;
+
+char* stringBuilder;
+int length = 0;
 
 //extern int k_release_processor(void);
 /**
@@ -208,9 +212,7 @@ void c_UART0_IRQHandler(void)
 #endif // DEBUG_0
 
 		//OUR CODE
-#ifdef _DEBUG_HOTKEYS
 		uart_i_process(g_char_in);
-#endif		
 
 		g_buffer[12] = g_char_in; // nasty hack
 		g_send_char = 1;
@@ -255,12 +257,40 @@ void c_UART0_IRQHandler(void)
 }
 
 void uart_i_process(uint8_t char_in){
+	MSG_BUF *p_msg_env;
+	int i;
 	
+#ifdef _DEBUG_HOTKEYS
 	if (char_in == READY_HK){
 		printQueue(RDY);
 	}else if (char_in == BLOCKED_RESOURCE_HK){
 		printQueue(BLOCKED_ON_RESOURCE);
 	}else if (char_in == BLOCKED_RECEIVE_HK){
 		printQueue(BLOCKED_ON_RECEIVE);
+	}
+#endif
+	
+	if(char_in != '\r') {
+		printf("Received %c\n\r", (char) char_in);
+		stringBuilder[length] = (char) char_in;
+		length++;
+	} else {
+		printf("Received carraige return character\n\r");
+		
+		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();
+		if(p_msg_env != NULL) {
+			p_msg_env->m_send_pid = PID_UART_IPROC;
+			p_msg_env->m_recv_pid = PID_KCD;
+			p_msg_env->mp_next = NULL;
+			p_msg_env->mtype = DEFAULT;
+			
+			for (i=0; i<length; i++){
+				p_msg_env->mtext[i] = stringBuilder[i];
+			}
+			
+			k_send_message_nonblocking(PID_KCD, p_msg_env);
+		}
+		
+		length = 0;
 	}
 }
