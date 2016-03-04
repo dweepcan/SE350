@@ -14,7 +14,7 @@ void set_sys_procs() {
 	
 	// TODO: change the priority to make sense
 	g_sys_procs[1].m_pid=(U32)PID_KCD;
-	g_sys_procs[1].m_priority=LOWEST+1;
+	g_sys_procs[1].m_priority=HIGHEST;
 	g_sys_procs[1].m_stack_size=0x100;
  	g_sys_procs[1].mpf_start_pc = &proc_kcd;
 	
@@ -38,4 +38,5 @@ void proc_null(void) {
 
 // Keyboard Command Decoder Process
 void proc_kcd(void) {
+	receive_message(NULL);
 }

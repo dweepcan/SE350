@@ -73,7 +73,9 @@ void proc1(void){
 	p_msg_env->mtext[0] = '%';
 	p_msg_env->mtext[1] = 'W';
 	p_msg_env->mtext[2] = '1';
+	printf("Entering process 1\r\n");
 	release_processor();
+	printf("Reentering process 1\r\n");
 	send_message(PID_P2,(void *)p_msg_env);
 	while(1) {
 		release_processor();
@@ -81,7 +83,11 @@ void proc1(void){
 }
 void proc2(void){
 	int dog;
-	MSG_BUF *p_msg_rec = (MSG_BUF *)receive_message(&dog);
+	MSG_BUF *p_msg_rec;
+	
+	printf("Entering process 2\r\n");
+	p_msg_rec = (MSG_BUF *)receive_message(&dog);
+	printf("Reentering process 2\r\n");
 	release_processor();
 	printf("Sender ID: %d\n\r", dog);
 	printf("Message Type: %d\n\r", p_msg_rec->mtype);
@@ -93,6 +99,7 @@ void proc2(void){
 
 // Test which ensures we can request a memory block as well as release it after we're done.
 void proc3(void){
+	printf("Entering process 3\r\n");
 	while(1) {
 		release_processor();
 	}
@@ -100,6 +107,7 @@ void proc3(void){
 
 // Test preemption
 void proc4(void){
+	printf("Entering process 4\r\n");
 	while(1) {
 		release_processor();
 	}
@@ -107,6 +115,7 @@ void proc4(void){
 
 // Test which ensures that we correctly set priorities.
 void proc5(void){
+	printf("Entering process 5\r\n");
 	while(1) {
 		release_processor();
 	}
@@ -114,6 +123,7 @@ void proc5(void){
 
 // Test whether we can release a memory block which is not actually a memory block, just a random address
 void proc6(void){
+	printf("Entering process 6\r\n");
 	while(1) {
 		release_processor();
 	}

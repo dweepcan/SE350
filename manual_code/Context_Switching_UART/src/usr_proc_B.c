@@ -51,8 +51,6 @@
 
 /* initialization table item */
 PROC_INIT g_test_procs[NUM_TEST_PROCS];
-const int NUM_MEM = 2;
-void *all_memory_blocks[NUM_MEM];
 
 void set_test_procs() {
 	int i;
@@ -62,22 +60,22 @@ void set_test_procs() {
 	}
   
 	g_test_procs[0].mpf_start_pc = &proc1;
-	g_test_procs[0].m_priority   = HIGH;
+	g_test_procs[0].m_priority   = MEDIUM;
 	
 	g_test_procs[1].mpf_start_pc = &proc2;
-	g_test_procs[1].m_priority   = MEDIUM;
+	g_test_procs[1].m_priority   = HIGH;
 	
 	g_test_procs[2].mpf_start_pc = &proc3;
-	g_test_procs[2].m_priority   = LOWEST;
+	g_test_procs[2].m_priority   = LOW;
 	
 	g_test_procs[3].mpf_start_pc = &proc4;
-	g_test_procs[3].m_priority   = LOWEST;
+	g_test_procs[3].m_priority   = LOW;
 	
 	g_test_procs[4].mpf_start_pc = &proc5;
-	g_test_procs[4].m_priority   = LOWEST;
+	g_test_procs[4].m_priority   = LOW;
 	
 	g_test_procs[5].mpf_start_pc = &proc6;
-	g_test_procs[5].m_priority   = LOWEST;
+	g_test_procs[5].m_priority   = LOW;
 }
 
 
@@ -89,26 +87,6 @@ void proc1(void)
 {
 	int i = 0;
 	void *p_mem_blk;
-	int j = 0;
-	
-	for(j = 0; j<NUM_MEM; j++) {
-		all_memory_blocks[j] = request_memory_block();
-		uart0_put_char('A' + i%26);
-		i++;
-	}
-	uart0_put_string("\n\r");
-	
-	i = 0;
-	for(j = 0; j<NUM_MEM; j++) {
-		release_memory_block(all_memory_blocks[j]);
-		uart0_put_char('A' + i%26);
-		i++;
-	}
-	uart0_put_string("\n\r");
-	
-	set_process_priority(PID_P1, MEDIUM);
-	
-	i = 0;
 	while ( 1 ) {
 		if ( i != 0 && i%5 == 0 ) {
 			uart0_put_string("\n\r");
@@ -133,8 +111,7 @@ void proc2(void)
 	void *p_mem_blk;
 	
 	p_mem_blk = request_memory_block();
-	set_process_priority(PID_P2, LOW);
-	set_process_priority(PID_P2, HIGH);
+	set_process_priority(PID_P2, MEDIUM);
 	while ( 1) {
 		if ( i != 0 && i%5 == 0 ) {
 			uart0_put_string("\n\r");
@@ -142,9 +119,9 @@ void proc2(void)
 #ifdef DEBUG_0
 			printf("proc2: ret_val=%d\n", ret_val);
 #endif /* DEBUG_0 */
-// 			if ( ret_val == -1 ) {
-// 				break;
-// 			}
+			if ( ret_val == -1 ) {
+				break;
+			}
 		}
 		uart0_put_char('0' + i%10);
 		i++;

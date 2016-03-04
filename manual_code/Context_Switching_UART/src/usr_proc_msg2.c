@@ -4,6 +4,8 @@
  * @author: Yiqing Huang
  * @date:   2014/02/28
  * NOTE: Each process is in an infinite loop. Processes never terminate.
+ * 
+ * Tests when two processes are sending message to the same process.
  */
 
 #include "rtx.h"
@@ -68,12 +70,11 @@ void checkTestEnd() {
 }
 
 void proc1(void){
-	MSG_BUF *p_msg_env = (MSG_BUF *) request_memory_block();
+	MSG_BUF *p_msg_env;
 	printf("Entering process 1.\r\n");
-	p_msg_env->mtype = KCD_REG;
-	p_msg_env->mtext[0] = '%';
-	p_msg_env->mtext[1] = 'W';
-	p_msg_env->mtext[2] = 'A';
+	p_msg_env = (MSG_BUF *) request_memory_block();
+	p_msg_env->mtype = DEFAULT;
+	p_msg_env->mtext[0] = 'A';
 	send_message(PID_P2,(void *)p_msg_env);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
@@ -101,12 +102,11 @@ void proc2(void){
 
 // Test which ensures we can request a memory block as well as release it after we're done.
 void proc3(void){
-	MSG_BUF *p_msg_env = (MSG_BUF *) request_memory_block();
+	MSG_BUF *p_msg_env;
 	printf("Entering process 3.\r\n");
-	p_msg_env->mtype = KCD_REG;
-	p_msg_env->mtext[0] = '%';
-	p_msg_env->mtext[1] = 'W';
-	p_msg_env->mtext[2] = 'C';
+	p_msg_env = (MSG_BUF *) request_memory_block();
+	p_msg_env->mtype = DEFAULT;
+	p_msg_env->mtext[0] = 'C';
 	send_message(PID_P2,(void *)p_msg_env);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
@@ -116,7 +116,15 @@ void proc3(void){
 
 // Test preemption
 void proc4(void){
+	int dog;
+	MSG_BUF *p_msg_rec;
 	printf("Entering process 4.\r\n");
+	set_process_priority(gp_current_process->m_pid, HIGH);
+	p_msg_rec = (MSG_BUF *)receive_message(&dog);
+	printf("Rentering process 4.\r\n");
+	printf("Sender ID: %d\n\r", dog);
+	printf("Message Type: %d\n\r", p_msg_rec->mtype);
+	printf("Message Text: %s\n\r", p_msg_rec->mtext);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
 		release_processor();
@@ -125,7 +133,13 @@ void proc4(void){
 
 // Test which ensures that we correctly set priorities.
 void proc5(void){
+	MSG_BUF *p_msg_env;
 	printf("Entering process 5.\r\n");
+	p_msg_env = (MSG_BUF *) request_memory_block();
+	p_msg_env->mtype = DEFAULT;
+	p_msg_env->mtext[0] = 'E';
+	send_message(PID_P4,(void *)p_msg_env);
+	printf("Rentering process 5.\r\n");
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
 		release_processor();
