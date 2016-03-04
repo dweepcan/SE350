@@ -4,8 +4,9 @@
 typedef struct msgbuf MSG_BUF;
 
 typedef struct k_msg_queue {
-    MSG_BUF *first;
-    MSG_BUF *last;
+  MSG_BUF *first;
+  MSG_BUF *last;
+	int size;// = 0;
 } k_msg_queue;
 
 int msg_enqueue(k_msg_queue *p_queue, MSG_BUF *p_node);

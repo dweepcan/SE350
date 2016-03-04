@@ -80,12 +80,12 @@ void proc1(void){
 	p_msg_env2 = (MSG_BUF *) request_memory_block();
 	p_msg_env2->mtype = DEFAULT;
 	p_msg_env2->mtext[0] = 'A';
-	printf("Send B.\r\n");
+	printf("Send A.\r\n");
 	delayed_send(PID_P2,(void *)p_msg_env2, 100);
 	p_msg_env3 = (MSG_BUF *) request_memory_block();
 	p_msg_env3->mtype = DEFAULT;
 	p_msg_env3->mtext[0] = 'B';
-	printf("Send A.\r\n");
+	printf("Send B.\r\n");
 	delayed_send(PID_P2,(void *)p_msg_env3, 200);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {

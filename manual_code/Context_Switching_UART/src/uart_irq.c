@@ -214,7 +214,7 @@ void c_UART0_IRQHandler(void)
 #endif // DEBUG_0
 
 		//OUR CODE
-		//uart_i_process(g_char_in);
+		uart_i_process(g_char_in);
 
 		g_buffer[12] = g_char_in; // nasty hack
 		g_send_char = 1;

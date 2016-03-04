@@ -131,33 +131,48 @@ void c_TIMER0_IRQHandler(void)
 
 // Function which sets up the message queue
 void pending_message_queue_init(void) {
+	pendingMessageQueue -> size = 0;
 	pendingMessageQueue -> first = NULL;
 	pendingMessageQueue -> last = NULL;
 }
 
 void timer_i_process(){
 	// int shouldPreempt = 0;
-	int i;
+	int i = 0;
 	MSG_BUF* root = pendingMessageQueue->first;
 	MSG_BUF* msg = root;
-
-	if (root!=NULL){
-		do{
-			msg = msg_dequeue(pendingMessageQueue);
-			if ((U32)msg->m_kdata[0]<=g_timer_count){
-				int target_pid = msg->m_recv_pid;
-				msg->mp_next = NULL;
-				k_send_message_nonblocking(target_pid, (void*)msg);
-			}else{
-				msg_enqueue(pendingMessageQueue, msg);
-			}
-		}while(pendingMessageQueue->first != root && pendingMessageQueue->first!=NULL);
+	int size = pendingMessageQueue->size;
+	
+	for(i=0; i<size; i++){
+		msg = msg_dequeue(pendingMessageQueue);
+		if ((U32)msg->m_kdata[0]<=g_timer_count){
+			int target_pid = msg->m_recv_pid;
+			msg->mp_next = NULL;
+			k_send_message_nonblocking(target_pid, (void*)msg);
+		}else{
+			msg_enqueue(pendingMessageQueue, msg);
+		}
 	}
+// 	if (root!=NULL){
+// 		do{
+// 			msg = msg_dequeue(pendingMessageQueue);
+// 			if ((U32)msg->m_kdata[0]<=g_timer_count){
+// 				int target_pid = msg->m_recv_pid;
+// 				msg->mp_next = NULL;
+// 				k_send_message_nonblocking(target_pid, (void*)msg);
+// 				//root = pendingMessageQueue->first;
+// 			}else{
+// 				msg_enqueue(pendingMessageQueue, msg);
+// 			}
+// 		}while(pendingMessageQueue->first != root && pendingMessageQueue->first!=NULL);
+// 	}
 	
 	for (i=0;i<NUM_PRIORITIES;i++){
 			if (readyPriorityQueue[i]->front !=NULL && readyPriorityQueue[i]->front->pcb->m_priority < gp_current_process->m_priority){
 					// newProcess=1;
+				__enable_irq();
 				k_release_processor();
+				__disable_irq();
 				break;
 			}
 	}

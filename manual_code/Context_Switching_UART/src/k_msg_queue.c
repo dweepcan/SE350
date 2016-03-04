@@ -21,7 +21,8 @@ int msg_enqueue(k_msg_queue *p_queue, MSG_BUF *p_node) {
     }
 
     p_queue->last = p_node;
-
+		
+		p_queue->size = p_queue->size + 1;
     return RTX_OK;
 }
 
@@ -42,7 +43,8 @@ MSG_BUF* msg_dequeue(k_msg_queue *p_queue) {
     }
 
     p_queue->first = p_queue->first->mp_next;
-
+	
+		p_queue->size = p_queue->size - 1;
     return p_first;
 }
 

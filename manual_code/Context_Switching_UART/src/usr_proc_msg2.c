@@ -8,6 +8,31 @@
  * Tests when two processes are sending message to the same process.
  */
 
+// WARNING: p_pid is passed in as NULL in k_receive_messageEntering process 1.
+// k_request_memory_block: entering...
+// k_request_memory_block: node address: 0x1000165c, block address:0x10001660.
+// Entering process 2.
+// Sender ID: 1
+// Message Type: 0
+// Message Text: A
+// Entering process 3.
+// k_request_memory_block: entering...
+// k_request_memory_block: node address: 0x100015d8, block address:0x100015dc.
+// Rentering process 2.
+// Sender ID: 3
+// Message Type: 0
+// Message Text: C
+// Entering process 4.
+// Entering process 5.
+// k_request_memory_block: entering...
+// k_request_memory_block: node address: 0x10001554, block address:0x10001558.
+// Rentering process 4.
+// Sender ID: 5
+// Message Type: 0
+// Message Text: E
+// Entering process 6.
+// Rentering process 5.
+
 #include "rtx.h"
 #include "uart_polling.h"
 #include "usr_proc.h"
