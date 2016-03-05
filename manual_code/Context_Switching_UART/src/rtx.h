@@ -9,7 +9,10 @@
 #define RTX_ERR -1
 #define NULL 0
 #define NUM_TEST_PROCS 6
-#define NUM_SYS_PROCS 4
+#define NUM_SYS_PROCS 5
+#define NUM_USER_PROCS 5
+
+
 /* Process Priority. The bigger the number is, the lower the priority is*/
 #define I_PROC  -1
 #define HIGHEST 0
@@ -34,14 +37,15 @@ typedef unsigned int U32;
 #define PID_C    9
 #define PID_SET_PRIO     10
 #define PID_CLOCK        11
-#define PID_KCD          7
+#define PID_KCD          12
 #define PID_CRT          13
-#define PID_TIMER_IPROC  8
-#define PID_UART_IPROC   9
+#define PID_TIMER_IPROC  14
+#define PID_UART_IPROC   15
 
 /* Message Types */
 #define DEFAULT 0
 #define KCD_REG 1
+#define CRT_DISP 2
 
 /* initialization table item */
 #ifndef PROC_INIT_

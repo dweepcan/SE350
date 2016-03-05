@@ -32,17 +32,17 @@ U32 g_switch_flag = 0;          /* whether to continue to run the process before
 				/* this value will be set by UART handler */
 
 /* process initialization table */
-PROC_INIT g_proc_table[NUM_TEST_PROCS + NUM_SYS_PROCS];
+PROC_INIT g_proc_table[NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS];
 extern PROC_INIT g_test_procs[NUM_TEST_PROCS];
 extern PROC_INIT g_sys_procs[NUM_SYS_PROCS];
+extern PROC_INIT g_user_procs[NUM_USER_PROCS];
 
 /**
  * @brief: initialize all processes in the system
  * NOTE: We assume there are only six user processes in the system in this example.
  */
 Queue *readyPriorityQueue[NUM_PRIORITIES];
-Queue *blockedResourceQueue_[NUM_PRIORITIES+1],
-	**blockedResourceQueue = &blockedResourceQueue_[1];
+Queue *blockedResourceQueue[NUM_PRIORITIES];
 Queue *blockedReceiveQueue;
 ProcessNode **processNodes;
 
@@ -58,14 +58,14 @@ int isBlockedEmpty(){
 
 
 ProcessNode* findProcessNodeByPID(int curpid){
-	if (curpid > (NUM_TEST_PROCS + NUM_SYS_PROCS - 1) || curpid < 0) return NULL;
+	if (curpid >= (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 2) || curpid < 0) return NULL;
 	return processNodes[curpid];
 }
 
 
 int addProcessNode(int pid,int priority, int state){
 	ProcessNode* pn;
-	if (pid > (NUM_TEST_PROCS + NUM_SYS_PROCS - 1)) return RTX_ERR;
+	if (pid >= (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 2)) return RTX_ERR;
 	pn = findProcessNodeByPID(pid);
 	
 	if (state==RDY || state==NEW) { //if ready
@@ -288,6 +288,7 @@ void process_init() {
 	/* fill out the initialization table */
 	set_test_procs();
 	set_sys_procs();
+	set_user_procs();
 		
 	//set queues to null
 	for (i=0; i< NUM_PRIORITIES; i++) {
@@ -300,6 +301,7 @@ void process_init() {
 	blockedReceiveQueue->front = NULL;
 	blockedReceiveQueue->back = NULL;
 	
+	//set up test procs
 	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_proc_table[i].m_pid = g_test_procs[i].m_pid;
 		g_proc_table[i].m_stack_size = g_test_procs[i].m_stack_size;
@@ -307,24 +309,33 @@ void process_init() {
 		g_proc_table[i].m_priority = g_test_procs[i].m_priority;
 	}
 	
-	for ( i = 0; i < NUM_SYS_PROCS; i++ ) {
-		g_proc_table[NUM_TEST_PROCS + i].m_pid = g_sys_procs[i].m_pid;
-		g_proc_table[NUM_TEST_PROCS + i].m_stack_size = g_sys_procs[i].m_stack_size;
-		g_proc_table[NUM_TEST_PROCS + i].mpf_start_pc = g_sys_procs[i].mpf_start_pc;
-		g_proc_table[NUM_TEST_PROCS + i].m_priority = g_sys_procs[i].m_priority;
+	//setup usr procs
+	for ( i = 0; i < NUM_USER_PROCS; i++ ) {
+		g_proc_table[NUM_TEST_PROCS + i].m_pid = g_user_procs[i].m_pid;
+		g_proc_table[NUM_TEST_PROCS + i].m_stack_size = g_user_procs[i].m_stack_size;
+		g_proc_table[NUM_TEST_PROCS + i].mpf_start_pc = g_user_procs[i].mpf_start_pc;
+		g_proc_table[NUM_TEST_PROCS + i].m_priority = g_user_procs[i].m_priority;
 	}
 	
-	(processNodes[0])->pcb = gp_pcbs[NUM_TEST_PROCS];
+	//setup sys procs
+	for ( i = 0; i < NUM_SYS_PROCS; i++ ) {
+		g_proc_table[NUM_TEST_PROCS + NUM_USER_PROCS + i].m_pid = g_sys_procs[i].m_pid;
+		g_proc_table[NUM_TEST_PROCS + NUM_USER_PROCS + i].m_stack_size = g_sys_procs[i].m_stack_size;
+		g_proc_table[NUM_TEST_PROCS + NUM_USER_PROCS + i].mpf_start_pc = g_sys_procs[i].mpf_start_pc;
+		g_proc_table[NUM_TEST_PROCS + NUM_USER_PROCS + i].m_priority = g_sys_procs[i].m_priority;
+	}
+	
+	(processNodes[0])->pcb = gp_pcbs[NUM_TEST_PROCS+NUM_USER_PROCS];
 	(processNodes[0])->next = NULL;
 	(processNodes[0])->prev = NULL;
 	
-	for(i=1; i <= NUM_TEST_PROCS; i++){
+	for(i=1; i <= NUM_TEST_PROCS + NUM_USER_PROCS; i++){
 		(processNodes[i])->pcb = gp_pcbs[i-1];
 		(processNodes[i])->next = NULL;
 		(processNodes[i])->prev = NULL;
 	}
 	
-	for(i=NUM_TEST_PROCS+1; i < (NUM_TEST_PROCS+NUM_SYS_PROCS); i++) {
+	for(i=NUM_TEST_PROCS+NUM_USER_PROCS+1; i < (NUM_TEST_PROCS+NUM_SYS_PROCS+NUM_USER_PROCS); i++) {
 		(processNodes[i])->pcb = gp_pcbs[i];
 		(processNodes[i])->next = NULL;
 		(processNodes[i])->prev = NULL;
@@ -333,7 +344,7 @@ void process_init() {
 	pending_message_queue_init(); // Set up the pending message queue
 	
 	/* initialize exception stack frame (i.e. initial context) for each process */
-	for ( i = 0; i < (NUM_TEST_PROCS + NUM_SYS_PROCS); i++ ) {
+	for ( i = 0; i < (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS); i++ ) {
 		int j;
 
 		(gp_pcbs[i])->m_pid = (g_proc_table[i]).m_pid;
@@ -351,7 +362,7 @@ void process_init() {
 		}
 		(gp_pcbs[i])->mp_sp = sp;
 		
-		if(i < (NUM_TEST_PROCS + (NUM_SYS_PROCS - 2))) {
+		if(i < (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 2)) {
 			addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
 		}
 	}

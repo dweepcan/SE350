@@ -481,6 +481,11 @@
               <FileType>1</FileType>
               <FilePath>.\src\timer.c</FilePath>
             </File>
+            <File>
+              <FileName>defined_user_proc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\defined_user_proc.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1204,6 +1209,11 @@
               <FileName>timer.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\timer.c</FilePath>
+            </File>
+            <File>
+              <FileName>defined_user_proc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\defined_user_proc.c</FilePath>
             </File>
           </Files>
         </Group>

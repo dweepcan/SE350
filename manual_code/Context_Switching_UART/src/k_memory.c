@@ -82,9 +82,9 @@ void memory_init(void)
 
 	/* allocate memory for pcb pointers   */
 	gp_pcbs = (PCB **)p_end;
-	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS) * sizeof(PCB *);
+	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS) * sizeof(PCB *);
   
-	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS; i++ ) {
+	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS; i++ ) {
 		gp_pcbs[i] = (PCB *)p_end;
 		p_end += sizeof(PCB); 
 	}
@@ -96,13 +96,22 @@ void memory_init(void)
 	printf("gp_pcbs[4] = 0x%x \n", gp_pcbs[4]);
 	printf("gp_pcbs[5] = 0x%x \n", gp_pcbs[5]);
 	printf("gp_pcbs[6] = 0x%x \n", gp_pcbs[6]);
+	printf("gp_pcbs[7] = 0x%x \n", gp_pcbs[7]);
+	printf("gp_pcbs[8] = 0x%x \n", gp_pcbs[8]);
+	printf("gp_pcbs[9] = 0x%x \n", gp_pcbs[9]);
+	printf("gp_pcbs[10] = 0x%x \n", gp_pcbs[10]);
+	printf("gp_pcbs[11] = 0x%x \n", gp_pcbs[11]);
+	printf("gp_pcbs[12] = 0x%x \n", gp_pcbs[12]);
+	printf("gp_pcbs[13] = 0x%x \n", gp_pcbs[13]);
+	printf("gp_pcbs[14] = 0x%x \n", gp_pcbs[14]);
+	printf("gp_pcbs[15] = 0x%x \n", gp_pcbs[15]);
 #endif
 	
 	/* allocate memory for k_msg_queue pointers   */
 	gp_msgs = (k_msg_queue **)p_end;
-	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS) * sizeof(k_msg_queue *);
+	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS) * sizeof(k_msg_queue *);
   
-	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS; i++ ) {
+	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS; i++ ) {
 		gp_msgs[i] = (k_msg_queue *)p_end;
 		p_end += sizeof(k_msg_queue); 
 	}
@@ -118,9 +127,9 @@ void memory_init(void)
 	
 	/* allocate memory for ProcessNodes pointers   */
 	processNodes = (ProcessNode **)p_end;
-	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS) * sizeof(ProcessNode *);
+	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS) * sizeof(ProcessNode *);
 	
-	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS; i++ ) {
+	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS; i++ ) {
 		processNodes[i] = (ProcessNode *)p_end;
 		p_end += sizeof(ProcessNode); 
 	}
@@ -132,6 +141,15 @@ void memory_init(void)
 	printf("processNodes[4] = 0x%x \n", processNodes[4]);
 	printf("processNodes[5] = 0x%x \n", processNodes[5]);
 	printf("processNodes[6] = 0x%x \n", processNodes[6]);
+	printf("processNodes[7] = 0x%x \n", processNodes[7]);
+	printf("processNodes[8] = 0x%x \n", processNodes[8]);
+	printf("processNodes[9] = 0x%x \n", processNodes[9]);
+	printf("processNodes[10] = 0x%x \n", processNodes[10]);
+	printf("processNodes[11] = 0x%x \n", processNodes[11]);
+	printf("processNodes[12] = 0x%x \n", processNodes[12]);
+	printf("processNodes[13] = 0x%x \n", processNodes[13]);
+	printf("processNodes[14] = 0x%x \n", processNodes[14]);
+	printf("processNodes[15] = 0x%x \n", processNodes[15]);
 #endif
 	
 	for(i = 0; i < NUM_PRIORITIES; i++) {

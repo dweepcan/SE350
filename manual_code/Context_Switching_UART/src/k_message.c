@@ -12,7 +12,7 @@ int k_send_message(int pid, void *p_msg) {
 	
 	__disable_irq();
 	
-	if(pid < 0 || pid > (NUM_TEST_PROCS + NUM_SYS_PROCS - 1)) {
+	if(pid < 0 || pid > (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 1)) {
 		__enable_irq();
 		return RTX_ERR;
 	}
@@ -46,7 +46,7 @@ int k_send_message_nonblocking(int pid, void *p_msg) {
 	ProcessNode* receiving_proc;
 	MSG_BUF* p_msg_buf;
 	
-	if(pid < 0 || pid > (NUM_TEST_PROCS + NUM_SYS_PROCS - 1)) {
+	if(pid < 0 || pid > (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 1)) {
 		return RTX_ERR;
 	}
 
@@ -123,7 +123,7 @@ int k_delayed_send(int pid, void *p_msg, int delay) {
 
 	__disable_irq();
 	
-	if(pid < 1 || pid > (NUM_TEST_PROCS + NUM_SYS_PROCS - 1) || delay < 0 || p_msg == NULL) {
+	if(pid < 1 || pid > (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 1) || delay < 0 || p_msg == NULL) {
 		__enable_irq();
 		return RTX_ERR;
 	}

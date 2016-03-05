@@ -31,15 +31,20 @@ void set_sys_procs() {
 	g_sys_procs[1].m_stack_size=0x100;
  	g_sys_procs[1].mpf_start_pc = &proc_kcd;
 	
-	g_sys_procs[2].m_pid=(U32)PID_TIMER_IPROC;
-	g_sys_procs[2].m_priority=I_PROC;
+	g_sys_procs[2].m_pid=(U32)PID_CRT;
+	g_sys_procs[2].m_priority=HIGHEST;
 	g_sys_procs[2].m_stack_size=0x100;
- 	g_sys_procs[2].mpf_start_pc = &proc_null; // so we know if we messed up
+ 	g_sys_procs[2].mpf_start_pc = &proc_crt;
 	
-	g_sys_procs[3].m_pid=(U32)PID_UART_IPROC;
+	g_sys_procs[3].m_pid=(U32)PID_TIMER_IPROC;
 	g_sys_procs[3].m_priority=I_PROC;
 	g_sys_procs[3].m_stack_size=0x100;
  	g_sys_procs[3].mpf_start_pc = &proc_null; // so we know if we messed up
+	
+	g_sys_procs[4].m_pid=(U32)PID_UART_IPROC;
+	g_sys_procs[4].m_priority=I_PROC;
+	g_sys_procs[4].m_stack_size=0x100;
+ 	g_sys_procs[4].mpf_start_pc = &proc_null; // so we know if we messed up
 }
 
 //The null process
@@ -48,9 +53,6 @@ void proc_null(void) {
 		release_processor();
 	}
 }
-
-
-
 
 int compareCmd(char* s, char* t){
 	while(*s!='\0' && *t!='\0'){
@@ -77,7 +79,6 @@ void copyString(char* s,char* t){
 
 // Keyboard Command Decoder Process
 void proc_kcd(void) {
-	
 	int numStoredCommands = 0;
 	MSG_BUF* msg;
 	int pid;
@@ -93,20 +94,21 @@ void proc_kcd(void) {
 					kcd_commands[numStoredCommands].pid = pid;
 					numStoredCommands++;
 					
-					// TODO: No idea if this should be nonblocking or not
 					k_release_memory_block_nonblocking(msg);
 				}
 			}else if (msg->mtype == DEFAULT){
+	
+				//always send the message to crt - see page 13 of manual 
+				copyString(msg->mtext,actualMsg);
+ 				//k_release_memory_block(msg);							
+ 				msg->mtype = CRT_DISP;
+ 				send_message(PID_CRT,(void *)msg);
+				
 				//execute command
-				if (msg->mtext[0]=='%'){
+				if (msg->mtext[0]=='%'){	
 					for (i=0; i<numStoredCommands; i++){
 						if (compareCmd(kcd_commands[i].command, msg->mtext) == 1){
-								// Do send message
-								copyString(msg->mtext,actualMsg);
- 								k_release_memory_block(msg);							
-// 								msg->mtype = DEFAULT;
-// 								send_message(PID_CRT,(void *)msg);			
-							
+								//Send registered command to its mapped process
 								msg = (MSG_BUF *)request_memory_block();
 								msg->mtype = DEFAULT;
 								copyString(actualMsg, msg->mtext);
@@ -116,6 +118,19 @@ void proc_kcd(void) {
 					}
 				}			
 			}
+		}
+	}
+}
+
+void proc_crt(void){
+	MSG_BUF* msg;
+	int pid;
+	
+	while(1){
+		msg = (MSG_BUF*)receive_message(&pid);
+		if (msg != NULL && msg->mtype == CRT_DISP){
+			//Send messages of CRT Display type to the uart for display
+			//send_message(PID_UART_IPROC, (void*) msg);
 		}
 	}
 }
