@@ -57,7 +57,7 @@
 
 #define uart0_irq_init() uart_irq_init(0)
 #define uart1_irq_init() uart_irq_init(1)       
-     
+		 
 /* initialize the n_uart to use interrupt */
 int uart_irq_init(int n_uart);		
 void uart_i_process(uint8_t);

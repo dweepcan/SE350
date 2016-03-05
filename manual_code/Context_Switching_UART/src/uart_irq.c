@@ -29,7 +29,7 @@ uint8_t g_char_out;
 
 extern uint32_t g_switch_flag;
 
-char stringBuilder[1];
+char stringBuilder[BLOCK_SIZE - sizeof(MSG_BUF)];
 int length = 0;
 
 //extern int k_release_processor(void);
@@ -280,7 +280,7 @@ void uart_i_process(uint8_t char_in){
 		stringBuilder[length] = *((char *) &char_in);
 		length++;
 	} else {
-		printf("Received carraige return character\n\r");
+		printf("Received carriage return character\n\r");
 		
 		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();
 		if(p_msg_env != NULL) {

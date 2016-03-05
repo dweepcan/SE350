@@ -153,19 +153,6 @@ void timer_i_process(){
 			msg_enqueue(pendingMessageQueue, msg);
 		}
 	}
-// 	if (root!=NULL){
-// 		do{
-// 			msg = msg_dequeue(pendingMessageQueue);
-// 			if ((U32)msg->m_kdata[0]<=g_timer_count){
-// 				int target_pid = msg->m_recv_pid;
-// 				msg->mp_next = NULL;
-// 				k_send_message_nonblocking(target_pid, (void*)msg);
-// 				//root = pendingMessageQueue->first;
-// 			}else{
-// 				msg_enqueue(pendingMessageQueue, msg);
-// 			}
-// 		}while(pendingMessageQueue->first != root && pendingMessageQueue->first!=NULL);
-// 	}
 	
 	for (i=0;i<NUM_PRIORITIES;i++){
 			if (readyPriorityQueue[i]->front !=NULL && readyPriorityQueue[i]->front->pcb->m_priority < gp_current_process->m_priority){
