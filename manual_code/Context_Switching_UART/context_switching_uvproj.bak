@@ -587,7 +587,7 @@
                   <RVCTZI>0</RVCTZI>
                   <RVCTOtherData>0</RVCTOtherData>
                   <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>1</IncludeInBuild>
+                  <IncludeInBuild>0</IncludeInBuild>
                   <AlwaysBuild>2</AlwaysBuild>
                   <GenerateAssemblyFile>2</GenerateAssemblyFile>
                   <AssembleAssemblyFile>2</AssembleAssemblyFile>
@@ -665,6 +665,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>usr_proc_msg4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\usr_proc_msg4.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1299,6 +1304,11 @@
               <FileName>usr_proc_msg3.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\usr_proc_msg3.c</FilePath>
+            </File>
+            <File>
+              <FileName>usr_proc_msg4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\usr_proc_msg4.c</FilePath>
             </File>
           </Files>
         </Group>
