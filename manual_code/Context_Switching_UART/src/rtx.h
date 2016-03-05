@@ -14,13 +14,18 @@
 
 
 /* Process Priority. The bigger the number is, the lower the priority is*/
-#define I_PROC  -1
-#define HIGHEST 0
-#define HIGH    1
-#define MEDIUM  2
-#define LOW     3
-#define LOWEST  4
-#define NULL_PRIORITY	5
+#define SYS_I_PROC  -1
+#define SYS_HIGHEST 0
+#define SYS_HIGH    1
+#define SYS_MEDIUM  2
+#define SYS_LOW     3
+#define SYS_LOWEST  4
+#define SYS_NULL_PRIORITY	5
+
+#define HIGH    0
+#define MEDIUM  1
+#define LOW     2
+#define LOWEST  3
 
 /* ----- Types ----- */
 typedef unsigned int U32;

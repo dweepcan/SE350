@@ -122,7 +122,6 @@ void proc2(void){
 	}
 }
 
-// Test which ensures we can request a memory block as well as release it after we're done.
 void proc3(void){
 	printf("Entering process 3.\r\n");
 	while(1) {
@@ -130,7 +129,6 @@ void proc3(void){
 	}
 }
 
-// Test preemption
 void proc4(void){
 	printf("Entering process 4.\r\n");
 	set_process_priority(gp_current_process->m_pid, LOWEST);
@@ -139,7 +137,6 @@ void proc4(void){
 	}
 }
 
-// Test which ensures that we correctly set priorities.
 void proc5(void){
 	printf("Entering process 5.\r\n");
 	set_process_priority(gp_current_process->m_pid, LOWEST);
@@ -148,7 +145,6 @@ void proc5(void){
 	}
 }
 
-// Test whether we can release a memory block which is not actually a memory block, just a random address
 void proc6(void){
 	printf("Entering process 6.\r\n");
 	set_process_priority(gp_current_process->m_pid, LOWEST);
