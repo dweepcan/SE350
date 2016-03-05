@@ -99,7 +99,7 @@ void proc_kcd(void) {
 					copyString(msg->mtext,kcd_commands[numStoredCommands].command);
 					kcd_commands[numStoredCommands].pid = pid;
 					numStoredCommands++;
-					k_release_memory_block_nonblocking(msg);
+					k_release_memory_block(msg);
 				}
 			}else if (msg->mtype == DEFAULT){
 				//execute command
@@ -109,7 +109,7 @@ void proc_kcd(void) {
 								//do send message
 								
 								copyString(msg->mtext,actualMsg);
-// 								k_release_memory_block_nonblocking(msg);							
+ 								k_release_memory_block(msg);							
 // 								msg = (MSG_BUF *)request_memory_block();
 // 								msg->mtype = DEFAULT;
 // 								copyString(actualMsg, msg->mtext);
