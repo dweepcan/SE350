@@ -29,8 +29,8 @@ uint8_t g_char_out;
 
 extern uint32_t g_switch_flag;
 
-char stringBuilder[BLOCK_SIZE - sizeof(MSG_BUF)];
-int length = 0;
+char stringBuilder[MSG_BUF_TEXT_SIZE];
+int stringCurrentIndex = 0;
 
 //extern int k_release_processor(void);
 /**
@@ -213,8 +213,7 @@ void c_UART0_IRQHandler(void)
 		uart1_put_string("\n\r");
 #endif // DEBUG_0
 
-		//OUR CODE
-		uart_i_process(g_char_in);
+		kcd_helper(g_char_in);
 
 		g_buffer[12] = g_char_in; // nasty hack
 		g_send_char = 1;
@@ -260,7 +259,7 @@ void c_UART0_IRQHandler(void)
 	__enable_irq();
 }
 
-void uart_i_process(uint8_t char_in){
+void kcd_helper(uint8_t char_in){
 	MSG_BUF *p_msg_env;
 	int i;
 	
@@ -274,30 +273,35 @@ void uart_i_process(uint8_t char_in){
 	}
 #endif
 	
-	if(char_in != '\r') {
+	if(char_in != '\r' && stringCurrentIndex < MSG_BUF_TEXT_SIZE - 1) {
+#ifdef DEBUG_0
 		printf("Received %c\n\r", (char) char_in);
+#endif
 		// Need this hack because you can only cast the u_int_8 pointer to char * pointer
-		stringBuilder[length] = *((char *) &char_in);
-		length++;
+		stringBuilder[stringCurrentIndex++] = *((char *) &char_in);
 	} else {
 		printf("Received carriage return character\n\r");
 		
-		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();
+		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();	
 		if(p_msg_env != NULL) {
+			stringBuilder[stringCurrentIndex++] = '\0';
+				
 			p_msg_env->m_send_pid = PID_UART_IPROC;
 			p_msg_env->m_recv_pid = PID_KCD;
 			p_msg_env->mp_next = NULL;
 			p_msg_env->mtype = DEFAULT;
 			
-			for (i=0; i<length; i++){
+			for (i=0; i<stringCurrentIndex; i++){
 				p_msg_env->mtext[i] = stringBuilder[i];
 			}
 			
 			k_send_message_nonblocking(PID_KCD, p_msg_env);
 		}
-		
-		length = 0;
 	}
+		
+	stringCurrentIndex = 0;
+}
 
-
+void crt_helper(uint8_t char_in){
+	return;
 }

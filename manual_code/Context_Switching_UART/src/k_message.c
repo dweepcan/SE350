@@ -131,7 +131,7 @@ int k_delayed_send(int pid, void *p_msg, int delay) {
 	// TODO: If doing a delayed send to an i-process then this might fail.
 	if(delay == 0) {
 		__enable_irq();
-		return send_message(pid, p_msg);
+		return k_send_message(pid, p_msg);
 	}
 	
 	msg = (MSG_BUF*) p_msg;
@@ -139,7 +139,7 @@ int k_delayed_send(int pid, void *p_msg, int delay) {
 	msg->m_recv_pid = pid;
 	msg->m_kdata[0] = delay + (int)g_timer_count;
 	msg->mp_next = NULL;
-	if(msg_enqueue(pendingMessageQueue, msg) == RTX_ERR) {
+	if(msg_sorted_enqueue(pendingMessageQueue, msg) == RTX_ERR) {
 		returnState = RTX_ERR;
 	}
 	

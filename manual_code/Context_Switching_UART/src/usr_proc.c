@@ -142,12 +142,12 @@ void proc5(void){
 
 // Test whether we can release a memory block which is not actually a memory block, just a random address
 void proc6(void){
-// 	int status;
-// 	void *memory_block = &status;
-// 	status = release_memory_block(memory_block);
-// 	status = status == RTX_ERR ? 1 : 0;
-// 	printTest(6, status);
-// 	checkTestEnd();
+	int status;
+	void *memory_block = &status;
+	status = release_memory_block(memory_block);
+	status = status == RTX_ERR ? 1 : 0;
+	printTest(6, status);
+	checkTestEnd();
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
 		release_processor();
