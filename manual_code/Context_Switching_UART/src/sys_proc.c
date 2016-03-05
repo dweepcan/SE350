@@ -34,12 +34,12 @@ void set_sys_procs() {
 	g_sys_procs[2].m_pid=(U32)PID_TIMER_IPROC;
 	g_sys_procs[2].m_priority=I_PROC;
 	g_sys_procs[2].m_stack_size=0x100;
- 	g_sys_procs[2].mpf_start_pc = &timer_i_process;
+ 	g_sys_procs[2].mpf_start_pc = &proc_null; // so we know if we messed up
 	
 	g_sys_procs[3].m_pid=(U32)PID_UART_IPROC;
 	g_sys_procs[3].m_priority=I_PROC;
 	g_sys_procs[3].m_stack_size=0x100;
- 	g_sys_procs[3].mpf_start_pc = &uart_i_process;
+ 	g_sys_procs[3].mpf_start_pc = &proc_null; // so we know if we messed up
 }
 
 //The null process

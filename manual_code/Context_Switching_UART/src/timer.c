@@ -137,32 +137,27 @@ void pending_message_queue_init(void) {
 }
 
 void timer_i_process(){
-	// int shouldPreempt = 0;
 	int i = 0;
-	MSG_BUF* root = pendingMessageQueue->first;
-	MSG_BUF* msg = root;
-	int size = pendingMessageQueue->size;
+	MSG_BUF* msg;
+	int target_pid;
 	
-	for(i=0; i<size; i++){
-		msg = msg_dequeue(pendingMessageQueue);
-		if ((U32)msg->m_kdata[0]<=g_timer_count){
-			int target_pid = msg->m_recv_pid;
+	while(pendingMessageQueue->first != NULL) {
+		if((U32)(pendingMessageQueue->first->m_kdata[0])<=g_timer_count) {
+			msg = msg_dequeue(pendingMessageQueue);
+			target_pid = msg->m_recv_pid;
 			msg->mp_next = NULL;
 			k_send_message_nonblocking(target_pid, (void*)msg);
-		}else{
-			msg_enqueue(pendingMessageQueue, msg);
+		} else {
+			break;
 		}
 	}
 	
 	for (i=0;i<NUM_PRIORITIES;i++){
 			if (readyPriorityQueue[i]->front !=NULL && readyPriorityQueue[i]->front->pcb->m_priority < gp_current_process->m_priority){
-					// newProcess=1;
 				__enable_irq();
 				k_release_processor();
 				__disable_irq();
 				break;
 			}
 	}
-	
-	
 }

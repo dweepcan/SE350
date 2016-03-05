@@ -85,7 +85,7 @@ void proc1(void){
 	delayed_send(PID_P2,(void *)p_msg_env2, 200);
 	delayed_send(PID_P2,(void *)p_msg_env3, 200);
 	for(i=0;i<1000000;i++) {
-		// Waste all the time
+		// Waste all the time like this project
 	}
 	delayed_send(PID_P2,(void *)p_msg_env1, 199);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
