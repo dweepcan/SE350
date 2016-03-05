@@ -8,7 +8,7 @@
 #define NUM_COMMANDS 25
 #define CMD_LENGTH 25
 
-typedef struct{
+typedef struct kcd_command{
 	char command[CMD_LENGTH]; //command identifier 
 	int pid;
 } kcd_command;
@@ -64,13 +64,6 @@ int compareCmd(char* s, char* t){
 	if (*s=='\0' && *t==' ') return 1;
 	
 	return 0;
-	// 	while(*s!='\0' && !(*t==' '|| *t=='\0')){
-// 		if  (*t==' '||*t=='\0')  return -1;
-// 		if (*s != *t) return -1;
-// 		s = s+1;
-// 		t = t+1;
-// 	}
-// 	return 1;
 }
 
 void copyString(char* s,char* t){
@@ -99,26 +92,26 @@ void proc_kcd(void) {
 					copyString(msg->mtext,kcd_commands[numStoredCommands].command);
 					kcd_commands[numStoredCommands].pid = pid;
 					numStoredCommands++;
-					k_release_memory_block(msg);
+					
+					// TODO: No idea if this should be nonblocking or not
+					k_release_memory_block_nonblocking(msg);
 				}
 			}else if (msg->mtype == DEFAULT){
 				//execute command
 				if (msg->mtext[0]=='%'){
 					for (i=0; i<numStoredCommands; i++){
 						if (compareCmd(kcd_commands[i].command, msg->mtext) == 1){
-								//do send message
-								
+								// Do send message
 								copyString(msg->mtext,actualMsg);
  								k_release_memory_block(msg);							
-// 								msg = (MSG_BUF *)request_memory_block();
 // 								msg->mtype = DEFAULT;
-// 								copyString(actualMsg, msg->mtext);
 // 								send_message(PID_CRT,(void *)msg);			
 							
 								msg = (MSG_BUF *)request_memory_block();
 								msg->mtype = DEFAULT;
 								copyString(actualMsg, msg->mtext);
-								send_message(kcd_commands[i].pid,(void *)msg);			
+								send_message(kcd_commands[i].pid,(void *)msg);
+								break;
 						}
 					}
 				}			

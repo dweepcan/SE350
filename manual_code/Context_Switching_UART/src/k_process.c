@@ -41,7 +41,8 @@ extern PROC_INIT g_sys_procs[NUM_SYS_PROCS];
  * NOTE: We assume there are only six user processes in the system in this example.
  */
 Queue *readyPriorityQueue[NUM_PRIORITIES];
-Queue *blockedResourceQueue[NUM_PRIORITIES];
+Queue *blockedResourceQueue_[NUM_PRIORITIES+1],
+	**blockedResourceQueue = &blockedResourceQueue_[1];
 Queue *blockedReceiveQueue;
 ProcessNode **processNodes;
 

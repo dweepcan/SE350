@@ -16,9 +16,9 @@
 //#endif
 
 #ifdef _DEBUG_HOTKEYS
-#define READY_HK '1'
-#define BLOCKED_RESOURCE_HK '2'
-#define BLOCKED_RECEIVE_HK '3'
+#define READY_HK '!'
+#define BLOCKED_RESOURCE_HK '@'
+#define BLOCKED_RECEIVE_HK '#'
 #endif
 
 uint8_t g_buffer[]= "You Typed a Q\n\r";
@@ -283,7 +283,7 @@ void kcd_helper(uint8_t char_in){
 		printf("Received carriage return character\n\r");
 		
 		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();	
-		if(p_msg_env != NULL) {
+		if(p_msg_env!= NULL) {
 			stringBuilder[stringCurrentIndex++] = '\0';
 				
 			p_msg_env->m_send_pid = PID_UART_IPROC;
@@ -297,9 +297,9 @@ void kcd_helper(uint8_t char_in){
 			
 			k_send_message_nonblocking(PID_KCD, p_msg_env);
 		}
-	}
 		
-	stringCurrentIndex = 0;
+		stringCurrentIndex = 0;
+	}
 }
 
 void crt_helper(uint8_t char_in){

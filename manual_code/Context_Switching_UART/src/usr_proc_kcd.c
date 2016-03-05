@@ -68,7 +68,6 @@ void checkTestEnd() {
 }
 
 void proc1(void){
-	
 	int dog;
 	MSG_BUF *p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = KCD_REG;
@@ -101,7 +100,7 @@ void proc2(void){
 	p_msg_env->mtype = KCD_REG;
 	p_msg_env->mtext[0] = '%';
 	p_msg_env->mtext[1] = 'A';
-		p_msg_env->mtext[2] = 'B';
+	p_msg_env->mtext[2] = 'B';
 
 	send_message(PID_KCD,(void *)p_msg_env);
 
