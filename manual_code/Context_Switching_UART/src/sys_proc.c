@@ -21,7 +21,7 @@ PROC_INIT g_sys_procs[NUM_SYS_PROCS];
 
 void set_sys_procs() {
 	g_sys_procs[0].m_pid=(U32)(0);
-	g_sys_procs[0].m_priority=LOWEST+1;
+	g_sys_procs[0].m_priority=NULL_PRIORITY;
 	g_sys_procs[0].m_stack_size=0x100;
  	g_sys_procs[0].mpf_start_pc = &proc_null;
 	

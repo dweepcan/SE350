@@ -17,7 +17,7 @@
 
 /* ----- Definitions ----- */
 #define RAM_END_ADDR 0x10008000
-#define NUM_BLOCKS 30
+#define NUM_BLOCKS 1
 #define BLOCK_SIZE 128 // make this more? AT LEAST 128B?
 
 /* ----- Variables ----- */

@@ -258,7 +258,7 @@ int k_set_process_priority(int process_id, int priority){
 	
 	//prevent set process if modifying null proc or setting priority to null proc level
 	if (process_id == PID_NULL || process_id == PID_KCD || process_id == PID_CRT ||
-		priority == LOWEST+1 || priority == HIGHEST || oldNode == NULL){
+		priority == NULL_PRIORITY || priority == HIGHEST || oldNode == NULL){
 		return RTX_ERR;
 	}
 	
