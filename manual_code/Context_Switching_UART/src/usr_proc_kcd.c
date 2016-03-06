@@ -84,6 +84,7 @@ void proc1(void){
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
 		printf("PROC 1 Test result: %s \r\n", p_msg_env->mtext);
+		release_memory_block((void *)p_msg_env);
 	}
 }
 
@@ -105,6 +106,7 @@ void proc2(void){
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
 		printf("PROC 2 Test result: %s \r\n", p_msg_env->mtext);
+		release_memory_block((void *)p_msg_env);
 	}
 }
 
@@ -126,6 +128,7 @@ void proc3(void){
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
 		printf("PROC 3 Test result: %s \r\n", p_msg_env->mtext);
+		release_memory_block((void *)p_msg_env);
 	}
 }
 

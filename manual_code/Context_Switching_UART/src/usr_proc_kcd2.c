@@ -78,7 +78,7 @@ void proc1(void){
 	p_msg_env->mtext[1] = 'A';
 	p_msg_env->mtext[2] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
-	printf("Process 1 sends %A KCD_REG\r\n");
+	printf("Process 1 sends %%A KCD_REG\r\n");
 	
 	p_msg_env->mtype = KCD_REG;
 	p_msg_env->mtext[0] = '%';
@@ -87,11 +87,12 @@ void proc1(void){
 	p_msg_env->mtext[3] = 'D';
 	p_msg_env->mtext[4] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
-	printf("Process 1 sends %ABD KCD_REG\r\n");
+	printf("Process 1 sends %%ABD KCD_REG\r\n");
 
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
 		printf("PROC 1 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
+		release_memory_block((void *)p_msg_env);
 	}
 }
 
@@ -108,7 +109,7 @@ void proc2(void){
 	p_msg_env->mtext[2] = 'B';
 	p_msg_env->mtext[3] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
-	printf("Process 2 sends %AB KCD_REG\r\n");
+	printf("Process 2 sends %%AB KCD_REG\r\n");
 	
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = KCD_REG;
@@ -116,11 +117,12 @@ void proc2(void){
 	p_msg_env->mtext[1] = 'B';
 	p_msg_env->mtext[2] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
-	printf("Process 2 sends %B KCD_REG\r\n");
+	printf("Process 2 sends %%B KCD_REG\r\n");
 
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
 		printf("PROC 2 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
+		release_memory_block((void *)p_msg_env);
 	}
 }
 
@@ -139,11 +141,12 @@ void proc3(void){
 	p_msg_env->mtext[3] = 'D';
 	p_msg_env->mtext[4] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
-	printf("Process 3 sends %BAD KCD_REG\r\n");
+	printf("Process 3 sends %%BAD KCD_REG\r\n");
 
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
 		printf("PROC 3 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
+		release_memory_block((void *)p_msg_env);
 	}
 }
 
@@ -162,11 +165,12 @@ void proc4(void){
 	p_msg_env->mtext[3] = 'T';
 	p_msg_env->mtext[4] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
-	printf("Process 4 sends %BAD KCD_REG\r\n");
+	printf("Process 4 sends %%CAT KCD_REG\r\n");
 
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
 		printf("PROC 4 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
+		release_memory_block((void *)p_msg_env);
 	}
 }
 

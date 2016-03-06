@@ -45,7 +45,7 @@ Queue *readyPriorityQueue[NUM_PRIORITIES];
 Queue *blockedResourceQueue[NUM_PRIORITIES];
 Queue *blockedReceiveQueue;
 ProcessNode **processNodes;
-
+char printBuffer[80];
 
 int isBlockedEmpty(){
 	//checks if blocked on resource is empty
@@ -535,13 +535,13 @@ int k_release_processor(void){
 
 void printQueue(PROC_STATE_E state){
 	if (state == RDY){
-		printf("Ready Queue:\r\n");
+		uart1_put_string("Ready Queue:\r\n");
 		printReadyQueue();
 	}else if (state == BLOCKED_ON_RESOURCE){
-		printf("Blocked On Resource Queue:\r\n");
+		uart1_put_string("Blocked On Resource Queue:\r\n");
 		printBlockedOnResourceQueue();
 	}else if (state == BLOCKED_ON_RECEIVE){
-		printf("Blocked On Receive Queue:\r\n");
+		uart1_put_string("Blocked On Receive Queue:\r\n");
 		printBlockedOnReceiveQueue();
 	}
 }
@@ -554,7 +554,8 @@ void printReadyQueue() {
 		node = readyPriorityQueue[i]->front; 
 		
 		while(node!=NULL) {
-			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+			uart1_put_string((unsigned char*) printBuffer);
 			node = node->next;
 		}
 	}
@@ -568,7 +569,8 @@ void printBlockedOnResourceQueue() {
 		node = blockedResourceQueue[i]->front; 
 		
 		while(node!=NULL){
-			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+		uart1_put_string((unsigned char*) printBuffer);
 			node = node->next;
 		}
 	}
@@ -578,7 +580,8 @@ void printBlockedOnReceiveQueue() {
 	ProcessNode* node = blockedReceiveQueue->front;
 
 	while(node!=NULL){
-		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+		sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
+		uart1_put_string((unsigned char*) printBuffer);
 		node = node->next;
 	}
 }
