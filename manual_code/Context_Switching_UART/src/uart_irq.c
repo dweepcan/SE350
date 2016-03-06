@@ -350,7 +350,7 @@ int crt_helper(){
 	
 	msg = (MSG_BUF*)k_receive_message_nonblocking(NULL);
 	gp_current_process = temp;
-	
+
 	if(msg != NULL){
 		copyStringAddNewLine(msg->mtext,(char *)g_buffer);
 		k_release_memory_block_nonblocking(msg);

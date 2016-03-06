@@ -54,9 +54,9 @@ PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
 void set_test_procs() {
 	int i;
 	
-	uart0_put_string("G012_test: START\n\r");
+	uart1_put_string("G012_test: START\n\r");
 	sprintf(buffer, "G012_test: total %d tests\n\r", NUM_TEST_PROCS);
-	uart0_put_string((unsigned char*) buffer);
+	uart1_put_string((unsigned char*) buffer);
 	
 	for( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_test_procs[i].m_pid=(U32)(i+1);
@@ -75,7 +75,7 @@ void set_test_procs() {
 // Helper function to print out end test results
 void printTest(int testNum, int status) {
 	sprintf(buffer, "G012_test: test %d %s\n\r", testNum, status==0 ? "FAIL" : "OK");
-	uart0_put_string((unsigned char*) buffer);
+	uart1_put_string((unsigned char*) buffer);
 	testsRun += 1;
 	if(status == 0) {
 		failedTests += 1;
@@ -87,10 +87,10 @@ void printTest(int testNum, int status) {
 void checkTestEnd() {
 	if(testsRun == NUM_TEST_PROCS) {
 		sprintf(buffer, "G012_test: %d/%d tests OK\n\r", passedTests, NUM_TEST_PROCS);
-		uart0_put_string((unsigned char*) buffer);
+		uart1_put_string((unsigned char*) buffer);
 		sprintf(buffer, "G012_test: %d/%d tests FAIL\n\r", failedTests, NUM_TEST_PROCS);
-		uart0_put_string((unsigned char*) buffer);
-		uart0_put_string("G012_test: END\n\r");
+		uart1_put_string((unsigned char*) buffer);
+		uart1_put_string("G012_test: END\n\r");
 	}
 }
 
@@ -100,6 +100,7 @@ void proc1(void){
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = DEFAULT;
 	p_msg_env->mtext[0] = 'A';
+	p_msg_env->mtext[1] = '\0';
 	send_message(PID_P2,(void *)p_msg_env);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
@@ -132,6 +133,7 @@ void proc3(void){
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = DEFAULT;
 	p_msg_env->mtext[0] = 'C';
+	p_msg_env->mtext[1] = '\0';
 	send_message(PID_P2,(void *)p_msg_env);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
@@ -163,6 +165,7 @@ void proc5(void){
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = DEFAULT;
 	p_msg_env->mtext[0] = 'E';
+	p_msg_env->mtext[1] = '\0';
 	send_message(PID_P4,(void *)p_msg_env);
 	printf("Rentering process 5.\r\n");
 	set_process_priority(gp_current_process->m_pid, LOWEST);

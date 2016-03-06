@@ -86,22 +86,22 @@ void memory_init(void)
 		p_end += sizeof(PCB); 
 	}
 #ifdef DEBUG_0  
-	printf("gp_pcbs[0] = 0x%x \n", gp_pcbs[0]);
-	printf("gp_pcbs[1] = 0x%x \n", gp_pcbs[1]);
-	printf("gp_pcbs[2] = 0x%x \n", gp_pcbs[2]);
-	printf("gp_pcbs[3] = 0x%x \n", gp_pcbs[3]);
-	printf("gp_pcbs[4] = 0x%x \n", gp_pcbs[4]);
-	printf("gp_pcbs[5] = 0x%x \n", gp_pcbs[5]);
-	printf("gp_pcbs[6] = 0x%x \n", gp_pcbs[6]);
-	printf("gp_pcbs[7] = 0x%x \n", gp_pcbs[7]);
-	printf("gp_pcbs[8] = 0x%x \n", gp_pcbs[8]);
-	printf("gp_pcbs[9] = 0x%x \n", gp_pcbs[9]);
-	printf("gp_pcbs[10] = 0x%x \n", gp_pcbs[10]);
-	printf("gp_pcbs[11] = 0x%x \n", gp_pcbs[11]);
-	printf("gp_pcbs[12] = 0x%x \n", gp_pcbs[12]);
-	printf("gp_pcbs[13] = 0x%x \n", gp_pcbs[13]);
-	printf("gp_pcbs[14] = 0x%x \n", gp_pcbs[14]);
-	printf("gp_pcbs[15] = 0x%x \n", gp_pcbs[15]);
+	printf("gp_pcbs[0] = 0x%x \r\n", gp_pcbs[0]);
+	printf("gp_pcbs[1] = 0x%x \r\n", gp_pcbs[1]);
+	printf("gp_pcbs[2] = 0x%x \r\n", gp_pcbs[2]);
+	printf("gp_pcbs[3] = 0x%x \r\n", gp_pcbs[3]);
+	printf("gp_pcbs[4] = 0x%x \r\n", gp_pcbs[4]);
+	printf("gp_pcbs[5] = 0x%x \r\n", gp_pcbs[5]);
+	printf("gp_pcbs[6] = 0x%x \r\n", gp_pcbs[6]);
+	printf("gp_pcbs[7] = 0x%x \r\n", gp_pcbs[7]);
+	printf("gp_pcbs[8] = 0x%x \r\n", gp_pcbs[8]);
+	printf("gp_pcbs[9] = 0x%x \r\n", gp_pcbs[9]);
+	printf("gp_pcbs[10] = 0x%x \r\n", gp_pcbs[10]);
+	printf("gp_pcbs[11] = 0x%x \r\n", gp_pcbs[11]);
+	printf("gp_pcbs[12] = 0x%x \r\n", gp_pcbs[12]);
+	printf("gp_pcbs[13] = 0x%x \r\n", gp_pcbs[13]);
+	printf("gp_pcbs[14] = 0x%x \r\n", gp_pcbs[14]);
+	printf("gp_pcbs[15] = 0x%x \r\n", gp_pcbs[15]);
 #endif
 	
 	/* allocate memory for k_msg_queue pointers   */
@@ -113,22 +113,22 @@ void memory_init(void)
 		p_end += sizeof(k_msg_queue); 
 	}
 #ifdef DEBUG_0  
-	printf("gp_msgs[0] = 0x%x \n", gp_msgs[0]);
-	printf("gp_msgs[1] = 0x%x \n", gp_msgs[1]);
-	printf("gp_msgs[2] = 0x%x \n", gp_msgs[2]);
-	printf("gp_msgs[3] = 0x%x \n", gp_msgs[3]);
-	printf("gp_msgs[4] = 0x%x \n", gp_msgs[4]);
-	printf("gp_msgs[5] = 0x%x \n", gp_msgs[5]);
-	printf("gp_msgs[6] = 0x%x \n", gp_msgs[6]);
-	printf("gp_msgs[7] = 0x%x \n", gp_msgs[7]);
-	printf("gp_msgs[8] = 0x%x \n", gp_msgs[8]);
-	printf("gp_msgs[9] = 0x%x \n", gp_msgs[9]);
-	printf("gp_msgs[10] = 0x%x \n", gp_msgs[10]);
-	printf("gp_msgs[11] = 0x%x \n", gp_msgs[11]);
-	printf("gp_msgs[12] = 0x%x \n", gp_msgs[12]);
-	printf("gp_msgs[13] = 0x%x \n", gp_msgs[13]);
-	printf("gp_msgs[14] = 0x%x \n", gp_msgs[14]);
-	printf("gp_msgs[15] = 0x%x \n", gp_msgs[15]);
+	printf("gp_msgs[0] = 0x%x \r\n", gp_msgs[0]);
+	printf("gp_msgs[1] = 0x%x \r\n", gp_msgs[1]);
+	printf("gp_msgs[2] = 0x%x \r\n", gp_msgs[2]);
+	printf("gp_msgs[3] = 0x%x \r\n", gp_msgs[3]);
+	printf("gp_msgs[4] = 0x%x \r\n", gp_msgs[4]);
+	printf("gp_msgs[5] = 0x%x \r\n", gp_msgs[5]);
+	printf("gp_msgs[6] = 0x%x \r\n", gp_msgs[6]);
+	printf("gp_msgs[7] = 0x%x \r\n", gp_msgs[7]);
+	printf("gp_msgs[8] = 0x%x \r\n", gp_msgs[8]);
+	printf("gp_msgs[9] = 0x%x \r\n", gp_msgs[9]);
+	printf("gp_msgs[10] = 0x%x \r\n", gp_msgs[10]);
+	printf("gp_msgs[11] = 0x%x \r\n", gp_msgs[11]);
+	printf("gp_msgs[12] = 0x%x \r\n", gp_msgs[12]);
+	printf("gp_msgs[13] = 0x%x \r\n", gp_msgs[13]);
+	printf("gp_msgs[14] = 0x%x \r\n", gp_msgs[14]);
+	printf("gp_msgs[15] = 0x%x \r\n", gp_msgs[15]);
 #endif
 	
 	/* allocate memory for ProcessNodes pointers   */
@@ -140,22 +140,22 @@ void memory_init(void)
 		p_end += sizeof(ProcessNode); 
 	}
 #ifdef DEBUG_0  
-	printf("processNodes[0] = 0x%x \n", processNodes[0]);
-	printf("processNodes[1] = 0x%x \n", processNodes[1]);
-	printf("processNodes[2] = 0x%x \n", processNodes[2]);
-	printf("processNodes[3] = 0x%x \n", processNodes[3]);
-	printf("processNodes[4] = 0x%x \n", processNodes[4]);
-	printf("processNodes[5] = 0x%x \n", processNodes[5]);
-	printf("processNodes[6] = 0x%x \n", processNodes[6]);
-	printf("processNodes[7] = 0x%x \n", processNodes[7]);
-	printf("processNodes[8] = 0x%x \n", processNodes[8]);
-	printf("processNodes[9] = 0x%x \n", processNodes[9]);
-	printf("processNodes[10] = 0x%x \n", processNodes[10]);
-	printf("processNodes[11] = 0x%x \n", processNodes[11]);
-	printf("processNodes[12] = 0x%x \n", processNodes[12]);
-	printf("processNodes[13] = 0x%x \n", processNodes[13]);
-	printf("processNodes[14] = 0x%x \n", processNodes[14]);
-	printf("processNodes[15] = 0x%x \n", processNodes[15]);
+	printf("processNodes[0] = 0x%x \r\n", processNodes[0]);
+	printf("processNodes[1] = 0x%x \r\n", processNodes[1]);
+	printf("processNodes[2] = 0x%x \r\n", processNodes[2]);
+	printf("processNodes[3] = 0x%x \r\n", processNodes[3]);
+	printf("processNodes[4] = 0x%x \r\n", processNodes[4]);
+	printf("processNodes[5] = 0x%x \r\n", processNodes[5]);
+	printf("processNodes[6] = 0x%x \r\n", processNodes[6]);
+	printf("processNodes[7] = 0x%x \r\n", processNodes[7]);
+	printf("processNodes[8] = 0x%x \r\n", processNodes[8]);
+	printf("processNodes[9] = 0x%x \r\n", processNodes[9]);
+	printf("processNodes[10] = 0x%x \r\n", processNodes[10]);
+	printf("processNodes[11] = 0x%x \r\n", processNodes[11]);
+	printf("processNodes[12] = 0x%x \r\n", processNodes[12]);
+	printf("processNodes[13] = 0x%x \r\n", processNodes[13]);
+	printf("processNodes[14] = 0x%x \r\n", processNodes[14]);
+	printf("processNodes[15] = 0x%x \r\n", processNodes[15]);
 #endif
 	
 	for(i = 0; i < NUM_PRIORITIES; i++) {
@@ -234,13 +234,13 @@ void *k_request_memory_block(void) {
 	__disable_irq();
 	
 #ifdef DEBUG_0 
-	printf("k_request_memory_block: entering...\n");
+	printf("k_request_memory_block: entering...\n\r");
 #endif /* ! DEBUG_0 */
 	
 	while(s_is_empty(gp_heap)) {
 		/* If the heap is empty loop until a memory block is available */
 #ifdef DEBUG_0
-		printf("k_request_memory_block: no available memory blocks.\n");
+		printf("k_request_memory_block: no available memory blocks.\n\r");
 #endif /* ! DEBUG_0 */
 		
 		// current process moved to blocked queue
@@ -259,7 +259,7 @@ void *k_request_memory_block(void) {
 	p_mem_blk += (sizeof(k_node)/4);
 
 #ifdef DEBUG_0
-	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
+	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n\r", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	__enable_irq();
@@ -270,13 +270,13 @@ void *k_request_memory_block_nonblocking(void) {
 	k_node *p_mem_blk = NULL;
 
 #ifdef DEBUG_0 
-	printf("k_request_memory_block: entering...\n");
+	printf("k_request_memory_block: entering...\n\r");
 #endif /* ! DEBUG_0 */
 	
 	if(s_is_empty(gp_heap)) {
 		/* If the heap is empty return NULL */
 #ifdef DEBUG_0
-		printf("k_request_memory_block: no available memory blocks.\n");
+		printf("k_request_memory_block: no available memory blocks.\r\n");
 #endif /* ! DEBUG_0 */
 		
 		return (void *) NULL;
@@ -289,7 +289,7 @@ void *k_request_memory_block_nonblocking(void) {
 	p_mem_blk += (sizeof(k_node)/4);
 
 #ifdef DEBUG_0
-	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
+	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\r\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	return (void *) p_mem_blk;
@@ -302,12 +302,12 @@ int k_release_memory_block(void *p_mem_blk) {
 	__disable_irq();
 	
 #ifdef DEBUG_0 
-	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
+	printf("k_release_memory_block: releasing block @ 0x%x\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	if(p_mem_blk == NULL) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: cannot release NULL memory block.\n");
+		printf("k_release_memory_block: cannot release NULL memory block.\r\n");
 #endif /* ! DEBUG_0 */
 		__enable_irq();
 		return RTX_ERR;
@@ -318,7 +318,7 @@ int k_release_memory_block(void *p_mem_blk) {
 
 	if((U8 *)p_node < gp_heap_begin || (U8 *)p_node > gp_heap_end) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: 0x%x is out of bounds of heap memory addresses.\n", p_mem_blk);
+		printf("k_release_memory_block: 0x%x is out of bounds of heap memory addresses.\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 		__enable_irq();
 		return RTX_ERR;
@@ -327,7 +327,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	/* Make sure the memory address is block-aligned */
 	if(((U8 *)p_node - gp_heap_begin) % (BLOCK_SIZE + sizeof(k_node)) != 0) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: 0x%x is not block-aligned.\n", p_mem_blk);
+		printf("k_release_memory_block: 0x%x is not block-aligned.\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 		__enable_irq();
 		return RTX_ERR;
@@ -336,7 +336,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	/* Make sure we are not releasing a unallocated memory block */
 	if(!s_is_empty(gp_heap) && contains(gp_heap, p_node)) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: 0x%x is already in the heap.\n", p_mem_blk);
+		printf("k_release_memory_block: 0x%x is already in the heap.\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 		__enable_irq();
 		return RTX_ERR;
@@ -377,12 +377,12 @@ int k_release_memory_block_nonblocking(void *p_mem_blk) {
 	PCB* nextProcess;
 		
 #ifdef DEBUG_0 
-	printf("k_release_memory_block: releasing block @ 0x%x\n", p_mem_blk);
+	printf("k_release_memory_block: releasing block @ 0x%x\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	if(p_mem_blk == NULL) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: cannot release NULL memory block.\n");
+		printf("k_release_memory_block: cannot release NULL memory block.\r\n");
 #endif /* ! DEBUG_0 */
 
 		return RTX_ERR;
@@ -393,7 +393,7 @@ int k_release_memory_block_nonblocking(void *p_mem_blk) {
 
 	if((U8 *)p_node < gp_heap_begin || (U8 *)p_node > gp_heap_end) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: 0x%x is out of bounds of heap memory addresses.\n", p_mem_blk);
+		printf("k_release_memory_block: 0x%x is out of bounds of heap memory addresses.\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 		return RTX_ERR;
@@ -402,7 +402,7 @@ int k_release_memory_block_nonblocking(void *p_mem_blk) {
 	/* Make sure the memory address is block-aligned */
 	if(((U8 *)p_node - gp_heap_begin) % (BLOCK_SIZE + sizeof(k_node)) != 0) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: 0x%x is not block-aligned.\n", p_mem_blk);
+		printf("k_release_memory_block: 0x%x is not block-aligned.\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 		return RTX_ERR;
@@ -411,7 +411,7 @@ int k_release_memory_block_nonblocking(void *p_mem_blk) {
 	/* Make sure we are not releasing a unallocated memory block */
 	if(!s_is_empty(gp_heap) && contains(gp_heap, p_node)) {
 #ifdef DEBUG_0
-		printf("k_release_memory_block: 0x%x is already in the heap.\n", p_mem_blk);
+		printf("k_release_memory_block: 0x%x is already in the heap.\r\n", p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 		return RTX_ERR;

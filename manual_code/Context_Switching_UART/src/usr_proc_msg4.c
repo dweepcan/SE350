@@ -27,9 +27,9 @@ PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
 void set_test_procs() {
 	int i;
 	
-	uart0_put_string("G012_test: START\n\r");
+	uart1_put_string("G012_test: START\n\r");
 	sprintf(buffer, "G012_test: total %d tests\n\r", NUM_TEST_PROCS);
-	uart0_put_string((unsigned char*) buffer);
+	uart1_put_string((unsigned char*) buffer);
 	
 	for( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_test_procs[i].m_pid=(U32)(i+1);
@@ -48,7 +48,7 @@ void set_test_procs() {
 // Helper function to print out end test results
 void printTest(int testNum, int status) {
 	sprintf(buffer, "G012_test: test %d %s\n\r", testNum, status==0 ? "FAIL" : "OK");
-	uart0_put_string((unsigned char*) buffer);
+	uart1_put_string((unsigned char*) buffer);
 	testsRun += 1;
 	if(status == 0) {
 		failedTests += 1;
@@ -60,10 +60,10 @@ void printTest(int testNum, int status) {
 void checkTestEnd() {
 	if(testsRun == NUM_TEST_PROCS) {
 		sprintf(buffer, "G012_test: %d/%d tests OK\n\r", passedTests, NUM_TEST_PROCS);
-		uart0_put_string((unsigned char*) buffer);
+		uart1_put_string((unsigned char*) buffer);
 		sprintf(buffer, "G012_test: %d/%d tests FAIL\n\r", failedTests, NUM_TEST_PROCS);
-		uart0_put_string((unsigned char*) buffer);
-		uart0_put_string("G012_test: END\n\r");
+		uart1_put_string((unsigned char*) buffer);
+		uart1_put_string("G012_test: END\n\r");
 	}
 }
 
@@ -82,12 +82,12 @@ void proc1(void){
 	p_msg_env3 = (MSG_BUF *) request_memory_block();
 	p_msg_env3->mtype = DEFAULT;
 	p_msg_env3->mtext[0] = 'B';
-	delayed_send(PID_P2,(void *)p_msg_env2, 200);
-	delayed_send(PID_P2,(void *)p_msg_env3, 200);
+	delayed_send(PID_P2,(void *)p_msg_env2, 2000);
+	delayed_send(PID_P2,(void *)p_msg_env3, 2000);
 	for(i=0;i<1000000;i++) {
 		// Waste all the time like this project
 	}
-	delayed_send(PID_P2,(void *)p_msg_env1, 199);
+	delayed_send(PID_P2,(void *)p_msg_env1, 1999);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
 		release_processor();

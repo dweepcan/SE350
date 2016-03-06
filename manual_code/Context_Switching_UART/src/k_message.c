@@ -99,7 +99,7 @@ void *k_receive_message_nonblocking(int *p_pid) {
 	
 	#ifdef DEBUG_0
 	if(p_pid == NULL) {
-			printf("WARNING: p_pid is passed in as NULL in k_receive_message");
+			printf("WARNING: p_pid is passed in as NULL in k_receive_message\r\n");
 	}
 	#endif
 	

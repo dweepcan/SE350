@@ -27,9 +27,9 @@ PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
 void set_test_procs() {
 	int i;
 	
-	//uart0_put_string("G012_test: START\n\r");
-	//sprintf(buffer, "G012_test: total %d tests\n\r", NUM_TEST_PROCS);
-	//uart0_put_string((unsigned char*) buffer);
+	uart1_put_string("G012_test: START\n\r");
+	sprintf(buffer, "G012_test: total %d tests\n\r", NUM_TEST_PROCS);
+	uart1_put_string((unsigned char*) buffer);
 	
 	for( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_test_procs[i].m_pid=(U32)(i+1);
@@ -48,7 +48,7 @@ void set_test_procs() {
 // Helper function to print out end test results
 void printTest(int testNum, int status) {
 	sprintf(buffer, "G012_test: test %d %s\n\r", testNum, status==0 ? "FAIL" : "OK");
-	uart0_put_string((unsigned char*) buffer);
+	uart1_put_string((unsigned char*) buffer);
 	testsRun += 1;
 	if(status == 0) {
 		failedTests += 1;
@@ -60,10 +60,10 @@ void printTest(int testNum, int status) {
 void checkTestEnd() {
 	if(testsRun == NUM_TEST_PROCS) {
 		sprintf(buffer, "G012_test: %d/%d tests OK\n\r", passedTests, NUM_TEST_PROCS);
-		uart0_put_string((unsigned char*) buffer);
+		uart1_put_string((unsigned char*) buffer);
 		sprintf(buffer, "G012_test: %d/%d tests FAIL\n\r", failedTests, NUM_TEST_PROCS);
-		uart0_put_string((unsigned char*) buffer);
-		uart0_put_string("G012_test: END\n\r");
+		uart1_put_string((unsigned char*) buffer);
+		uart1_put_string("G012_test: END\n\r");
 	}
 }
 
@@ -73,20 +73,20 @@ void proc1(void){
 	p_msg_env->mtype = KCD_REG;
 	p_msg_env->mtext[0] = '%';
 	p_msg_env->mtext[1] = 'A';
+	p_msg_env->mtext[2] = '\0';
 	printf("Entering process 1\r\n");
 	
 	send_message(PID_KCD,(void *)p_msg_env);
 	release_processor();
 	
-	printf("reEntering process 1\r\n");
+	printf("Reentering process 1\r\n");
 		
 	p_msg_env = (MSG_BUF *)receive_message(&dog);
-				printf("Test result: %s", p_msg_env->mtext);
+	printf("Test result: %s\n\r", p_msg_env->mtext);
 
-	
 	while(1) {
 			p_msg_env = (MSG_BUF *)receive_message(&dog);
-				printf("PROC 1 result: %s \r\n", p_msg_env->mtext);
+			printf("PROC 1 result: %s \r\n", p_msg_env->mtext);
 		//release_processor();
 	}
 }
@@ -101,7 +101,7 @@ void proc2(void){
 	p_msg_env->mtext[0] = '%';
 	p_msg_env->mtext[1] = 'A';
 	p_msg_env->mtext[2] = 'B';
-
+	p_msg_env->mtext[3] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
 
 	while(1) {
