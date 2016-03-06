@@ -39,23 +39,17 @@ int stringCurrentIndex = 0;
  * The step number in the comments matches the item number in Section 14.1 on pg 298
  * of LPC17xx_UM
  */
- 
- 
- void copyStringAddNewLine(char* s,char* t){
+
+void copyStringAddNewLine(char* s,char* t){
 	while (*s!='\0'){
 		*t = *s;
 		s=s+1;
 		t=t+1;
 	}
 	
-	//*t = '\n';
-	//t=t+1;
-	//*t='\0';
+	*t='\0';
 }
 
-
- 
- 
 int uart_irq_init(int n_uart) {
 
 	LPC_UART_TypeDef *pUart;
@@ -205,6 +199,7 @@ __asm void UART0_IRQHandler(void)
 RESTORE
 	POP{r4-r11, pc}
 } 
+
 /**
  * @brief: c UART0 IRQ Handler
  */
@@ -219,6 +214,8 @@ void c_UART0_IRQHandler(void)
 #ifdef DEBUG_0
 	uart1_put_string("Entering c_UART0_IRQHandler\n\r");
 #endif // DEBUG_0
+	
+	g_switch_flag = 0;
 
 	/* Reading IIR automatically acknowledges the interrupt */
 	IIR_IntId = (pUart->IIR) >> 1 ; // skip pending bit in IIR 
@@ -232,13 +229,6 @@ void c_UART0_IRQHandler(void)
 #endif // DEBUG_0
 		// Prints the character to UART
 		kcd_helper(g_char_in);
-
-		/* setting the g_switch_flag */
-		if (g_char_in == 'S' ) {
-			g_switch_flag = 1; 
-		} else {
-			g_switch_flag = 0;
-		}
 	} else if (IIR_IntId & IIR_THRE) {
 		
 	/* THRE Interrupt, transmit holding register becomes empty */
@@ -264,18 +254,14 @@ STUPIDLABEL:
 				pUart->IER ^= IER_THRE; // toggle the IER_THRE bit 
 				pUart->THR = '\0';
 				g_send_char = 0;
-				//copyStringAddNewLine((char *)g_buffer,(char *)gp_buffer);
 				
 				for (i=0; i<MSG_BUF_TEXT_SIZE; i++){
 					g_buffer[i] = '\0';
 				}
-			}
-			///////////////////////////////////////
-			else{
+			} else{
 				gp_buffer = g_buffer;
 				goto STUPIDLABEL;
 			}
-			/////////////////////////
 		}
 	      
 	} else {  /* not implemented yet */
@@ -334,6 +320,8 @@ void kcd_helper(uint8_t char_in){
 			}
 			
 			k_send_message_nonblocking(PID_KCD, p_msg_env);
+			
+			g_switch_flag = 1;
 		}
 		
 		stringCurrentIndex = 0;

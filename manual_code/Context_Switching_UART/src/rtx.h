@@ -52,6 +52,7 @@ typedef unsigned int U32;
 #define DEFAULT 0
 #define KCD_REG 1
 #define CRT_DISP 2
+#define WALL_CLOCK 3
 
 /* initialization table item */
 #ifndef PROC_INIT_

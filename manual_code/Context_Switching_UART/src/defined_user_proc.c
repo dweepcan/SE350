@@ -32,8 +32,8 @@ void set_user_procs(void){
 
 void wall_clock(){
 	MSG_BUF *msg;
-	int time;
 	int pid;
+	int time;
 	int active;
 	
 	msg = (MSG_BUF *)request_memory_block();
@@ -44,15 +44,15 @@ void wall_clock(){
 	send_message(PID_KCD, (void *)msg);
 	
 	time = 0;
-	active = 1;
+	active = 0;
 	
 	while(1){
 		msg = (MSG_BUF *)receive_message(&pid);
 		
-		if (pid == PID_CLOCK && active == 1){
-		
-			msg->mtype = DEFAULT;
-			delayed_send(PID_CLOCK,(void *)msg, 100); //1000 millisecond delay?
+		if (pid == PID_CLOCK && active == 1 && msg->mtype == WALL_CLOCK){
+			msg->mtype = WALL_CLOCK;
+			msg->mtext[0] = '\0';
+			delayed_send(PID_CLOCK,(void *)msg, 1000); //1000 millisecond delay?
 			
 			msg = (MSG_BUF *) request_memory_block();
 			msg->mtype = CRT_DISP;
@@ -68,29 +68,66 @@ void wall_clock(){
 			msg->mtext[9] = '\n';
 			msg->mtext[10] = '\0';
 
-			
-
 			send_message(PID_CRT, msg);
 			time++;
 			time = time%(60*60*24);
 		}else{
-			if (msg->mtext[2]== 'R'){ //reset clock
-				time = 0; //should i do more checks?
-			}else if (msg->mtext[2] == 'T'){ //terminate command just quit bruh
-				break;
-			
-			}else if (msg->mtext[2] == 'S'){ //set time
-			}else if (msg->mtext[1] == 'W'){ //cheat to start clock...
-				//msg = (MSG_BUF *) request_memory_block();
-				msg->mtype = DEFAULT;
-				send_message(PID_CLOCK, msg);
-				active = 1;
+			if (msg->mtext[0]== '%' && msg->mtext[1]== 'W' && msg->mtext[2]== 'R' && msg->mtext[3]== '\0'){ //reset clock
+				time = 0;
+				
+				if(active == 0) {
+					active = 1;
+					
+					msg->mtype = WALL_CLOCK;
+					msg->mtext[0] = '\0';
+					send_message(PID_CLOCK, (void *)msg);
+				} else {
+					release_memory_block(msg);
+				}
+			}else if (msg->mtext[0]== '%' && msg->mtext[1]== 'W' && msg->mtext[2] == 'T' && msg->mtext[3] == '\0'){ //terminate command just quit bruh
+				active = 0;
+				release_memory_block(msg);
+			}else if (msg->mtext[0]== '%' && msg->mtext[1]== 'W' && msg->mtext[2] == 'S'){ //set time
+				if (msg->mtext[3] == ' '
+                 && ((msg->mtext[4] >= '0' && msg->mtext[4] <= '1' && msg->mtext[5] >= '0' && msg->mtext[5] <= '9') 
+									|| (msg->mtext[4] == '2' && msg->mtext[5] >= '0' && msg->mtext[5] <= '3'))
+                 && msg->mtext[6] == ':'
+                 && msg->mtext[7] >= '0' && msg->mtext[7] <= '5'
+                 && msg->mtext[8] >= '0' && msg->mtext[8] <= '9'
+                 && msg->mtext[9] == ':'
+                 && msg->mtext[10] >= '0' && msg->mtext[10] <= '5'
+                 && msg->mtext[11] >= '0' && msg->mtext[11] <= '9'
+                 && msg->mtext[12] == '\0') {
+					time = 0;
+									 
+					time += (((msg->mtext[4] - '0') * 10) + (msg->mtext[5] - '0')) * 3600;
+					time += (((msg->mtext[7] - '0') * 10) + (msg->mtext[8] - '0')) * 60;
+					time += (((msg->mtext[10] - '0') * 10) + (msg->mtext[11] - '0'));
+					
+					if(active == 0) {
+						active = 1;
+						
+						msg->mtype = WALL_CLOCK;
+						msg->mtext[0] = '\0';
+						send_message(PID_CLOCK, (void *)msg);
+					} else {
+						release_memory_block(msg);
+					}
+				} else {
+					msg->mtype = CRT_DISP;
+					copyStringAddNewLine("Error: Illegal input\n\r", msg->mtext);
+					send_message(PID_CRT, (void *)msg);
+				}
+			} else {
+				if(msg->mtype == WALL_CLOCK) {
+					release_memory_block(msg);
+				} else {
+					msg->mtype = CRT_DISP;
+					copyStringAddNewLine("Error: Illegal input\n\r", msg->mtext);
+					send_message(PID_CRT, (void *)msg);
+				}
 			}
 		}
-	}
-	
-	while(1) {
-		release_processor();
 	}
 }
 

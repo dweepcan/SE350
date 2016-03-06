@@ -8,4 +8,6 @@ void stress_test_a(void);
 void stress_test_b(void);
 void stress_test_c(void);
 
+extern void copyStringAddNewLine(char* s,char* t);
+
 #endif /* DEFINED_USR_PROC_H_ */
