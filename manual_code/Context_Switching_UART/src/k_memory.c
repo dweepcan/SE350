@@ -22,9 +22,6 @@ k_stack *gp_heap;
 U8 *gp_heap_begin;
 U8 *gp_heap_end;
 
-// const int NUM_BLOCKS = 30;
-// const int BLOCK_SIZE = 128; // make this more? AT LEAST 128B?
-
 /**
  * @brief: Initialize RAM as follows:
 
@@ -123,6 +120,15 @@ void memory_init(void)
 	printf("gp_msgs[4] = 0x%x \n", gp_msgs[4]);
 	printf("gp_msgs[5] = 0x%x \n", gp_msgs[5]);
 	printf("gp_msgs[6] = 0x%x \n", gp_msgs[6]);
+	printf("gp_msgs[7] = 0x%x \n", gp_msgs[7]);
+	printf("gp_msgs[8] = 0x%x \n", gp_msgs[8]);
+	printf("gp_msgs[9] = 0x%x \n", gp_msgs[9]);
+	printf("gp_msgs[10] = 0x%x \n", gp_msgs[10]);
+	printf("gp_msgs[11] = 0x%x \n", gp_msgs[11]);
+	printf("gp_msgs[12] = 0x%x \n", gp_msgs[12]);
+	printf("gp_msgs[13] = 0x%x \n", gp_msgs[13]);
+	printf("gp_msgs[14] = 0x%x \n", gp_msgs[14]);
+	printf("gp_msgs[15] = 0x%x \n", gp_msgs[15]);
 #endif
 	
 	/* allocate memory for ProcessNodes pointers   */

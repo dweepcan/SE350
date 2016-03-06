@@ -1,4 +1,4 @@
-#ifndef SYS_PROC_H_
+#ifndef SYS_PROC_H
 #define SYS_PROC_H
 
 void set_sys_procs(void);
@@ -6,4 +6,4 @@ void proc_null(void);
 void proc_kcd(void);
 void proc_crt(void);
 
-#endif /* SYS_PROC_H_ */
+#endif /* SYS_PROC_H */

@@ -63,7 +63,7 @@ ProcessNode* findProcessNodeByPID(int curpid){
 }
 
 
-int addProcessNode(int pid,int priority, int state){
+int addProcessNode(int pid, int priority, int state){
 	ProcessNode* pn;
 	if (pid >= (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 2)) return RTX_ERR;
 	pn = findProcessNodeByPID(pid);
@@ -108,14 +108,14 @@ int addProcessNode(int pid,int priority, int state){
 		pn->prev = blockedReceiveQueue->back;
 		pn->next = NULL;
 		blockedReceiveQueue->back = pn;
-		return RTX_OK;
 		
+		return RTX_OK;
 	}
 	
 	return RTX_ERR;
 }
 
-ProcessNode* removeProcessNode(int process_id,int priority, int state){
+ProcessNode* removeProcessNode(int process_id, int priority, int state){
 	ProcessNode* returnNode= NULL;
 	
 	if (state == RDY || state == NEW){ //if ready
@@ -214,7 +214,6 @@ ProcessNode* removeProcessNode(int process_id,int priority, int state){
 		return NULL;
 	}
 	
-	
 	return NULL;
 }
 
@@ -222,7 +221,7 @@ ProcessNode* removeProcessNode(int process_id,int priority, int state){
 int k_get_process_priority(int process_id){
 	ProcessNode* node = findProcessNodeByPID(process_id);
 	if (node == NULL) return RTX_ERR;
-	return node->pcb->m_priority;
+	return systemToUserPriority(node->pcb->m_priority);
 }
 
 //checks if a process is in the ready state (0) or blocked (1), -1 if not found 
@@ -253,27 +252,28 @@ int getState(int process_id){
 int k_set_process_priority(int process_id, int priority){
 	int state = getState(process_id);
 	int oldPriority = 0;
+	int sysPriority = userToSystemPriority(priority);
 	//todo update isready
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
 	
 	//prevent set process if modifying null proc or setting priority to null proc level
-	if (process_id == PID_NULL || process_id == PID_KCD || process_id == PID_CRT ||
-		priority == LOWEST+1 || priority == HIGHEST || oldNode == NULL){
+	if (process_id <= PID_NULL || process_id >= PID_A || 
+		sysPriority < SYS_HIGH || sysPriority > SYS_LOWEST || oldNode == NULL){
 		return RTX_ERR;
 	}
 	
 	if (process_id != gp_current_process->m_pid){
 		removeProcessNode(process_id,oldNode->pcb->m_priority,state);
-		addProcessNode(process_id,priority,state);
+		addProcessNode(process_id,sysPriority,state);
 	}
 	
 	oldPriority = oldNode->pcb->m_priority;
-	oldNode->pcb->m_priority = priority;
+	oldNode->pcb->m_priority = sysPriority;
 	//preempt :)
 	//highest priority is 0
 	//TODO: Call release processor only when changing the priority of a non-blocked process 
-	if ((gp_current_process->m_pid != process_id && priority <= gp_current_process->m_priority) ||
-		(gp_current_process->m_pid == process_id && priority > oldPriority)){
+	if ((gp_current_process->m_pid != process_id && sysPriority <= gp_current_process->m_priority) ||
+		(gp_current_process->m_pid == process_id && sysPriority > oldPriority)){
 		k_release_processor();
 	}
 	
@@ -306,7 +306,7 @@ void process_init() {
 		g_proc_table[i].m_pid = g_test_procs[i].m_pid;
 		g_proc_table[i].m_stack_size = g_test_procs[i].m_stack_size;
 		g_proc_table[i].mpf_start_pc = g_test_procs[i].mpf_start_pc;
-		g_proc_table[i].m_priority = g_test_procs[i].m_priority;
+		g_proc_table[i].m_priority = userToSystemPriority(g_test_procs[i].m_priority);
 	}
 	
 	//setup usr procs
@@ -551,7 +551,7 @@ void printReadyQueue() {
 	for (i=0;i<NUM_PRIORITIES-1; i++){
 		node = readyPriorityQueue[i]->front; 
 		
-		while(node!=NULL){
+		while(node!=NULL) {
 			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
 			node = node->next;
 		}
@@ -578,5 +578,21 @@ void printBlockedOnReceiveQueue() {
 	while(node!=NULL){
 		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
 		node = node->next;
+	}
+}
+
+int systemToUserPriority(int priority) {
+	if(priority < SYS_HIGH || priority > SYS_LOWEST) {
+		return RTX_ERR;
+	} else {
+		return priority - 1;
+	}
+}
+
+int userToSystemPriority(int priority) {
+	if(priority < 0 || priority >= NUM_USER_PRIORITIES) {
+		return RTX_ERR;
+	} else {
+		return priority + 1;
 	}
 }

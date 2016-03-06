@@ -215,9 +215,6 @@ void c_UART0_IRQHandler(void)
 		// Prints the character to UART
 		kcd_helper(g_char_in);
 
-		//g_buffer[12] = g_char_in; // nasty hack
-		//g_send_char = 1;
-		
 		/* setting the g_switch_flag */
 		if (g_char_in == 'S' ) {
 			g_switch_flag = 1; 

@@ -18,6 +18,7 @@
 
 #define INITIAL_xPSR 0x01000000        /* user process initial xPSR value */
 #define NUM_PRIORITIES 6
+#define NUM_USER_PRIORITIES 4
 
 struct ProcessNode;
 typedef struct ProcessNode{
@@ -64,5 +65,9 @@ extern int unblockProcess(PCB* pcb);
 // Helpers for block receive
 extern int blockReceiveProcess(void);
 extern int unblockReceiveProcess(PCB* pcb);
+
+// Helpers for switching priority between system to user
+int systemToUserPriority(int priority);
+int userToSystemPriority(int priority);
 
 #endif /* ! K_PROCESS_H_ */
