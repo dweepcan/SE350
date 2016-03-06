@@ -93,11 +93,10 @@ void proc_kcd(void) {
 					numStoredCommands++;
 				}
 			
-				k_release_memory_block((void *)msg);
-			}else if (msg->mtype == DEFAULT){
+				release_memory_block((void *)msg);
+			} else if (msg->mtype == DEFAULT){
 				//always send the message to crt - see page 13 of manual 
 				copyString(msg->mtext,actualMsg);
- 				//k_release_memory_block(msg);							
  				msg->mtype = CRT_DISP;
  				send_message(PID_CRT,(void *)msg);
 				
@@ -130,8 +129,8 @@ void proc_crt(void){
 			send_message(PID_UART_IPROC, (void*) msg);
 			
 			triggerUart();
-		}else{
-			k_release_memory_block((void *)msg);
+		} else{
+			release_memory_block((void *)msg);
 		}
 	}
 }
