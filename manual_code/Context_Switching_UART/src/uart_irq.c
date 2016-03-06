@@ -8,11 +8,11 @@
 #include <LPC17xx.h>
 #include "uart.h"
 #include "uart_polling.h"
-//#ifdef DEBUG_0
-#include "printf.h"
 #include "k_memory.h"
 #include "k_process.h"
 #include "k_rtx.h"
+//#ifdef DEBUG_0
+#include "printf.h"
 //#endif
 
 #ifdef _DEBUG_HOTKEYS
@@ -21,7 +21,7 @@
 #define BLOCKED_RECEIVE_HK '#'
 #endif
 
-uint8_t g_buffer[]= "You Typed a Q\n\r";
+uint8_t g_buffer[]= "";
 uint8_t *gp_buffer = g_buffer;
 uint8_t g_send_char = 0;
 uint8_t g_char_in;
@@ -212,21 +212,21 @@ void c_UART0_IRQHandler(void)
 		uart1_put_char(g_char_in);
 		uart1_put_string("\n\r");
 #endif // DEBUG_0
-
+		// Prints the character to UART
 		kcd_helper(g_char_in);
 
-		g_buffer[12] = g_char_in; // nasty hack
-		g_send_char = 1;
+		//g_buffer[12] = g_char_in; // nasty hack
+		//g_send_char = 1;
 		
 		/* setting the g_switch_flag */
-		if ( g_char_in == 'S' ) {
+		if (g_char_in == 'S' ) {
 			g_switch_flag = 1; 
 		} else {
 			g_switch_flag = 0;
 		}
 	} else if (IIR_IntId & IIR_THRE) {
 	/* THRE Interrupt, transmit holding register becomes empty */
-
+		
 		if (*gp_buffer != '\0' ) {
 			g_char_out = *gp_buffer;
 #ifdef DEBUG_0
@@ -240,13 +240,16 @@ void c_UART0_IRQHandler(void)
 			pUart->THR = g_char_out;
 			gp_buffer++;
 		} else {
-#ifdef DEBUG_0
-			uart1_put_string("Finish writing. Turning off IER_THRE\n\r");
-#endif // DEBUG_0
-			pUart->IER ^= IER_THRE; // toggle the IER_THRE bit 
-			pUart->THR = '\0';
-			g_send_char = 0;
-			gp_buffer = g_buffer;		
+			if(crt_helper() ==0){
+
+	#ifdef DEBUG_0
+				uart1_put_string("Finish writing. Turning off IER_THRE\n\r");
+	#endif // DEBUG_0
+				pUart->IER ^= IER_THRE; // toggle the IER_THRE bit 
+				pUart->THR = '\0';
+				g_send_char = 0;
+				gp_buffer = g_buffer;		
+			}
 		}
 	      
 	} else {  /* not implemented yet */
@@ -262,6 +265,7 @@ void c_UART0_IRQHandler(void)
 void kcd_helper(uint8_t char_in){
 	MSG_BUF *p_msg_env;
 	int i;
+	LPC_UART_TypeDef *pUart = (LPC_UART_TypeDef *)LPC_UART0;
 	
 #ifdef _DEBUG_HOTKEYS
 	if (char_in == READY_HK){
@@ -278,9 +282,15 @@ void kcd_helper(uint8_t char_in){
 		printf("Received %c\n\r", (char) char_in);
 #endif
 		// Need this hack because you can only cast the u_int_8 pointer to char * pointer
-		stringBuilder[stringCurrentIndex++] = *((char *) &char_in);
+		pUart->THR = char_in;
+
+		stringBuilder[stringCurrentIndex++] = *((char *) &char_in);		
 	} else {
 		printf("Received carriage return character\n\r");
+		
+		pUart->THR = '\r';
+		pUart->THR = '\n';
+		pUart->THR = '\0';
 		
 		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();	
 		if(p_msg_env!= NULL) {
@@ -302,6 +312,42 @@ void kcd_helper(uint8_t char_in){
 	}
 }
 
-void crt_helper(uint8_t char_in){
-	return;
+void copyStringAddNewLIne(char* s,char* t){
+	while (*s!='\0'){
+		*t = *s;
+		s=s+1;
+		t=t+1;
+	}
+	*t='\r';
+	t=t+1;
+	*t='\n';
+	t=t+1;
+	
+	*t='\0';
+}
+
+int crt_helper(){
+	MSG_BUF* msg;
+	int pid;
+	PCB *temp = gp_current_process;
+	gp_current_process = processNodes[PID_UART_IPROC]->pcb;
+	
+	msg = (MSG_BUF*)k_receive_message_nonblocking(&pid);
+	gp_current_process = temp;
+	
+
+	if(msg != NULL){
+		copyStringAddNewLIne(msg->mtext,(char *)gp_buffer);
+		k_release_memory_block_nonblocking(msg);
+		
+		return 1; // 1 for received message
+	}
+	
+	
+	return 0; //0 for no message
+}
+
+void triggerUart(){
+	LPC_UART_TypeDef *pUart = (LPC_UART_TypeDef *)LPC_UART0;
+	pUart->IER |= IER_THRE; // see line 151 of uart_irq.c
 }

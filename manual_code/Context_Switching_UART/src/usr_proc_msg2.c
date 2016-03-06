@@ -38,9 +38,9 @@
 #include "usr_proc.h"
 #include "k_memory.h"
 
-#ifdef DEBUG_0
+//#ifdef DEBUG_0
 #include "printf.h"
-#endif /* DEBUG_0 */
+//#endif /* DEBUG_0 */
 
 int passedTests = 0;
 int failedTests = 0;

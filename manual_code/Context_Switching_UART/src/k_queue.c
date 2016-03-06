@@ -1,8 +1,8 @@
 #include "k_queue.h"
 
-#ifdef DEBUG_0
+//#ifdef DEBUG_0
 #include "printf.h"
-#endif /* ! DEBUG_0 */
+//#endif /* ! DEBUG_0 */
 
 int enqueue(k_queue *p_queue, k_node *p_node) {
     if(p_queue == NULL || p_node == NULL) {

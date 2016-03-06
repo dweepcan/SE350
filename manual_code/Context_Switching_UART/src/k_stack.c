@@ -1,8 +1,8 @@
 #include "k_stack.h"
 
-#ifdef DEBUG_0
+//#ifdef DEBUG_0
 #include "printf.h"
-#endif /* ! DEBUG_0 */
+//#endif /* ! DEBUG_0 */
 
 int push(k_stack *p_stack, k_node *p_node) {
 	if(p_stack == NULL || p_node == NULL) {

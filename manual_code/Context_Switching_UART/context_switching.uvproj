@@ -348,7 +348,7 @@
             <uSurpInc>0</uSurpInc>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>DEBUG_0 K_MSG_ENV _DEBUG_HOTKEYS</Define>
+              <Define>K_MSG_ENV DEBUG_0</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>

@@ -1,9 +1,9 @@
 #include "k_msg_queue.h"
 #include "k_rtx.h"
 
-#ifdef DEBUG_0
+//#ifdef DEBUG_0
 #include "printf.h"
-#endif /* ! DEBUG_0 */
+//#endif /* ! DEBUG_0 */
 
 int msg_enqueue(k_msg_queue *p_queue, MSG_BUF *p_node) {
     if(p_queue == NULL || p_node == NULL) {

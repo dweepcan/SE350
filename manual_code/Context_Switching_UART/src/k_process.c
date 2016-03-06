@@ -18,9 +18,9 @@
 #include "uart_polling.h"
 #include "k_process.h"
 
-#ifdef DEBUG_0
+//#ifdef DEBUG_0
 #include "printf.h"
-#endif /* DEBUG_0 */
+//#endif /* DEBUG_0 */
 
 /* ----- Global Variables ----- */
 PCB **gp_pcbs;                  /* array of pcbs */
@@ -58,7 +58,7 @@ int isBlockedEmpty(){
 
 
 ProcessNode* findProcessNodeByPID(int curpid){
-	if (curpid >= (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 2) || curpid < 0) return NULL;
+	if (curpid >= (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS) || curpid < 0) return NULL;
 	return processNodes[curpid];
 }
 

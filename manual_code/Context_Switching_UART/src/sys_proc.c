@@ -94,7 +94,7 @@ void proc_kcd(void) {
 					kcd_commands[numStoredCommands].pid = pid;
 					numStoredCommands++;
 					
-					k_release_memory_block_nonblocking(msg);
+					k_release_memory_block_nonblocking((void *)msg);
 				}
 			}else if (msg->mtype == DEFAULT){
 	
@@ -130,7 +130,12 @@ void proc_crt(void){
 		msg = (MSG_BUF*)receive_message(&pid);
 		if (msg != NULL && msg->mtype == CRT_DISP){
 			//Send messages of CRT Display type to the uart for display
-			//send_message(PID_UART_IPROC, (void*) msg);
+			msg->mtype = DEFAULT;
+			send_message(PID_UART_IPROC, (void*) msg);
+			
+			triggerUart();
+		}else{
+			k_release_memory_block_nonblocking((void *)msg);
 		}
 	}
 }

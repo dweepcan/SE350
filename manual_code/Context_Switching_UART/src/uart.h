@@ -10,6 +10,7 @@
 /* typedefs */
 #include <stdint.h>	
 #include "uart_def.h"
+#include "uart_polling.h"
 
 /* The following macros are from NXP uart.h */
 /*
@@ -62,6 +63,6 @@
 /* initialize the n_uart to use interrupt */
 int uart_irq_init(int n_uart);		
 void kcd_helper(uint8_t);
-void crt_helper(uint8_t);
-
+int crt_helper (void);
+void triggerUart(void);
 #endif /* ! UART_IRQ_H_ */
