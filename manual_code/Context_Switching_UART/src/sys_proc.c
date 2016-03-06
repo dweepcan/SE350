@@ -61,7 +61,7 @@ int compareCmd(char* s, char* t){
  		t = t+1;		
 	}
 	
-	if (*s=='\0' && *t=='\0') return 1;
+	if (*s=='\0' && *t=='\r') return 1;
 	
 	if (*s=='\0' && *t==' ') return 1;
 	
