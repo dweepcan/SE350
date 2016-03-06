@@ -21,7 +21,7 @@
 #define BLOCKED_RECEIVE_HK '#'
 #endif
 
-uint8_t g_buffer[]= "";
+uint8_t g_buffer[MSG_BUF_TEXT_SIZE];
 uint8_t *gp_buffer = g_buffer;
 uint8_t g_send_char = 0;
 uint8_t g_char_in;
@@ -39,6 +39,23 @@ int stringCurrentIndex = 0;
  * The step number in the comments matches the item number in Section 14.1 on pg 298
  * of LPC17xx_UM
  */
+ 
+ 
+ void copyStringAddNewLine(char* s,char* t){
+	while (*s!='\0'){
+		*t = *s;
+		s=s+1;
+		t=t+1;
+	}
+	
+	*t = '\n';
+	t=t+1;
+	*t='\0';
+}
+
+
+ 
+ 
 int uart_irq_init(int n_uart) {
 
 	LPC_UART_TypeDef *pUart;
@@ -193,9 +210,10 @@ RESTORE
  */
 void c_UART0_IRQHandler(void)
 {
+	int i;
 	uint8_t IIR_IntId;	    // Interrupt ID from IIR 		 
 	LPC_UART_TypeDef *pUart = (LPC_UART_TypeDef *)LPC_UART0;
-	
+		
 	__disable_irq();
 
 #ifdef DEBUG_0
@@ -222,8 +240,9 @@ void c_UART0_IRQHandler(void)
 			g_switch_flag = 0;
 		}
 	} else if (IIR_IntId & IIR_THRE) {
-	/* THRE Interrupt, transmit holding register becomes empty */
 		
+	/* THRE Interrupt, transmit holding register becomes empty */
+STUPIDLABEL:
 		if (*gp_buffer != '\0' ) {
 			g_char_out = *gp_buffer;
 #ifdef DEBUG_0
@@ -245,8 +264,18 @@ void c_UART0_IRQHandler(void)
 				pUart->IER ^= IER_THRE; // toggle the IER_THRE bit 
 				pUart->THR = '\0';
 				g_send_char = 0;
-				gp_buffer = g_buffer;		
+				//copyStringAddNewLine((char *)g_buffer,(char *)gp_buffer);
+				
+				for (i=0; i<MSG_BUF_TEXT_SIZE; i++){
+					g_buffer[i] = '\0';
+				}
 			}
+			///////////////////////////////////////
+			else{
+				gp_buffer = g_buffer;
+				goto STUPIDLABEL;
+			}
+			/////////////////////////
 		}
 	      
 	} else {  /* not implemented yet */
@@ -287,7 +316,7 @@ void kcd_helper(uint8_t char_in){
 		
 		pUart->THR = '\r';
 		pUart->THR = '\n';
-		pUart->THR = '\0';
+		//pUart->THR = '\0';
 		
 		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();	
 		if(p_msg_env!= NULL) {
@@ -309,37 +338,23 @@ void kcd_helper(uint8_t char_in){
 	}
 }
 
-void copyStringAddNewLIne(char* s,char* t){
-	while (*s!='\0'){
-		*t = *s;
-		s=s+1;
-		t=t+1;
-	}
-	*t='\r';
-	t=t+1;
-	*t='\n';
-	t=t+1;
-	
-	*t='\0';
-}
+
 
 int crt_helper(){
 	MSG_BUF* msg;
-	int pid;
+	//int pid;
 	PCB *temp = gp_current_process;
 	gp_current_process = processNodes[PID_UART_IPROC]->pcb;
 	
-	msg = (MSG_BUF*)k_receive_message_nonblocking(&pid);
+	msg = (MSG_BUF*)k_receive_message_nonblocking(NULL);
 	gp_current_process = temp;
 	
-
 	if(msg != NULL){
-		copyStringAddNewLIne(msg->mtext,(char *)gp_buffer);
+		copyStringAddNewLine(msg->mtext,(char *)g_buffer);
 		k_release_memory_block_nonblocking(msg);
 		
 		return 1; // 1 for received message
 	}
-	
 	
 	return 0; //0 for no message
 }

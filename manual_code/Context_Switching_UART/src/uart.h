@@ -61,6 +61,7 @@
 #define MSG_BUF_TEXT_SIZE (BLOCK_SIZE - sizeof(MSG_BUF))
 
 /* initialize the n_uart to use interrupt */
+void copyStringAddNewLIne(char* s,char* t);
 int uart_irq_init(int n_uart);		
 void kcd_helper(uint8_t);
 int crt_helper (void);
