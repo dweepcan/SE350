@@ -262,7 +262,7 @@ STUPIDLABEL:
 				uart1_put_string("Finish writing. Turning off IER_THRE\n\r");
 	#endif // DEBUG_0
 				pUart->IER ^= IER_THRE; // toggle the IER_THRE bit 
-				pUart->THR = '\0';
+				//pUart->THR = '\0';
 				g_send_char = 0;
 				//copyStringAddNewLine((char *)g_buffer,(char *)gp_buffer);
 				
@@ -316,7 +316,7 @@ void kcd_helper(uint8_t char_in){
 		
 		pUart->THR = '\r';
 		pUart->THR = '\n';
-		//pUart->THR = '\0';
+		pUart->THR = '\0';
 		
 		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();	
 		if(p_msg_env!= NULL) {

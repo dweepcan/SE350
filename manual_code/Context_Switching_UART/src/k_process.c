@@ -501,7 +501,7 @@ int process_switch(PCB *p_pcb_old) {
 		} else {
 			gp_current_process = p_pcb_old; // revert back to the old proc on error
 			return RTX_ERR;
-		} 
+		}
 	}
 	
 	return RTX_OK;

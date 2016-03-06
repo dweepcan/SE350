@@ -135,7 +135,7 @@ void proc_crt(void){
 			
 			triggerUart();
 		}else{
-			k_release_memory_block_nonblocking((void *)msg);
+			k_release_memory_block((void *)msg);
 		}
 	}
 }
