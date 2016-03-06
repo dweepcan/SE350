@@ -506,6 +506,7 @@ int process_switch(PCB *p_pcb_old) {
 	
 	return RTX_OK;
 }
+
 /**
  * @brief release_processor(). 
  * @return RTX_ERR on error and zero on success

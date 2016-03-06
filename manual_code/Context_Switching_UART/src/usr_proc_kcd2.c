@@ -19,7 +19,6 @@ int passedTests = 0;
 int failedTests = 0;
 int testsRun = 0;
 char buffer[50];
-void *all_memory_blocks[30];
 
 /* initialization table item */
 PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
@@ -72,18 +71,27 @@ void proc1(void){
 	MSG_BUF *p_msg_env;
 	
 	printf("Entering process 1\r\n");
-
+	
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = KCD_REG;
 	p_msg_env->mtext[0] = '%';
 	p_msg_env->mtext[1] = 'A';
 	p_msg_env->mtext[2] = '\0';
-	
 	send_message(PID_KCD,(void *)p_msg_env);
+	printf("Process 1 sends %A KCD_REG\r\n");
+	
+	p_msg_env->mtype = KCD_REG;
+	p_msg_env->mtext[0] = '%';
+	p_msg_env->mtext[1] = 'A';
+	p_msg_env->mtext[2] = 'B';
+	p_msg_env->mtext[3] = 'D';
+	p_msg_env->mtext[4] = '\0';
+	send_message(PID_KCD,(void *)p_msg_env);
+	printf("Process 1 sends %ABD KCD_REG\r\n");
 
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
-		printf("PROC 1 Test result: %s \r\n", p_msg_env->mtext);
+		printf("PROC 1 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
 	}
 }
 
@@ -99,12 +107,20 @@ void proc2(void){
 	p_msg_env->mtext[1] = 'A';
 	p_msg_env->mtext[2] = 'B';
 	p_msg_env->mtext[3] = '\0';
-	
 	send_message(PID_KCD,(void *)p_msg_env);
+	printf("Process 2 sends %AB KCD_REG\r\n");
+	
+	p_msg_env = (MSG_BUF *) request_memory_block();
+	p_msg_env->mtype = KCD_REG;
+	p_msg_env->mtext[0] = '%';
+	p_msg_env->mtext[1] = 'B';
+	p_msg_env->mtext[2] = '\0';
+	send_message(PID_KCD,(void *)p_msg_env);
+	printf("Process 2 sends %B KCD_REG\r\n");
 
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
-		printf("PROC 2 Test result: %s \r\n", p_msg_env->mtext);
+		printf("PROC 2 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
 	}
 }
 
@@ -119,21 +135,38 @@ void proc3(void){
 	p_msg_env->mtype = KCD_REG;
 	p_msg_env->mtext[0] = '%';
 	p_msg_env->mtext[1] = 'B';
-	p_msg_env->mtext[2] = '\0';
-	
+	p_msg_env->mtext[2] = 'A';
+	p_msg_env->mtext[3] = 'D';
+	p_msg_env->mtext[4] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
+	printf("Process 3 sends %BAD KCD_REG\r\n");
 
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&dog);
-		printf("PROC 3 Test result: %s \r\n", p_msg_env->mtext);
+		printf("PROC 3 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
 	}
 }
 
 // Test preemption
 void proc4(void){
+	int dog;
+	MSG_BUF *p_msg_env;
+	
 	printf("Entering process 4\r\n");
+	
+	p_msg_env = (MSG_BUF *) request_memory_block();
+	p_msg_env->mtype = KCD_REG;
+	p_msg_env->mtext[0] = '%';
+	p_msg_env->mtext[1] = 'C';
+	p_msg_env->mtext[2] = 'A';
+	p_msg_env->mtext[3] = 'T';
+	p_msg_env->mtext[4] = '\0';
+	send_message(PID_KCD,(void *)p_msg_env);
+	printf("Process 4 sends %BAD KCD_REG\r\n");
+
 	while(1) {
-		release_processor();
+		p_msg_env = (MSG_BUF *)receive_message(&dog);
+		printf("PROC 4 Test result: %s from process %d\r\n", p_msg_env->mtext, dog);
 	}
 }
 
