@@ -48,9 +48,9 @@ int stringCurrentIndex = 0;
 		t=t+1;
 	}
 	
-	*t = '\n';
-	t=t+1;
-	*t='\0';
+	//*t = '\n';
+	//t=t+1;
+	//*t='\0';
 }
 
 
@@ -303,7 +303,7 @@ void kcd_helper(uint8_t char_in){
 	}
 #endif
 	
-	if(char_in != '\r' && stringCurrentIndex < MSG_BUF_TEXT_SIZE - 1) {
+	if(char_in != '\r' && stringCurrentIndex < MSG_BUF_TEXT_SIZE - 3) {
 #ifdef DEBUG_0
 		printf("Received %c\n\r", (char) char_in);
 #endif
@@ -316,10 +316,12 @@ void kcd_helper(uint8_t char_in){
 		
 		pUart->THR = '\r';
 		pUart->THR = '\n';
-		pUart->THR = '\0';
+	//	pUart->THR = '\0';
 		
 		p_msg_env = (MSG_BUF *) k_request_memory_block_nonblocking();	
 		if(p_msg_env!= NULL) {
+			stringBuilder[stringCurrentIndex++] = '\r';
+			stringBuilder[stringCurrentIndex++] = '\n';
 			stringBuilder[stringCurrentIndex++] = '\0';
 				
 			p_msg_env->m_send_pid = PID_UART_IPROC;
