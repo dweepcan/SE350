@@ -93,9 +93,9 @@ void proc_kcd(void) {
 					copyString(msg->mtext,kcd_commands[numStoredCommands].command);
 					kcd_commands[numStoredCommands].pid = pid;
 					numStoredCommands++;
-					
-					k_release_memory_block_nonblocking((void *)msg);
 				}
+			
+				k_release_memory_block_nonblocking((void *)msg);
 			}else if (msg->mtype == DEFAULT){
 	
 				//always send the message to crt - see page 13 of manual 
