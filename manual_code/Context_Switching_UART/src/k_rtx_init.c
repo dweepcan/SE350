@@ -16,7 +16,7 @@ void k_rtx_init(void)
 	__disable_irq();
 	uart_irq_init(0);   // uart0, interrupt-driven 
 	uart1_init();       // uart1, polling
-	uart0_put_string("\r");	// fix the irritating space at the start of output
+	uart1_put_string("\r");	// fix the irritating space at the start of output
 	memory_init();
 	process_init();
 	timer_init(0);

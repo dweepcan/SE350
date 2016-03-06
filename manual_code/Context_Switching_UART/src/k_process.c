@@ -353,6 +353,7 @@ void process_init() {
 		(gp_pcbs[i])->msg_queue = gp_msgs[i];
 		(gp_pcbs[i])->msg_queue->first = NULL;
 		(gp_pcbs[i])->msg_queue->last = NULL;
+		(gp_pcbs[i])->msg_queue->size = 0;
 		
 		sp = alloc_stack((g_proc_table[i]).m_stack_size);
 		*(--sp)  = INITIAL_xPSR;      // user process initial xPSR  

@@ -331,7 +331,6 @@ int crt_helper(){
 	
 	msg = (MSG_BUF*)k_receive_message_nonblocking(&pid);
 	gp_current_process = temp;
-	
 
 	if(msg != NULL){
 		copyStringAddNewLIne(msg->mtext,(char *)gp_buffer);
@@ -339,7 +338,6 @@ int crt_helper(){
 		
 		return 1; // 1 for received message
 	}
-	
 	
 	return 0; //0 for no message
 }

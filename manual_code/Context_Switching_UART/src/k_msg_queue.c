@@ -8,7 +8,7 @@
 int msg_enqueue(k_msg_queue *p_queue, MSG_BUF *p_node) {
     if(p_queue == NULL || p_node == NULL) {
 #ifdef DEBUG_0
-		printf("ERROR: Enqueuing to a NULL queue or inserting a NULL node.\n");
+		printf("ERROR: Enqueuing to a NULL queue or inserting a NULL node.\r\n");
 #endif /* ! DEBUG_0 */
         return RTX_ERR;
     }
@@ -32,7 +32,7 @@ int msg_sorted_enqueue(k_msg_queue *p_queue, MSG_BUF *p_node) {
 	
 		if(p_queue == NULL || p_node == NULL) {
 #ifdef DEBUG_0
-		printf("ERROR: Enqueuing to a NULL queue or inserting a NULL node.\n");
+		printf("ERROR: Enqueuing to a NULL queue or inserting a NULL node.\r\n");
 #endif /* ! DEBUG_0 */
         return RTX_ERR;
     }
@@ -64,7 +64,7 @@ MSG_BUF* msg_dequeue(k_msg_queue *p_queue) {
 
     if (p_queue->size == 0) {
 #ifdef DEBUG_0
-        printf("ERROR: Dequeuing a node from an empty queue.\n");
+        printf("ERROR: Dequeuing a node from an empty queue.\r\n");
 #endif /* ! DEBUG_0 */
         return NULL;
     }
@@ -84,7 +84,7 @@ MSG_BUF* msg_dequeue(k_msg_queue *p_queue) {
 int msg_q_is_empty(k_msg_queue *p_queue) {
     if(p_queue == NULL) {
 #ifdef DEBUG_0
-        printf("ERROR: Checking if a NULL queue is empty.\n");
+        printf("ERROR: Checking if a NULL queue is empty.\r\n");
 #endif /* ! DEBUG_0 */
 			return RTX_ERR;
     } else {
