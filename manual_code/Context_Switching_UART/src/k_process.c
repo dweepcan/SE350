@@ -304,7 +304,8 @@ void process_init() {
 	//set up test procs
 	for ( i = 0; i < NUM_TEST_PROCS; i++ ) {
 		g_proc_table[i].m_pid = g_test_procs[i].m_pid;
-		g_proc_table[i].m_stack_size = g_test_procs[i].m_stack_size;
+		//g_proc_table[i].m_stack_size = g_test_procs[i].m_stack_size;
+		g_proc_table[i].m_stack_size = 0x200;
 		g_proc_table[i].mpf_start_pc = g_test_procs[i].mpf_start_pc;
 		g_proc_table[i].m_priority = userToSystemPriority(g_test_procs[i].m_priority);
 	}
