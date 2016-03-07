@@ -77,7 +77,9 @@ void proc1(void){
 	int sender_id;
 	MSG_BUF *p_msg_env;
 	
+#ifdef DEBUG_0
 	printf("Entering process 1\r\n");
+#endif	
 	
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = KCD_REG;
@@ -85,10 +87,14 @@ void proc1(void){
 	p_msg_env->mtext[1] = 'A';
 	p_msg_env->mtext[2] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
+#ifdef DEBUG_0
 	printf("Process 1 sends %%A KCD_REG\r\n");
+#endif
 	
 	p_msg_env = (MSG_BUF *)receive_message(&sender_id);
+#ifdef DEBUG_0
 	printf("PROC 2 Test result: %s from process %d\r\n", p_msg_env->mtext, sender_id);
+#endif
 	release_memory_block(p_msg_env);
 	
 	printTest(1, 1);
@@ -104,7 +110,9 @@ void proc2(void){
 	int sender_id;
 	MSG_BUF *p_msg_env;
 	
+#ifdef DEBUG_0
 	printf("Entering process 2\r\n");
+#endif
 	
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = KCD_REG;
@@ -112,8 +120,9 @@ void proc2(void){
 	p_msg_env->mtext[1] = 'B';
 	p_msg_env->mtext[2] = '\0';
 	send_message(PID_KCD,(void *)p_msg_env);
+#ifdef DEBUG_0
 	printf("Process 2 sends %%B KCD_REG\r\n");
-
+#endif
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&sender_id);
 		if(p_msg_env -> mtext[3] == 'Y' && p_msg_env -> mtext[4] == '\0') {
@@ -132,11 +141,12 @@ void proc2(void){
 // Process 3: Start up a wall clock, and then stop it later myself
 void proc3(void){
 	int sender_id;
-	int correct_sender = 0;
 	MSG_BUF *p_msg_env;
-	
+
+#ifdef DEBUG_0
 	printf("Entering process 3\r\n");
-	
+#endif	
+
 	// Start up the wall clock at a time which will wrap around
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = DEFAULT;
@@ -166,11 +176,10 @@ void proc3(void){
 	// Wait until I receive the message from myself
 	while(1) {
 		p_msg_env = (MSG_BUF *)receive_message(&sender_id);
-		correct_sender = sender_id == PID_P3;
 		release_memory_block((void *)p_msg_env);
 		
 		// Kill the wall clock
-		if(correct_sender == 1) {
+		if(sender_id == PID_P3) {
 			p_msg_env = (MSG_BUF *) request_memory_block();
 			p_msg_env->mtype = DEFAULT;
 			p_msg_env->mtext[0] = '%';
@@ -194,11 +203,15 @@ void proc3(void){
 
 // Process 4: Always ready to bar entry into procs 5 and 6
 void proc4(void){
+#ifdef DEBUG_0
 	printf("Entering process 4\r\n");
+#endif
+	
 	while(1) {
 		if(testsRun == 3) {
 			break;
 		}
+		release_processor();
 	}
 	
 	printTest(4, 1);
@@ -209,34 +222,34 @@ void proc4(void){
 	}
 }
 
-// Process 5: 
+// Process 5: Takes up all the memory remaining for 10 seconds, so that we can have blocked on receive and blocked on memory at the same time
 void proc5(void){
 	int sender_id, i, status;
 	MSG_BUF *p_msg_env;
 	
+#ifdef DEBUG_0
 	printf("Entering process 5\r\n");
+#endif
 	
-	p_msg_env = (MSG_BUF *) request_memory_block();
-	p_msg_env->mtype = KCD_REG;
-	p_msg_env->mtext[0] = '%';
-	p_msg_env->mtext[1] = 'R';
-	p_msg_env->mtext[2] = 'E';
-	p_msg_env->mtext[3] = 'L';
-	p_msg_env->mtext[4] = '\0';
-	send_message(PID_KCD,(void *)p_msg_env);
-	printf("Process 5 sends %%REL KCD_REG\r\n");
+	set_process_priority(gp_current_process->m_pid, HIGH);
 	
-	for(i = 0; i < 29; i++) {
+	for(i = 0; i < 28; i++) {
 		all_memory_blocks[i] = request_memory_block();
 	}
-
+	
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtext[0] = '1';
 	p_msg_env->mtext[1] = '\0';
 	delayed_send(PID_P5,(void *)p_msg_env, 10000);
 	
-	p_msg_env = (MSG_BUF *)receive_message(&sender_id);
-	release_memory_block((void *)p_msg_env);
+	while(1) {
+		p_msg_env = (MSG_BUF *)receive_message(&sender_id);
+		release_memory_block((void *)p_msg_env);
+		if(sender_id == PID_P5) {
+			break;
+		}
+	}
+	
 	for(i = 0; i < 29; i++) {
 		status &= (release_memory_block(all_memory_blocks[i]) == RTX_OK) ? 1 : 0;
 	}
@@ -254,7 +267,10 @@ void proc6(void){
 	int status;
 	void *testBlock;
 	
+#ifdef DEBUG_0
 	printf("Entering process 6\r\n");
+#endif
+	
 	testBlock = request_memory_block();
 	status = release_memory_block(testBlock);
 	
