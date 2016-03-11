@@ -10,7 +10,7 @@ void set_user_procs(void){
  	g_user_procs[0].mpf_start_pc = &stress_test_a;
 	
 	g_user_procs[1].m_pid=(U32)(PID_B);
-	g_user_procs[1].m_priority=SYS_NULL_PRIORITY;
+	g_user_procs[1].m_priority=SYS_HIGH;
 	g_user_procs[1].m_stack_size=0x200;
  	g_user_procs[1].mpf_start_pc = &stress_test_b;
 	
@@ -185,13 +185,20 @@ void set_priority_command(){
 	}
 }	
 void stress_test_a(){
+	MSG_BUF *msg;
+	int pid;
 	while(1) {
 		release_processor();
 	}
 }
+
 void stress_test_b(){
+	MSG_BUF *msg;
+	int pid;
+	
 	while(1) {
-		release_processor();
+		msg = (MSG_BUF *)receive_message(&pid);			
+		send_message(PID_C, (void *)msg);
 	}
 }
 void stress_test_c(){
