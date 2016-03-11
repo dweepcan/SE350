@@ -20,7 +20,7 @@ void set_user_procs(void){
  	g_user_procs[2].mpf_start_pc = &stress_test_c;
 	
 	g_user_procs[3].m_pid=(U32)(PID_SET_PRIO);
-	g_user_procs[3].m_priority=SYS_NULL_PRIORITY;
+	g_user_procs[3].m_priority=SYS_HIGHEST;
 	g_user_procs[3].m_stack_size=0x200;
  	g_user_procs[3].mpf_start_pc = &set_priority_command;
 	
@@ -133,8 +133,55 @@ void wall_clock(){
 
 //TODO Lab 3
 void set_priority_command(){
+	MSG_BUF *msg;
+	int pid;
+	int enterPid, enterPriority;
+	int status = RTX_ERR;
+	
+	msg = (MSG_BUF *)request_memory_block();
+	msg->mtype = KCD_REG;
+	msg->mtext[0] = '%';
+	msg->mtext[1] = 'C';
+	msg->mtext[2] = '\0';
+	send_message(PID_KCD, (void *)msg);
+	
 	while(1) {
-		release_processor();
+		status = RTX_ERR;	
+		msg = (MSG_BUF *)receive_message(&pid);
+
+		if (pid != PID_KCD){ 
+			status = RTX_ERR;
+		}else if (msg->mtext[0]== '%' && msg->mtext[1]== 'C' && msg->mtext[2] == ' ' && msg->mtext[3]<='9' && msg->mtext[3]>='0'
+			&& msg->mtext[4] == ' ' && msg->mtext[5]<='9' && msg->mtext[5]>='0' && msg->mtext[6]=='\0' /*&& msg->mtext[7]=='\0'*/){
+			enterPid = msg->mtext[3]-'0';
+			enterPriority = msg->mtext[5]-'0';
+			
+			status = set_process_priority(enterPid,enterPriority);
+
+		}else if (msg->mtext[0]== '%' && msg->mtext[1]== 'C' && msg->mtext[2] == ' ' && msg->mtext[3]<='9' && msg->mtext[3]>='0' && msg->mtext[4]<='9' && msg->mtext[4]>='0' && msg->mtext[5] == ' ' 
+			&& msg->mtext[6]<='9' && msg->mtext[6]>='0' && msg->mtext[7]=='\0' /*&& msg->mtext[8]=='\0'*/){
+			enterPid = (msg->mtext[3]-'0')*10+msg->mtext[4]-'0';
+			enterPriority = msg->mtext[6]-'0';
+
+			status = set_process_priority(enterPid,enterPriority);
+		}
+		
+		if (status == RTX_ERR){
+			msg->mtype = CRT_DISP;
+			msg->mtext[0] = 'I';
+			msg->mtext[1] = 'n';
+			msg->mtext[2] = 'v';
+			msg->mtext[3] = 'a';
+			msg->mtext[4] = 'l';
+			msg->mtext[5] = 'i';
+			msg->mtext[6] = 'd';
+			msg->mtext[7] = '\r';
+			msg->mtext[8] = '\n';
+			msg->mtext[9] = '\0';
+			send_message(PID_CRT, (void *)msg);
+		}else{
+			release_memory_block(msg);
+		}
 	}
 }	
 void stress_test_a(){

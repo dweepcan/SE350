@@ -257,7 +257,7 @@ int k_set_process_priority(int process_id, int priority){
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
 	
 	//prevent set process if modifying null proc or setting priority to null proc level
-	if (process_id <= PID_NULL || process_id >= PID_A || 
+	if (process_id <= PID_NULL || process_id >= PID_TIMER_IPROC ||
 		sysPriority < SYS_HIGH || sysPriority > SYS_LOWEST || oldNode == NULL){
 		return RTX_ERR;
 	}
@@ -271,7 +271,6 @@ int k_set_process_priority(int process_id, int priority){
 	oldNode->pcb->m_priority = sysPriority;
 	//preempt :)
 	//highest priority is 0
-	//TODO: Call release processor only when changing the priority of a non-blocked process 
 	if ((gp_current_process->m_pid != process_id && sysPriority <= gp_current_process->m_priority) ||
 		(gp_current_process->m_pid == process_id && sysPriority > oldPriority)){
 		k_release_processor();
@@ -558,7 +557,7 @@ void printReadyQueue() {
 		node = readyPriorityQueue[i]->front; 
 		
 		while(node!=NULL) {
-			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
+			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
 // 			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
 // 			uart1_put_string((unsigned char*) printBuffer);
 			node = node->next;
@@ -574,7 +573,7 @@ void printBlockedOnResourceQueue() {
 		node = blockedResourceQueue[i]->front; 
 		
 		while(node!=NULL){
-			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
+			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
 // 			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
 // 			uart1_put_string((unsigned char*) printBuffer);
 			node = node->next;
@@ -586,7 +585,7 @@ void printBlockedOnReceiveQueue() {
 	ProcessNode* node = blockedReceiveQueue->front;
 
 	while(node!=NULL){
-		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
+		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
 // 		sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
 // 		uart1_put_string((unsigned char*) printBuffer);
 		node = node->next;
