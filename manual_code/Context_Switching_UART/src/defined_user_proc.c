@@ -187,7 +187,32 @@ void set_priority_command(){
 void stress_test_a(){
 	MSG_BUF *msg;
 	int pid;
+	int num = 0;
+	
+	msg = (MSG_BUF *)request_memory_block();
+	msg->mtype = KCD_REG;
+	msg->mtext[0] = '%';
+	msg->mtext[1] = 'Z';
+	msg->mtext[2] = '\0';
+	send_message(PID_KCD, (void *)msg);
+	
 	while(1) {
+		msg = (MSG_BUF *)receive_message(&pid);
+		if(pid == PID_KCD && msg->mtext[0] == '%' && msg->mtext[1] == 'Z') {
+			release_memory_block(msg);
+			release_processor();
+			break;
+		} else {
+			release_memory_block(msg);
+		}
+	}
+	
+	while(1) {
+		msg = (MSG_BUF *)request_memory_block();
+		msg->mtype = COUNT_REPORT;
+		msg->m_kdata[0] = num;
+		send_message(PID_B, (void *)msg);
+		num++;
 		release_processor();
 	}
 }
@@ -202,6 +227,7 @@ void stress_test_b(){
 	}
 }
 void stress_test_c(){
+	
 	while(1) {
 		release_processor();
 	}
