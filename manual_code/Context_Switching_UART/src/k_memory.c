@@ -436,3 +436,21 @@ int k_release_memory_block_nonblocking(void *p_mem_blk) {
 	
 	return RTX_OK;
 }
+
+int numFreeMemoryBlocks() {
+	int i = 0;
+	k_node *p_mem_blk = NULL;
+	
+	if(s_is_empty(gp_heap)) {
+		return 0;
+	}
+	
+	p_mem_blk = gp_heap->top;
+	
+	while(p_mem_blk!=NULL){
+		i++;
+		p_mem_blk = p_mem_blk->next;
+	}
+	
+	return i;
+}

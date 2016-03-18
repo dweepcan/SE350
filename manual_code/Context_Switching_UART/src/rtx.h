@@ -54,6 +54,7 @@ typedef unsigned int U32;
 #define CRT_DISP 2
 #define WALL_CLOCK 3
 #define COUNT_REPORT 4
+#define WAKE_UP_10 5
 
 /* initialization table item */
 #ifndef PROC_INIT_

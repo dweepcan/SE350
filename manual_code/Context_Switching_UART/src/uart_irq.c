@@ -348,7 +348,7 @@ int crt_helper(){
 		return 1; // 1 for received message
 	}
 	
-	k_release_memory_block_nonblocking(msg);
+	// k_release_memory_block_nonblocking(msg);
 	return 0; //0 for no message
 }
 

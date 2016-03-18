@@ -130,6 +130,8 @@ void proc2(void){
 		}
 	}
 	
+	release_memory_block(p_msg_env);
+	
 	printTest(2, 1);
 	checkTestEnd();
 	set_process_priority(gp_current_process->m_pid, LOWEST);
@@ -232,8 +234,8 @@ void proc5(void){
 #endif
 	
 	set_process_priority(gp_current_process->m_pid, HIGH);
-	
-	for(i = 0; i < 28; i++) {
+		
+	for(i = 0; i < 29; i++) {
 		all_memory_blocks[i] = request_memory_block();
 	}
 	
