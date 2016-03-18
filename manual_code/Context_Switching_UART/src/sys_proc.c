@@ -4,7 +4,6 @@
 #include "uart.h"
 #include "k_memory.h"
 
-
 #define NUM_COMMANDS 25
 #define CMD_LENGTH 50
 
@@ -21,28 +20,28 @@ PROC_INIT g_sys_procs[NUM_SYS_PROCS];
 
 void set_sys_procs() {
 	g_sys_procs[0].m_pid=(U32)(0);
-	g_sys_procs[0].m_priority=SYS_NULL_PRIORITY;
+	g_sys_procs[0].m_priority=NULL_PRIORITY;
 	g_sys_procs[0].m_stack_size=0x200;
  	g_sys_procs[0].mpf_start_pc = &proc_null;
 	
 	// TODO: change the priority to make sense
 	g_sys_procs[1].m_pid=(U32)PID_KCD;
-	g_sys_procs[1].m_priority=SYS_HIGHEST;
+	g_sys_procs[1].m_priority=HIGH;
 	g_sys_procs[1].m_stack_size=0x200;
  	g_sys_procs[1].mpf_start_pc = &proc_kcd;
 	
 	g_sys_procs[2].m_pid=(U32)PID_CRT;
-	g_sys_procs[2].m_priority=SYS_HIGHEST;
+	g_sys_procs[2].m_priority=HIGH;
 	g_sys_procs[2].m_stack_size=0x200;
  	g_sys_procs[2].mpf_start_pc = &proc_crt;
 	
 	g_sys_procs[3].m_pid=(U32)PID_TIMER_IPROC;
-	g_sys_procs[3].m_priority=SYS_I_PROC;
+	g_sys_procs[3].m_priority=I_PROC;
 	g_sys_procs[3].m_stack_size=0x200;
  	g_sys_procs[3].mpf_start_pc = &proc_null; // so we know if we messed up
 	
 	g_sys_procs[4].m_pid=(U32)PID_UART_IPROC;
-	g_sys_procs[4].m_priority=SYS_I_PROC;
+	g_sys_procs[4].m_priority=I_PROC;
 	g_sys_procs[4].m_stack_size=0x200;
  	g_sys_procs[4].mpf_start_pc = &proc_null; // so we know if we messed up
 }

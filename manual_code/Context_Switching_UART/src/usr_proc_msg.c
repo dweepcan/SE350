@@ -89,7 +89,6 @@ void proc2(void){
 	printf("Entering process 2\r\n");
 	p_msg_rec = (MSG_BUF *)receive_message(&dog);
 	printf("Reentering process 2\r\n");
-	release_processor();
 	printf("Sender ID: %d\n\r", dog);
 	printf("Message Type: %d\n\r", p_msg_rec->mtype);
 	printf("Message Text: %s\n\r", p_msg_rec->mtext);

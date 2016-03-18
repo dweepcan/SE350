@@ -76,12 +76,15 @@ void proc1(void){
 	p_msg_env1 = (MSG_BUF *) request_memory_block();
 	p_msg_env1->mtype = DEFAULT;
 	p_msg_env1->mtext[0] = 'C';
+	p_msg_env1->mtext[1] = '\0';
 	p_msg_env2 = (MSG_BUF *) request_memory_block();
 	p_msg_env2->mtype = DEFAULT;
 	p_msg_env2->mtext[0] = 'A';
+	p_msg_env2->mtext[1] = '\0';
 	p_msg_env3 = (MSG_BUF *) request_memory_block();
 	p_msg_env3->mtype = DEFAULT;
 	p_msg_env3->mtext[0] = 'B';
+	p_msg_env3->mtext[1] = '\0';
 	delayed_send(PID_P2,(void *)p_msg_env2, 2000);
 	delayed_send(PID_P2,(void *)p_msg_env3, 2000);
 	for(i=0;i<1000000;i++) {

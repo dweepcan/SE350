@@ -221,7 +221,7 @@ ProcessNode* removeProcessNode(int process_id, int priority, int state){
 int k_get_process_priority(int process_id){
 	ProcessNode* node = findProcessNodeByPID(process_id);
 	if (node == NULL) return RTX_ERR;
-	return systemToUserPriority(node->pcb->m_priority);
+	return node->pcb->m_priority;
 }
 
 //checks if a process is in the ready state (0) or blocked (1), -1 if not found 
@@ -252,27 +252,26 @@ int getState(int process_id){
 int k_set_process_priority(int process_id, int priority){
 	int state = getState(process_id);
 	int oldPriority = 0;
-	int sysPriority = userToSystemPriority(priority);
 	//todo update isready
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
 	
 	//prevent set process if modifying null proc or setting priority to null proc level
 	if (process_id <= PID_NULL || process_id >= PID_TIMER_IPROC ||
-		sysPriority < SYS_HIGH || sysPriority > SYS_LOWEST || oldNode == NULL){
+		priority < HIGH || priority > LOWEST || oldNode == NULL){
 		return RTX_ERR;
 	}
 	
 	if (process_id != gp_current_process->m_pid){
 		removeProcessNode(process_id,oldNode->pcb->m_priority,state);
-		addProcessNode(process_id,sysPriority,state);
+		addProcessNode(process_id,priority,state);
 	}
 	
 	oldPriority = oldNode->pcb->m_priority;
-	oldNode->pcb->m_priority = sysPriority;
+	oldNode->pcb->m_priority = priority;
 	//preempt :)
 	//highest priority is 0
-	if ((gp_current_process->m_pid != process_id && sysPriority <= gp_current_process->m_priority) ||
-		(gp_current_process->m_pid == process_id && sysPriority > oldPriority)){
+	if ((gp_current_process->m_pid != process_id && priority <= gp_current_process->m_priority) ||
+		(gp_current_process->m_pid == process_id && priority > oldPriority)){
 		k_release_processor();
 	}
 	
@@ -306,7 +305,7 @@ void process_init() {
 		//g_proc_table[i].m_stack_size = g_test_procs[i].m_stack_size;
 		g_proc_table[i].m_stack_size = 0x200;
 		g_proc_table[i].mpf_start_pc = g_test_procs[i].mpf_start_pc;
-		g_proc_table[i].m_priority = userToSystemPriority(g_test_procs[i].m_priority);
+		g_proc_table[i].m_priority = g_test_procs[i].m_priority;
 	}
 	
 	//setup usr procs
@@ -536,15 +535,12 @@ int k_release_processor(void){
 void printQueue(PROC_STATE_E state){
 	if (state == RDY){
 		printf("Ready Queue:\r\n");
-// 		uart1_put_string("Ready Queue:\r\n");
 		printReadyQueue();
 	}else if (state == BLOCKED_ON_RESOURCE){
 		printf("Blocked On Resource Queue:\r\n");
-// 		uart1_put_string("Blocked On Resource Queue:\r\n");
 		printBlockedOnResourceQueue();
 	}else if (state == BLOCKED_ON_RECEIVE){
 		printf("Blocked On Receive Queue:\r\n");
-// 		uart1_put_string("Blocked On Receive Queue:\r\n");
 		printBlockedOnReceiveQueue();
 	}
 }
@@ -557,9 +553,7 @@ void printReadyQueue() {
 		node = readyPriorityQueue[i]->front; 
 		
 		while(node!=NULL) {
-			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
-// 			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
-// 			uart1_put_string((unsigned char*) printBuffer);
+			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
 			node = node->next;
 		}
 	}
@@ -573,9 +567,7 @@ void printBlockedOnResourceQueue() {
 		node = blockedResourceQueue[i]->front; 
 		
 		while(node!=NULL){
-			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
-// 			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
-// 			uart1_put_string((unsigned char*) printBuffer);
+			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
 			node = node->next;
 		}
 	}
@@ -585,25 +577,7 @@ void printBlockedOnReceiveQueue() {
 	ProcessNode* node = blockedReceiveQueue->front;
 
 	while(node!=NULL){
-		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
-// 		sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
-// 		uart1_put_string((unsigned char*) printBuffer);
+		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, node->pcb->m_priority);
 		node = node->next;
-	}
-}
-
-int systemToUserPriority(int priority) {
-	if(priority < SYS_HIGH || priority > SYS_LOWEST) {
-		return RTX_ERR;
-	} else {
-		return priority - 1;
-	}
-}
-
-int userToSystemPriority(int priority) {
-	if(priority < 0 || priority >= NUM_USER_PRIORITIES) {
-		return RTX_ERR;
-	} else {
-		return priority + 1;
 	}
 }
