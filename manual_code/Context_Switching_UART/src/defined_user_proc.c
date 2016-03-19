@@ -1,6 +1,7 @@
 #include "defined_user_proc.h"
 #include "rtx.h"
 #include "k_memory.h"
+#include "k_msg_queue.h"
 
 PROC_INIT g_user_procs[NUM_USER_PROCS];
 void set_user_procs(void){
@@ -227,62 +228,46 @@ void stress_test_b(){
 	}
 }
 
+
+/*****/
+
 void stress_test_c(){
-	int kappacity = 10;
-	MSG_BUF* msgqueue[10];
+	k_msg_queue msgqueue;
 	MSG_BUF* msg;
 	MSG_BUF* hibernatemsg;
-	MSG_BUF* sendmsg;
-	int front = 0;
-	int end = -1;
-	int count = 0;
 	int pid;
+	
 	while(1) {
-		if (count == 0){ 
-			count++;
-			end++;
-			if (end==kappacity) 
-				end =0;
-			msgqueue[end] = (MSG_BUF *)receive_message(&pid);
+		if ((&msgqueue)->first == NULL){ 
+			msg = (MSG_BUF *)receive_message(&pid);
 		}else{
-			count--;
-			msg=msgqueue[front];
-			front++;
-			if (front==kappacity)
-				front=0;
-		}		
+			msg = msg_dequeue(&msgqueue);
+		}	
+		
 		if (msg->mtype ==COUNT_REPORT ){
 			if (msg->m_kdata[0] % 20 == 0){
-				sendmsg = (MSG_BUF *)request_memory_block();
- 				sendmsg->mtype = CRT_DISP;
-				copyStringAddNewLine("Process C\r\n", sendmsg->mtext);
- 				send_message(PID_CRT,(void *)sendmsg);			
+ 				msg->mtype = CRT_DISP;
+				copyStringAddNewLine("Process C\r\n", msg->mtext);
+ 				send_message(PID_CRT,(void *)msg);			
 				//hibernate 10 seconds			
 				hibernatemsg = (MSG_BUF *)request_memory_block();
 				hibernatemsg->mtype = WAKE_UP_10;
 				delayed_send(PID_C,(void *)hibernatemsg, 10000);
+
 				while (1){
 					//shall we re-use sendmsg again? since it is useless now
-						sendmsg = (MSG_BUF *)receive_message(&pid);
-						if ( sendmsg->mtype == WAKE_UP_10){
+						msg = (MSG_BUF *)receive_message(&pid);
+						if ( msg->mtype == WAKE_UP_10){
 							break;
 						}else{
-							if (count+1>kappacity){
-								//KAPPA 
-								continue;
-							}
-							count++;
-							end++;
-							if (end==kappacity) 
-							end =0;
-							msgqueue[end] = (MSG_BUF *)receive_message(&pid);
+							msg_enqueue(&msgqueue, msg);
 						}
 				}
 			}
 		}
 		
+		//release_memory_block(sendmsg);//should we put inside the if?
 		release_memory_block(msg);
-		release_memory_block(sendmsg);//should we put inside the if?
 		
 		release_processor();
 	}
