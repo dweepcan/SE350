@@ -5,22 +5,22 @@
 PROC_INIT g_user_procs[NUM_USER_PROCS];
 void set_user_procs(void){
 	g_user_procs[0].m_pid=(U32)(PID_A);
-	g_user_procs[0].m_priority=HIGH;
+	g_user_procs[0].m_priority=LOWEST;
 	g_user_procs[0].m_stack_size=0x200;
  	g_user_procs[0].mpf_start_pc = &stress_test_a;
 	
 	g_user_procs[1].m_pid=(U32)(PID_B);
-	g_user_procs[1].m_priority=HIGH;
+	g_user_procs[1].m_priority=LOWEST;
 	g_user_procs[1].m_stack_size=0x200;
  	g_user_procs[1].mpf_start_pc = &stress_test_b;
 	
 	g_user_procs[2].m_pid=(U32)(PID_C);
-	g_user_procs[2].m_priority=HIGH;
+	g_user_procs[2].m_priority=LOWEST;
 	g_user_procs[2].m_stack_size=0x200;
  	g_user_procs[2].mpf_start_pc = &stress_test_c;
 	
 	g_user_procs[3].m_pid=(U32)(PID_SET_PRIO);
-	g_user_procs[3].m_priority=HIGH;
+	g_user_procs[3].m_priority=LOWEST;
 	g_user_procs[3].m_stack_size=0x200;
  	g_user_procs[3].mpf_start_pc = &set_priority_command;
 	

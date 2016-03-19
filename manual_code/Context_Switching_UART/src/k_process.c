@@ -361,10 +361,12 @@ void process_init() {
 			*(--sp) = 0x0;
 		}
 		(gp_pcbs[i])->mp_sp = sp;
-		
-		if(i < (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 2)) {
-			addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
-		}
+	}
+	
+	addProcessNode((gp_pcbs[12])->m_pid, gp_pcbs[12]->m_priority,RDY);
+	addProcessNode((gp_pcbs[13])->m_pid, gp_pcbs[13]->m_priority,RDY);
+	for ( i = 0; i < (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS - 4); i++ ) {
+		addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
 	}
 }
 

@@ -149,6 +149,14 @@ void proc3(void){
 	printf("Entering process 3\r\n");
 #endif	
 
+	// Send a delayed message to myself to wait for the wall clock to be registered
+	p_msg_env = (MSG_BUF *) request_memory_block();
+	p_msg_env->mtext[0] = '1';
+	p_msg_env->mtext[1] = '\0';
+	delayed_send(PID_P3,(void *)p_msg_env, 1000);
+	p_msg_env = (MSG_BUF *)receive_message(&sender_id);
+	release_memory_block((void *)p_msg_env);	
+	
 	// Start up the wall clock at a time which will wrap around
 	p_msg_env = (MSG_BUF *) request_memory_block();
 	p_msg_env->mtype = DEFAULT;
@@ -164,10 +172,8 @@ void proc3(void){
 	p_msg_env->mtext[9] = ':';
 	p_msg_env->mtext[10] = '5';
 	p_msg_env->mtext[11] = '4';
-	p_msg_env->mtext[12] = '\r';
-	p_msg_env->mtext[13] = '\n';
-	p_msg_env->mtext[14] = '\0';
-	send_message(PID_KCD,(void *)p_msg_env);
+	p_msg_env->mtext[12] = '\0';
+	send_message(PID_CLOCK,(void *)p_msg_env);
 	
 	// Send a delayed message to myself to stop the wall clock in a minute
 	p_msg_env = (MSG_BUF *) request_memory_block();
@@ -187,10 +193,8 @@ void proc3(void){
 			p_msg_env->mtext[0] = '%';
 			p_msg_env->mtext[1] = 'W';
 			p_msg_env->mtext[2] = 'T';
-			p_msg_env->mtext[3] = '\r';
-			p_msg_env->mtext[4] = '\n';
-			p_msg_env->mtext[5] = '\0';
-			send_message(PID_KCD,(void *)p_msg_env);
+			p_msg_env->mtext[3] = '\0';
+			send_message(PID_CLOCK,(void *)p_msg_env);
 			break;
 		}
 	}
