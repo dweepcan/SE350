@@ -52,11 +52,6 @@ void wall_clock(){
 		msg = (MSG_BUF *)receive_message(&pid);
 		dumb++;
 		if (pid == PID_CLOCK && active == 1 && msg->mtype == WALL_CLOCK){
-			msg->mtype = WALL_CLOCK;
-			msg->mtext[0] = '\0';
-			delayed_send(PID_CLOCK,(void *)msg, 1000); //1000 millisecond delay?
-			
-			msg = (MSG_BUF *) request_memory_block();
 			msg->mtype = CRT_DISP;
 			msg->mtext[0] = (char)((time/3600)%24/10 + '0');
 			msg->mtext[1] = (char)((time/3600)%24%10 + '0');
@@ -69,8 +64,13 @@ void wall_clock(){
 			msg->mtext[8] = '\r';
 			msg->mtext[9] = '\n';
 			msg->mtext[10] = '\0';
-
 			send_message(PID_CRT, msg);
+			
+			msg = (MSG_BUF *) request_memory_block();
+			msg->mtype = WALL_CLOCK;
+			msg->mtext[0] = '\0';
+			delayed_send(PID_CLOCK,(void *)msg, 1000); //1000 millisecond delay?
+			
 			time++;
 			time = time%(60*60*24);
 		}else{
@@ -252,7 +252,7 @@ void stress_test_c(){
 				//hibernate 10 seconds			
 				hibernatemsg = (MSG_BUF *)request_memory_block();
 				hibernatemsg->mtype = WAKE_UP_10;
-				delayed_send(PID_C,(void *)hibernatemsg, 4000);
+				delayed_send(PID_C,(void *)hibernatemsg, 10000);
 
 				while (1){
 					//shall we re-use sendmsg again? since it is useless now

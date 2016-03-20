@@ -220,6 +220,11 @@ ProcessNode* removeProcessNode(int process_id, int priority, int state){
 //get the process priority :)
 int k_get_process_priority(int process_id){
 	ProcessNode* node = findProcessNodeByPID(process_id);
+	
+	#ifdef DEBUG_0
+		printf("k_get_process_priority: Process PID = %d requesting priority for Process PID = %d\r\n", gp_current_process->m_pid, process_id);
+	#endif
+	
 	if (node == NULL) return RTX_ERR;
 	return systemToUserPriority(node->pcb->m_priority);
 }
@@ -255,6 +260,10 @@ int k_set_process_priority(int process_id, int priority){
 	int sysPriority = userToSystemPriority(priority);
 	//todo update isready
 	ProcessNode* oldNode = findProcessNodeByPID(process_id);
+	
+	#ifdef DEBUG_0
+		printf("k_set_process_priority: Process PID = %d setting Process PID = %d to priority %d\r\n", gp_current_process->m_pid, process_id, priority);
+	#endif
 	
 	//prevent set process if modifying null proc or setting priority to null proc level
 	if (process_id <= PID_NULL || process_id >= PID_TIMER_IPROC ||

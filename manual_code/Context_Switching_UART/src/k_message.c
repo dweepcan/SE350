@@ -12,6 +12,10 @@ int k_send_message(int pid, void *p_msg) {
 	
 	__disable_irq();
 	
+	#ifdef DEBUG_0
+		printf("k_send_message: Process PID = %d sending message to Process PID = %d with message block 0x%x\r\n", gp_current_process->m_pid, pid, p_msg);
+	#endif
+	
 	if(pid < 0 || pid > (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 1)) {
 		__enable_irq();
 		return RTX_ERR;
@@ -45,6 +49,10 @@ int k_send_message(int pid, void *p_msg) {
 int k_send_message_nonblocking(int pid, void *p_msg) {
 	ProcessNode* receiving_proc;
 	MSG_BUF* p_msg_buf;
+	
+	#ifdef DEBUG_0
+		printf("k_send_message_nonblocking: Current Process PID = %d, Process PID = %d sending message to Process PID = %d with message block 0x%x\r\n", gp_current_process->m_pid, ((MSG_BUF *)p_msg)->m_send_pid, pid);
+	#endif
 	
 	if(pid < 0 || pid > (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 1)) {
 		return RTX_ERR;
@@ -89,6 +97,10 @@ void *k_receive_message(int *p_pid) {
 		*p_pid = msg->m_send_pid;
 	}
 	
+	#ifdef DEBUG_0
+			printf("k_receive_message: Process PID = %d receiving a message from %d\r\n", gp_current_process->m_pid, msg->m_send_pid);
+	#endif
+	
 	__enable_irq();
 	return (void *)msg;
 }
@@ -114,6 +126,10 @@ void *k_receive_message_nonblocking(int *p_pid) {
 		}
 	}
 	
+	#ifdef DEBUG_0
+			printf("k_receive_message: Current Process PID = %d, Process %d receiving a message from %d\r\n", gp_current_process->m_pid, msg->m_recv_pid, msg->m_send_pid);
+	#endif
+	
 	return (void *)msg;
 }
 
@@ -122,6 +138,10 @@ int k_delayed_send(int pid, void *p_msg, int delay) {
 	MSG_BUF* msg;
 
 	__disable_irq();
+	
+	#ifdef DEBUG_0
+			printf("k_delayed_send: Process PID = %d sendings a delayed message to %d in %d ms with message block 0x%x\r\n", gp_current_process->m_pid, pid, delay, p_msg);
+	#endif
 	
 	if(pid < 1 || pid > (NUM_TEST_PROCS + NUM_USER_PROCS + NUM_SYS_PROCS - 1) || delay < 0 || p_msg == NULL) {
 		__enable_irq();

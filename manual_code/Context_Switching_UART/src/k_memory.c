@@ -259,7 +259,7 @@ void *k_request_memory_block(void) {
 	p_mem_blk += (sizeof(k_node)/4);
 
 #ifdef DEBUG_0
-	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\n\r", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
+	printf("k_request_memory_block: process PID: %d, node address: 0x%x, block address:0x%x.\n\r", gp_current_process->m_pid, (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	__enable_irq();
@@ -289,7 +289,7 @@ void *k_request_memory_block_nonblocking(void) {
 	p_mem_blk += (sizeof(k_node)/4);
 
 #ifdef DEBUG_0
-	printf("k_request_memory_block: node address: 0x%x, block address:0x%x.\r\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
+	printf("k_request_memory_block: process PID: %d, node address: 0x%x, block address:0x%x.\r\n", (p_mem_blk - (sizeof(k_node)/4)), p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	return (void *) p_mem_blk;
@@ -302,7 +302,7 @@ int k_release_memory_block(void *p_mem_blk) {
 	__disable_irq();
 	
 #ifdef DEBUG_0 
-	printf("k_release_memory_block: releasing block @ 0x%x\r\n", p_mem_blk);
+	printf("k_release_memory_block: Process PID = %d releasing block @ 0x%x\r\n", gp_current_process->m_pid, p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	if(p_mem_blk == NULL) {
@@ -377,7 +377,7 @@ int k_release_memory_block_nonblocking(void *p_mem_blk) {
 	PCB* nextProcess;
 		
 #ifdef DEBUG_0 
-	printf("k_release_memory_block: releasing block @ 0x%x\r\n", p_mem_blk);
+	printf("k_release_memory_block: Process PID = %d releasing block @ 0x%x\r\n", gp_current_process->m_pid, p_mem_blk);
 #endif /* ! DEBUG_0 */
 
 	if(p_mem_blk == NULL) {
