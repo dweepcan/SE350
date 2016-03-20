@@ -27,12 +27,12 @@ void set_sys_procs() {
 	
 	// TODO: change the priority to make sense
 	g_sys_procs[1].m_pid=(U32)PID_KCD;
-	g_sys_procs[1].m_priority=SYS_HIGHEST;
+	g_sys_procs[1].m_priority=SYS_HIGH;
 	g_sys_procs[1].m_stack_size=0x200;
  	g_sys_procs[1].mpf_start_pc = &proc_kcd;
 	
 	g_sys_procs[2].m_pid=(U32)PID_CRT;
-	g_sys_procs[2].m_priority=SYS_HIGHEST;
+	g_sys_procs[2].m_priority=SYS_HIGH;
 	g_sys_procs[2].m_stack_size=0x200;
  	g_sys_procs[2].mpf_start_pc = &proc_crt;
 	

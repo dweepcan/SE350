@@ -21,12 +21,12 @@ void set_user_procs(void){
  	g_user_procs[2].mpf_start_pc = &stress_test_c;
 	
 	g_user_procs[3].m_pid=(U32)(PID_SET_PRIO);
-	g_user_procs[3].m_priority=SYS_HIGHEST;
+	g_user_procs[3].m_priority=SYS_HIGH;
 	g_user_procs[3].m_stack_size=0x200;
  	g_user_procs[3].mpf_start_pc = &set_priority_command;
 	
 	g_user_procs[4].m_pid=(U32)(PID_CLOCK);
-	g_user_procs[4].m_priority=SYS_HIGHEST;
+	g_user_procs[4].m_priority=SYS_HIGH;
 	g_user_procs[4].m_stack_size=0x200;
  	g_user_procs[4].mpf_start_pc = &wall_clock;
 }

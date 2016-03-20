@@ -31,7 +31,7 @@ int k_send_message(int pid, void *p_msg) {
 		
 		//preempt :)
 		//highest priority is 0
-		if (receiving_proc->pcb->m_priority < gp_current_process->m_priority){
+		if (receiving_proc->pcb->m_priority <= gp_current_process->m_priority){
 			__enable_irq();
 			k_release_processor();
 			__disable_irq();
