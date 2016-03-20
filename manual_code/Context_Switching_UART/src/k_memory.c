@@ -431,6 +431,8 @@ int k_release_memory_block_nonblocking(void *p_mem_blk) {
 		
 		if(unblockProcess(nextProcess) == RTX_ERR) {
 			return RTX_ERR;
+		} else {
+			return 1;
 		}
 	}
 	
@@ -453,4 +455,20 @@ int numFreeMemoryBlocks() {
 	}
 	
 	return i;
+}
+
+void printMemoryHeap() {
+	int i = 0;
+	k_node *p_mem_blk = NULL;
+	
+	if(!s_is_empty(gp_heap)) {
+		p_mem_blk = gp_heap->top;
+		
+		while(p_mem_blk!=NULL){
+			printf("Memory block %d: 0x%x.\r\n", ++i, p_mem_blk);
+			p_mem_blk = p_mem_blk->next;
+		}
+	}
+	
+	printf("Memory Heap Size: %d\r\n", i);
 }

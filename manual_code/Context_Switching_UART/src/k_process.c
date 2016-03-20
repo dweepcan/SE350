@@ -366,7 +366,10 @@ void process_init() {
 	
 	//put user procs at the beginning of priority queue
  	//inserting stress tests A to C, set priority, wall clock, KCD, CRT then inserting the test procs
- 	for (i = NUM_TEST_PROCS; i<NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS - 2; i++){
+	addProcessNode((gp_pcbs[11])->m_pid, gp_pcbs[11]->m_priority,RDY);
+	addProcessNode((gp_pcbs[12])->m_pid, gp_pcbs[12]->m_priority,RDY);
+ 	addProcessNode((gp_pcbs[13])->m_pid, gp_pcbs[13]->m_priority,RDY);
+ 	for (i = NUM_TEST_PROCS; i<NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS - 5; i++){
  		addProcessNode((gp_pcbs[i])->m_pid, gp_pcbs[i]->m_priority,RDY);
  	}
 	for ( i = 0; i < (NUM_TEST_PROCS); i++ ) {

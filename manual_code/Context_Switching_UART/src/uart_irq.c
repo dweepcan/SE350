@@ -19,6 +19,7 @@
 #define READY_HK '!'
 #define BLOCKED_RESOURCE_HK '@'
 #define BLOCKED_RECEIVE_HK '#'
+#define MEMORY_HEAP_HK '$'
 #endif
 
 uint8_t g_buffer[MSG_BUF_TEXT_SIZE];
@@ -286,7 +287,9 @@ void kcd_helper(uint8_t char_in){
 		printQueue(BLOCKED_ON_RESOURCE);
 	}else if (char_in == BLOCKED_RECEIVE_HK){
 		printQueue(BLOCKED_ON_RECEIVE);
-	}
+	}else if (char_in == MEMORY_HEAP_HK) {
+		printMemoryHeap();
+  }
 #endif
 	
 	if(char_in != '\r' && stringCurrentIndex < MSG_BUF_TEXT_SIZE - 3) {
@@ -343,7 +346,9 @@ int crt_helper(){
 
 	if(msg != NULL){
 		copyStringAddNewLine(msg->mtext,(char *)g_buffer);
-		k_release_memory_block_nonblocking(msg);
+		if (k_release_memory_block_nonblocking(msg) == 1){
+			g_switch_flag = 1;
+		}
 		
 		return 1; // 1 for received message
 	}

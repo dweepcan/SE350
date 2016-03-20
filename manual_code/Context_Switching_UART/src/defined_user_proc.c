@@ -36,6 +36,7 @@ void wall_clock(){
 	int pid;
 	int time;
 	int active;
+	int dumb = 0;
 	
 	msg = (MSG_BUF *)request_memory_block();
 	msg->mtype = KCD_REG;
@@ -49,7 +50,7 @@ void wall_clock(){
 	
 	while(1){
 		msg = (MSG_BUF *)receive_message(&pid);
-		
+		dumb++;
 		if (pid == PID_CLOCK && active == 1 && msg->mtype == WALL_CLOCK){
 			msg->mtype = WALL_CLOCK;
 			msg->mtext[0] = '\0';
@@ -201,7 +202,6 @@ void stress_test_a(){
 		msg = (MSG_BUF *)receive_message(&pid);
 		if(pid == PID_KCD && msg->mtext[0] == '%' && msg->mtext[1] == 'Z') {
 			release_memory_block(msg);
-			release_processor();
 			break;
 		} else {
 			release_memory_block(msg);
@@ -252,7 +252,7 @@ void stress_test_c(){
 				//hibernate 10 seconds			
 				hibernatemsg = (MSG_BUF *)request_memory_block();
 				hibernatemsg->mtype = WAKE_UP_10;
-				delayed_send(PID_C,(void *)hibernatemsg, 10000);
+				delayed_send(PID_C,(void *)hibernatemsg, 4000);
 
 				while (1){
 					//shall we re-use sendmsg again? since it is useless now

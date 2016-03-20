@@ -41,6 +41,6 @@ void *k_request_memory_block(void);
 void *k_request_memory_block_nonblocking(void);
 int k_release_memory_block(void *);
 int k_release_memory_block_nonblocking(void *);
-int numFreeMemoryBlocks(void);
+void printMemoryHeap(void);
 
 #endif /* ! K_MEM_H_ */
