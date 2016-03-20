@@ -158,7 +158,6 @@ void proc4(void){
 	}
 }
 
-// Test which ensures that we correctly set priorities.
 void proc5(void){
 	MSG_BUF *p_msg_env;
 	printf("Entering process 5.\r\n");
@@ -174,7 +173,6 @@ void proc5(void){
 	}
 }
 
-// Test whether we can release a memory block which is not actually a memory block, just a random address
 void proc6(void){
 	printf("Entering process 6.\r\n");
 	set_process_priority(gp_current_process->m_pid, LOWEST);

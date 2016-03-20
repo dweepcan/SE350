@@ -69,7 +69,7 @@ void checkTestEnd() {
 
 void proc1(void){
 	MSG_BUF *p_msg_env = (MSG_BUF *) request_memory_block();
-	p_msg_env->mtype = KCD_REG;
+	p_msg_env->mtype = DEFAULT;
 	p_msg_env->mtext[0] = '%';
 	p_msg_env->mtext[1] = 'W';
 	p_msg_env->mtext[2] = '1';
@@ -89,7 +89,6 @@ void proc2(void){
 	printf("Entering process 2\r\n");
 	p_msg_rec = (MSG_BUF *)receive_message(&dog);
 	printf("Reentering process 2\r\n");
-	release_processor();
 	printf("Sender ID: %d\n\r", dog);
 	printf("Message Type: %d\n\r", p_msg_rec->mtype);
 	printf("Message Text: %s\n\r", p_msg_rec->mtext);

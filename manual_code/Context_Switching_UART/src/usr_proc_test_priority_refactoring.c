@@ -11,9 +11,7 @@
 #include "usr_proc.h"
 #include "k_memory.h"
 
-#ifdef DEBUG_0
 #include "printf.h"
-#endif /* DEBUG_0 */
 
 int passedTests = 0;
 int failedTests = 0;
@@ -47,8 +45,9 @@ void set_test_procs() {
 
 void proc1(void){
 	int i = 0;
+	printf("Entering process 1.\r\n");
 	i += set_process_priority(PID_NULL, HIGH);
-	i += set_process_priority(PID_KCD, LOW);
+	i += set_process_priority(PID_TIMER_IPROC, LOW);
 	i += set_process_priority(gp_current_process->m_pid, -1);
 	i += set_process_priority(gp_current_process->m_pid, 4);
 	if(i==-4) {
@@ -63,6 +62,7 @@ void proc1(void){
 }
 
 void proc2(void){
+	printf("Entering process 2.\r\n");
 	set_process_priority(gp_current_process->m_pid, LOWEST);
 	while(1) {
 		release_processor();
