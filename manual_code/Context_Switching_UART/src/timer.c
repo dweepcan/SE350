@@ -15,6 +15,10 @@ extern Queue *readyPriorityQueue[NUM_PRIORITIES];
 #define BIT(X) (1<<X)
 
 volatile U32 g_timer_count = 0; // increment every 1 ms
+volatile U32* primitive_timer_count; 
+
+// This timer ticks every 0.4 micro seconds
+#define PRIMITIVE_TIMER_TICK  4;
 
 k_msg_queue *pendingMessageQueue;
 
@@ -56,42 +60,54 @@ U32 timer_init(U8 n_timer)
 		-----------------------------------------------------
 		*/
 		pTimer = (LPC_TIM_TypeDef *) LPC_TIM0;
+			
+			
+		/*
+		-----------------------------------------------------
+		Step 4: Interrupts configuration
+		-----------------------------------------------------
+		*/
 
+		/* Step 4.1: Prescale Register PR setting 
+			 CCLK = 100 MHZ, PCLK = CCLK/4 = 25 MHZ
+			 2*(12499 + 1)*(1/25) * 10^(-6) s = 10^(-3) s = 1 ms
+			 TC (Timer Counter) toggles b/w 0 and 1 every 12500 PCLKs
+			 see MR setting below 
+		*/
+		pTimer->PR = 12499;  
+
+		/* Step 4.2: MR setting, see section 21.6.7 on pg496 of LPC17xx_UM. */
+		pTimer->MR0 = 1;
+
+		/* Step 4.3: MCR setting, see table 429 on pg496 of LPC17xx_UM.
+			 Interrupt on MR0: when MR0 mathches the value in the TC, 
+												 generate an interrupt.
+			 Reset on MR0: Reset TC if MR0 mathches it.
+		*/
+		pTimer->MCR = BIT(0) | BIT(1);
+
+		g_timer_count = 0;
+
+		/* Step 4.4: CSMSIS enable timer0 IRQ */
+		NVIC_EnableIRQ(TIMER0_IRQn);
+
+		/* Step 4.5: Enable the TCR. See table 427 on pg494 of LPC17xx_UM. */
+		pTimer->TCR = 1;
+
+	} else if (n_timer == 1){
+		pTimer = (LPC_TIM_TypeDef *) LPC_TIM1;
+		
+		pTimer->PR = PRIMITIVE_TIMER_TICK;
+		pTimer->MCR = BIT(0) | BIT(1);
+		pTimer->TCR = 1;
+		pTimer->TC = 1;		
+		
+		primitive_timer_count = &(pTimer->TC);
+		
 	} else { /* other timer not supported yet */
 		return 1;
 	}
 
-	/*
-	-----------------------------------------------------
-	Step 4: Interrupts configuration
-	-----------------------------------------------------
-	*/
-
-	/* Step 4.1: Prescale Register PR setting 
-	   CCLK = 100 MHZ, PCLK = CCLK/4 = 25 MHZ
-	   2*(12499 + 1)*(1/25) * 10^(-6) s = 10^(-3) s = 1 ms
-	   TC (Timer Counter) toggles b/w 0 and 1 every 12500 PCLKs
-	   see MR setting below 
-	*/
-	pTimer->PR = 12499;  
-
-	/* Step 4.2: MR setting, see section 21.6.7 on pg496 of LPC17xx_UM. */
-	pTimer->MR0 = 1;
-
-	/* Step 4.3: MCR setting, see table 429 on pg496 of LPC17xx_UM.
-	   Interrupt on MR0: when MR0 mathches the value in the TC, 
-	                     generate an interrupt.
-	   Reset on MR0: Reset TC if MR0 mathches it.
-	*/
-	pTimer->MCR = BIT(0) | BIT(1);
-
-	g_timer_count = 0;
-
-	/* Step 4.4: CSMSIS enable timer0 IRQ */
-	NVIC_EnableIRQ(TIMER0_IRQn);
-
-	/* Step 4.5: Enable the TCR. See table 427 on pg494 of LPC17xx_UM. */
-	pTimer->TCR = 1;
 
 	return 0;
 }
