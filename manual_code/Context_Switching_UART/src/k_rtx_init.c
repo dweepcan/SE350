@@ -21,6 +21,8 @@ void k_rtx_init(void)
 	memory_init();
 	process_init();
 	timer_init(0);
+	timer_init(1);
+
 	__enable_irq();
 	
 	//uart1_put_string("Type 'S' in COM0 terminal to switch between proc1 and proc2 or wait for them to switch between themselves\n\r");
