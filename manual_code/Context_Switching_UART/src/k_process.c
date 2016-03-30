@@ -553,15 +553,12 @@ int k_release_processor(void){
 void printQueue(PROC_STATE_E state){
 	if (state == RDY){
 		printf("Ready Queue:\r\n");
-// 		uart1_put_string("Ready Queue:\r\n");
 		printReadyQueue();
 	}else if (state == BLOCKED_ON_RESOURCE){
 		printf("Blocked On Resource Queue:\r\n");
-// 		uart1_put_string("Blocked On Resource Queue:\r\n");
 		printBlockedOnResourceQueue();
 	}else if (state == BLOCKED_ON_RECEIVE){
 		printf("Blocked On Receive Queue:\r\n");
-// 		uart1_put_string("Blocked On Receive Queue:\r\n");
 		printBlockedOnReceiveQueue();
 	}
 }
@@ -575,8 +572,6 @@ void printReadyQueue() {
 		
 		while(node!=NULL) {
 			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
-// 			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
-// 			uart1_put_string((unsigned char*) printBuffer);
 			node = node->next;
 		}
 	}
@@ -591,8 +586,6 @@ void printBlockedOnResourceQueue() {
 		
 		while(node!=NULL){
 			printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
-// 			sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
-// 			uart1_put_string((unsigned char*) printBuffer);
 			node = node->next;
 		}
 	}
@@ -603,8 +596,6 @@ void printBlockedOnReceiveQueue() {
 
 	while(node!=NULL){
 		printf("PID: %d, Priority: %d\r\n", node->pcb->m_pid, systemToUserPriority(node->pcb->m_priority));
-// 		sprintf(printBuffer, "PID: %d, Priority: %d\r\n", node->pcb->m_pid, userToSystemPriority(node->pcb->m_priority));
-// 		uart1_put_string((unsigned char*) printBuffer);
 		node = node->next;
 	}
 }

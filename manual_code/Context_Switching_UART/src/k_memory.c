@@ -24,30 +24,29 @@ U8 *gp_heap_end;
 
 /**
  * @brief: Initialize RAM as follows:
-
 0x10008000+---------------------------+ High Address
           |    Proc 1 STACK           |
           |---------------------------|
           |    Proc 2 STACK           |
           |---------------------------|<--- gp_stack
           |                           |
-          |        HEAP  						  |
-					|---------------------------|
+          |        HEAP  			  |
+		  |---------------------------|
           |   Pending Message Queue   |
           |---------------------------|
           |   Blocked Receive Queue   |
-					|---------------------------|
-          |   Blocked Queue   				|
+		  |---------------------------|
+          |   Blocked Queue   		  |
           |---------------------------|
-          |   Ready Queue     				|
-          |---------------------------|<--- readyPriorityQueue
+          |   Ready Queue     		  |
+          |---------------------------|
           |       ProcessNode 2       |
           |---------------------------|
           |       ProcessNode 1       |
           |---------------------------|
           |   ProcessNodes pointers   |
           |---------------------------|<--- processNodes
-					|        MSG Queue 2        |
+		  |        MSG Queue 2        |
           |---------------------------|
           |        MSG Queue 1        |
           |---------------------------|
@@ -66,7 +65,6 @@ U8 *gp_heap_end;
           |       RTX  Image          |
           |                           |
 0x10000000+---------------------------+ Low Address
-
 */
 
 void memory_init(void)
