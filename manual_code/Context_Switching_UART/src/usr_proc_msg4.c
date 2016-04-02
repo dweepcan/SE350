@@ -88,7 +88,7 @@ void proc1(void){
 	delayed_send(PID_P2,(void *)p_msg_env2, 2000);
 	delayed_send(PID_P2,(void *)p_msg_env3, 2000);
 	for(i=0;i<1000000;i++) {
-		// Waste all the time like this project
+		// Waste a bunch of time.  Is this removed by the compiler?
 	}
 	delayed_send(PID_P2,(void *)p_msg_env1, 1999);
 	set_process_priority(gp_current_process->m_pid, LOWEST);
