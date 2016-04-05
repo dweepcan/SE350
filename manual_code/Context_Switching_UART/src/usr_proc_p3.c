@@ -1,11 +1,3 @@
-/**
- * @file:   usr_proc.c
- * @brief:  Two user processes: proc1 and proc2
- * @author: Yiqing Huang
- * @date:   2014/02/28
- * NOTE: Each process is in an infinite loop. Processes never terminate.
- */
-
 #include "rtx.h"
 #include "uart_polling.h"
 #include "usr_proc.h"

@@ -1,6 +1,3 @@
-// A test suite to ensure that the null process can run properly when every other process is blocked
-// NOTE: NEEDS TO BE RUN WITH ONLY ONE MEMORY BLOCK AVAILABLE
-
 #include "rtx.h"
 #include "uart_polling.h"
 #include "usr_proc.h"
@@ -67,7 +64,7 @@ void proc1(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc2(void){
 	void *memory_block = request_memory_block();
 	
@@ -78,7 +75,7 @@ void proc2(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc3(void){
 	void *memory_block = request_memory_block();
 	
@@ -89,7 +86,7 @@ void proc3(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc4(void){
 	void *memory_block = request_memory_block();
 	
@@ -100,7 +97,7 @@ void proc4(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc5(void){
 	void *memory_block = request_memory_block();
 	
@@ -111,7 +108,7 @@ void proc5(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc6(void){
 	void *memory_block = request_memory_block();
 	

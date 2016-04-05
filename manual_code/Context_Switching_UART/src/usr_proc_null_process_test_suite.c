@@ -45,7 +45,7 @@ void proc1(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc2(void){
 	void *memory_block = request_memory_block();
 	
@@ -56,7 +56,7 @@ void proc2(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc3(void){
 	void *memory_block = request_memory_block();
 	
@@ -67,7 +67,7 @@ void proc3(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc4(void){
 	void *memory_block = request_memory_block();
 	
@@ -78,7 +78,7 @@ void proc4(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc5(void){
 	void *memory_block = request_memory_block();
 	
@@ -89,7 +89,7 @@ void proc5(void){
 	}
 }
 
-// Request a single, unavailble memory block and be immediately blocked
+// Request a single, unavailable memory block and be immediately blocked
 void proc6(void){
 	void *memory_block = request_memory_block();
 	

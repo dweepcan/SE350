@@ -1,12 +1,4 @@
-/**
- * @file:   usr_proc.c
- * @brief:  Two user processes: proc1 and proc2
- * @author: Yiqing Huang
- * @date:   2014/02/28
- * NOTE: Each process is in an infinite loop. Processes never terminate.
- * 
- * Tests when two processes are sending message to the same process.
- */
+// Tests when two processes are sending message to the same process.
 
 // WARNING: p_pid is passed in as NULL in k_receive_messageEntering process 1.
 // k_request_memory_block: entering...
@@ -49,7 +41,7 @@ char buffer[50];
 void *all_memory_blocks[30];
 
 /* initialization table item */
-PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
+PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
 void set_test_procs() {
 	int i;
@@ -126,7 +118,6 @@ void proc2(void){
 	}
 }
 
-// Test which ensures we can request a memory block as well as release it after we're done.
 void proc3(void){
 	MSG_BUF *p_msg_env;
 	printf("Entering process 3.\r\n");
@@ -141,7 +132,6 @@ void proc3(void){
 	}
 }
 
-// Test preemption
 void proc4(void){
 	int dog;
 	MSG_BUF *p_msg_rec;

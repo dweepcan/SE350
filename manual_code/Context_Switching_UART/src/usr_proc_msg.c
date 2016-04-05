@@ -1,11 +1,3 @@
-/**
- * @file:   usr_proc.c
- * @brief:  Two user processes: proc1 and proc2
- * @author: Yiqing Huang
- * @date:   2014/02/28
- * NOTE: Each process is in an infinite loop. Processes never terminate.
- */
-
 #include "rtx.h"
 #include "uart_polling.h"
 #include "usr_proc.h"
@@ -22,7 +14,7 @@ char buffer[50];
 void *all_memory_blocks[30];
 
 /* initialization table item */
-PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
+PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
 void set_test_procs() {
 	int i;
@@ -97,7 +89,6 @@ void proc2(void){
 	}
 }
 
-// Test which ensures we can request a memory block as well as release it after we're done.
 void proc3(void){
 	printf("Entering process 3\r\n");
 	while(1) {
@@ -105,7 +96,6 @@ void proc3(void){
 	}
 }
 
-// Test preemption
 void proc4(void){
 	printf("Entering process 4\r\n");
 	while(1) {
@@ -113,7 +103,6 @@ void proc4(void){
 	}
 }
 
-// Test which ensures that we correctly set priorities.
 void proc5(void){
 	printf("Entering process 5\r\n");
 	while(1) {
@@ -121,7 +110,6 @@ void proc5(void){
 	}
 }
 
-// Test whether we can release a memory block which is not actually a memory block, just a random address
 void proc6(void){
 	printf("Entering process 6\r\n");
 	while(1) {

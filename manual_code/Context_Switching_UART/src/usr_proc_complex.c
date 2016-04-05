@@ -29,7 +29,7 @@ char buffer[50];
 void *all_memory_blocks[30];
 
 /* initialization table item */
-PROC_INIT g_test_procs[NUM_TEST_PROCS];//plus last one nullproc
+PROC_INIT g_test_procs[NUM_TEST_PROCS];
 
 void set_test_procs() {
 	int i;
