@@ -35,9 +35,9 @@ U8 *gp_heap_end;
         | |---------------------------|
         | |        ..........         |
  HEAP --| |---------------------------|
-        | |       128 Byte memory     |
+        | |       128 Byte block      |
         | |---------------------------|
-        | |       Memory node         |
+        | |       Memory Node         |
          -|---------------------------|<--- gp_heap_begin
           |       Memory stack        |
 		  |---------------------------|<--- gp_heap
@@ -51,7 +51,7 @@ U8 *gp_heap_end;
           |---------------------------|<--- gp_msgs
           |   Blocked Receive Queue   |
 		  |---------------------------|
-          |        Blocked Queues	  |
+          |  Blocked Resource Queues  |
           |---------------------------|
           |        Ready Queues		  |
           |---------------------------|
