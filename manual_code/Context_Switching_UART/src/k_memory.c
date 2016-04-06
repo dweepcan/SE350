@@ -102,33 +102,6 @@ void memory_init(void)
 	printf("gp_pcbs[15] = 0x%x \r\n", gp_pcbs[15]);
 #endif
 	
-	/* allocate memory for k_msg_queue pointers   */
-	gp_msgs = (k_msg_queue **)p_end;
-	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS) * sizeof(k_msg_queue *);
-  
-	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS; i++ ) {
-		gp_msgs[i] = (k_msg_queue *)p_end;
-		p_end += sizeof(k_msg_queue); 
-	}
-#ifdef DEBUG_0  
-	printf("gp_msgs[0] = 0x%x \r\n", gp_msgs[0]);
-	printf("gp_msgs[1] = 0x%x \r\n", gp_msgs[1]);
-	printf("gp_msgs[2] = 0x%x \r\n", gp_msgs[2]);
-	printf("gp_msgs[3] = 0x%x \r\n", gp_msgs[3]);
-	printf("gp_msgs[4] = 0x%x \r\n", gp_msgs[4]);
-	printf("gp_msgs[5] = 0x%x \r\n", gp_msgs[5]);
-	printf("gp_msgs[6] = 0x%x \r\n", gp_msgs[6]);
-	printf("gp_msgs[7] = 0x%x \r\n", gp_msgs[7]);
-	printf("gp_msgs[8] = 0x%x \r\n", gp_msgs[8]);
-	printf("gp_msgs[9] = 0x%x \r\n", gp_msgs[9]);
-	printf("gp_msgs[10] = 0x%x \r\n", gp_msgs[10]);
-	printf("gp_msgs[11] = 0x%x \r\n", gp_msgs[11]);
-	printf("gp_msgs[12] = 0x%x \r\n", gp_msgs[12]);
-	printf("gp_msgs[13] = 0x%x \r\n", gp_msgs[13]);
-	printf("gp_msgs[14] = 0x%x \r\n", gp_msgs[14]);
-	printf("gp_msgs[15] = 0x%x \r\n", gp_msgs[15]);
-#endif
-	
 	/* allocate memory for ProcessNodes pointers   */
 	processNodes = (ProcessNode **)p_end;
 	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS) * sizeof(ProcessNode *);
@@ -168,6 +141,33 @@ void memory_init(void)
 	
 	blockedReceiveQueue = (Queue *)p_end;
 	p_end += sizeof(Queue);
+
+	/* allocate memory for k_msg_queue pointers   */
+	gp_msgs = (k_msg_queue **)p_end;
+	p_end += (NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS) * sizeof(k_msg_queue *);
+
+	for ( i = 0; i < NUM_TEST_PROCS + NUM_SYS_PROCS + NUM_USER_PROCS; i++ ) {
+		gp_msgs[i] = (k_msg_queue *)p_end;
+		p_end += sizeof(k_msg_queue);
+	}
+#ifdef DEBUG_0
+	printf("gp_msgs[0] = 0x%x \r\n", gp_msgs[0]);
+	printf("gp_msgs[1] = 0x%x \r\n", gp_msgs[1]);
+	printf("gp_msgs[2] = 0x%x \r\n", gp_msgs[2]);
+	printf("gp_msgs[3] = 0x%x \r\n", gp_msgs[3]);
+	printf("gp_msgs[4] = 0x%x \r\n", gp_msgs[4]);
+	printf("gp_msgs[5] = 0x%x \r\n", gp_msgs[5]);
+	printf("gp_msgs[6] = 0x%x \r\n", gp_msgs[6]);
+	printf("gp_msgs[7] = 0x%x \r\n", gp_msgs[7]);
+	printf("gp_msgs[8] = 0x%x \r\n", gp_msgs[8]);
+	printf("gp_msgs[9] = 0x%x \r\n", gp_msgs[9]);
+	printf("gp_msgs[10] = 0x%x \r\n", gp_msgs[10]);
+	printf("gp_msgs[11] = 0x%x \r\n", gp_msgs[11]);
+	printf("gp_msgs[12] = 0x%x \r\n", gp_msgs[12]);
+	printf("gp_msgs[13] = 0x%x \r\n", gp_msgs[13]);
+	printf("gp_msgs[14] = 0x%x \r\n", gp_msgs[14]);
+	printf("gp_msgs[15] = 0x%x \r\n", gp_msgs[15]);
+#endif
 	
 	// Allocate memory for Pending Message Queue
 	pendingMessageQueue = (k_msg_queue *)p_end;

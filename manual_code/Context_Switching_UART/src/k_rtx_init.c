@@ -18,10 +18,10 @@ void k_rtx_init(void)
 	uart1_init();       // uart1, polling
 	uart0_put_string("\r");	// fix the irritating space at the start of input
 	uart1_put_string("\r");	// fix the irritating space at the start of output
-	memory_init();
-	process_init();
 	timer_init(0);
 	timer_init(1);
+	process_init();
+	memory_init();
 
 	__enable_irq();
 	
