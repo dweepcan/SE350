@@ -29,30 +29,39 @@ U8 *gp_heap_end;
           |---------------------------|
           |    Proc 2 STACK           |
           |---------------------------|<--- gp_stack
-          |                           |
-          |        HEAP  			  |
-		  |---------------------------|
+          |        ..........         |
+         -|---------------------------|<--- gp_heap_end
+        | |        ..........         |
+        | |---------------------------|
+        | |        ..........         |
+ HEAP --| |---------------------------|
+        | |       128 Byte memory     |
+        | |---------------------------|
+        | |       Memory node         |
+         -|---------------------------|<--- gp_heap_begin
+          |       Memory stack        |
+		  |---------------------------|<--- gp_heap
           |   Pending Message Queue   |
           |---------------------------|
-          |   Blocked Receive Queue   |
-		  |---------------------------|
-          |   Blocked Queue   		  |
-          |---------------------------|
-          |   Ready Queue     		  |
-          |---------------------------|
-          |       ProcessNode 2       |
-          |---------------------------|
-          |       ProcessNode 1       |
-          |---------------------------|
-          |   ProcessNodes pointers   |
-          |---------------------------|<--- processNodes
-		  |        MSG Queue 2        |
+          |        ...........        |
           |---------------------------|
           |        MSG Queue 1        |
           |---------------------------|
           |     MSG Queue pointers    |
           |---------------------------|<--- gp_msgs
-          |        PCB 2              |
+          |   Blocked Receive Queue   |
+		  |---------------------------|
+          |        Blocked Queues	  |
+          |---------------------------|
+          |        Ready Queues		  |
+          |---------------------------|
+          |       .............       |
+          |---------------------------|
+          |       ProcessNode 1       |
+          |---------------------------|
+          |   ProcessNodes pointers   |
+          |---------------------------|<--- processNodes
+          |        .............      |
           |---------------------------|
           |        PCB 1              |
           |---------------------------|
@@ -172,15 +181,7 @@ void memory_init(void)
 	// Allocate memory for Pending Message Queue
 	pendingMessageQueue = (k_msg_queue *)p_end;
 	p_end += sizeof(k_msg_queue);
-	
-	/* prepare for alloc_stack() to allocate memory for stacks */
-	
-	gp_stack = (U32 *)RAM_END_ADDR;
-	if ((U32)gp_stack & 0x04) { /* 8 bytes alignment */
-		--gp_stack; 
-	}
 
-	// OUR CODE
 	/* allocate memory for heap */
 	gp_heap = (k_stack *)p_end;
 	gp_heap->top = NULL;
@@ -202,6 +203,12 @@ void memory_init(void)
 
 	/* Save the address of the end of the heap */
 	gp_heap_end = p_end;
+
+	/* prepare for alloc_stack() to allocate memory for stacks */
+	gp_stack = (U32 *)RAM_END_ADDR;
+	if ((U32)gp_stack & 0x04) { /* 8 bytes alignment */
+		--gp_stack;
+	}
 }
 
 /**
